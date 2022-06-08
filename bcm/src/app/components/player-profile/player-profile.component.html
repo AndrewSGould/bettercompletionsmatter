@@ -1,0 +1,18 @@
+<div>
+  <label>Select your Player: </label>
+  <select #playerSelect (change)="updatePlayerProfile(playerSelect.value)">
+    <option value="0">--None--</option>
+    <option *ngFor="let player of players" value={{player.id}}>
+      {{player.name}}
+    </option>
+  </select>
+</div>
+
+<div *ngFor="let game of completedGames">
+  <h3>{{game.title}}</h3>
+  <div>Ratio: {{game.ratio}}</div>
+  <div>Time: {{game.time}}</div>
+  <div>BCM Value: {{game.value}}</div>
+</div>
+
+<button (click)="retrieveCompletedGames(playerSelect.value)">Fetch Completed Games</button>
