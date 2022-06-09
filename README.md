@@ -1,2 +1,78 @@
 # Better Completions Matter (BCM)
 Yearly Achievement Hunting Contest Management Solution
+
+## Requirements
+
+Each requirement will be tagged with [v(x)] to denote at which point the feature is planned for. For a rough idea:
+
+- [v1] Targets minimal useful functionality
+- [v2] Targets extending that functionality to being easier to use
+- [v3] Targets features to allow an end user to manage the yearly contest tasks
+- [v4] Targets features to support the monthly bonuses and end user management
+
+### Home Page
+
+- Reflect the first page on the sheet [v1-v3]
+  - Rules overview [v1]
+  - Timer for when the period ends on all pages [v2]
+  - Links to tools [v2]
+  - Links to Monthly Bonuses [v2]
+  - Link to recaps [v3]
+  - Discord link [v3]
+  - Link to previous spreadsheets [v3]
+
+### RGSC Requirements
+
+- Pull random game per users collection based on the below criteria [v1]
+  - Game must be over 1.2 ratio [v1]
+  - The highest time estimate is 100+ [v1]
+  - Only platforms Xbox 360, Xbox One, Series S/X, Windows [v1]
+  - Ignore games marked Not for Contest. [v1]
+  - Ignore games with unobtainables [v1]
+  - Ignore games with server closures [v1]
+  - Ignore games marked No Longer Owned [v1]
+  - 50 viable games minimum or it doesn't draw/returns error. [v1]
+    - return number of games needed ex 46/50? [v2]
+  - if a game has 0 completions, don't draw it [v1]
+
+### Completed Games Requirements
+
+- Scan user for all completed games for the month [v1]
+- What happens when a DLC/TU comes out? Scrape every Game Collection. compare achievement count? [v1/2]
+- If a game is under 1.2 ratio, track it but ignore it [v1]
+
+### Page for each Player
+
+- View RGSC game [v2]
+
+### Admin page
+
+- Ability to add game to bonus category per person [v4]
+- Reroll for user [v3]
+- Think about how May Genre Tower would work [v4]
+- Add/remove players [v1]
+
+### Page for each individual game
+
+- See who all has done it in the competition [v4]
+- Link it through to TA [v4]
+- Game works for 'x' bonuses [v4]
+
+### Design Notes
+
+- TA ID should be primary key for Player table?
+- Write Integration tests that ping TA to ensure scraping is working (run monthly?)
+- Potential table structure:
+  - Player
+  - Game
+  - Collection: fk to Game and Player
+  - Period: fk to Player
+- Diagnostics table that tracks processing time
+  - Include 'Last Updated' field
+- Look into filtering Game Collection by genres
+- Change Api to versioning approach (v1/profile/.., v1/collection/.., v1/game/.., v1/period/.., v1/scraper/..)
+- Ideally hit TA once a week for data
+- What other games to parse? Period Summary? Game pages?
+- Thread and throttle TA hits to prevent unintentional DoS (Akka? ProtoActor?)
+  - What time frame can I spread this out to while still being quick? 4hrs? Ideally sooner
+  
