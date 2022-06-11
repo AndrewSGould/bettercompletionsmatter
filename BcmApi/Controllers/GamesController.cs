@@ -2,7 +2,7 @@ namespace WebApi.Controllers;
 
 using System.Linq;
 using BcmApi.Context;
-using BcmApi.Models;
+using Bcm.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -16,21 +16,21 @@ public class GamesController : ControllerBase
     _context = context;
   }
 
-  [HttpGet]
-  [Route("getAll")]
-  public IActionResult GetAll()
-  {
-      var games = _context.Games?.Where(x => x.Title != null);
-      return Ok(games);
-  }
+  // [HttpGet]
+  // [Route("getAll")]
+  // public IActionResult GetAll()
+  // {
+  //     var games = _context.Games?.Where(x => x.Title != null);
+  //     return Ok(games);
+  // }
 
-  [HttpPost]
-  [Route("addCompletedGame")]
-  public IActionResult AddCompletedGame([FromBody] Game newGame) {
-    _context.Games?.Add(newGame);
+  // [HttpPost]
+  // [Route("addCompletedGame")]
+  // public IActionResult AddCompletedGame([FromBody] Game newGame) {
+  //   _context.Games?.Add(newGame);
 
-    _context.SaveChanges();
+  //   _context.SaveChanges();
 
-    return Ok();
-  }
+  //   return Ok();
+  // }
 }

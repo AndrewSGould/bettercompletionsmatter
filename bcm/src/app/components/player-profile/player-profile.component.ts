@@ -32,6 +32,7 @@ export class PlayerProfileComponent implements OnInit {
 
   retrieveCompletedGames(playerId: any) {
     this.bcmService?.retrieveCompletedGames(playerId).subscribe(data => {
+      alert('finished!');
       console.log(data);
     });
   }

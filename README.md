@@ -65,7 +65,7 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - Potential table structure:
   - Player
   - Game
-  - Collection: fk to Game and Player
+  - PlayersGame: fk to Game and Player
   - Period: fk to Player
 - Diagnostics table that tracks processing time
   - Include 'Last Updated' field
@@ -75,4 +75,5 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - What other games to parse? Period Summary? Game pages?
 - Thread and throttle TA hits to prevent unintentional DoS (Akka? ProtoActor?)
   - What time frame can I spread this out to while still being quick? 4hrs? Ideally sooner
+- In the Player table (or separate table?) track what contests the player is in
   

@@ -18,7 +18,7 @@ export class BcmService {
   }
 
   getPlayersGames(playerId: any): Observable<Game[]> {
-    return this.http.get<Game[]>(baseUrl + `players/getCompletedGames?playerId=${playerId}`);
+    return this.http.get<Game[]>(baseUrl + `players/getPlayersGames?playerId=${playerId}`);
   }
 
   retrieveCompletedGames(playerId: any): Observable<any> {
