@@ -129,13 +129,25 @@ public class ParserTests
     Assert.IsType(typeof(DateTime), parsedDate);
   }
 
-  //2020
-  //01/01/1900
   [Fact]
   public void Properly_Parses_TaDate_Yesterday() {
     var _parse = new Parser();
     //TODO: actually check if its yesterday
     DateTime? parsedDate = _parse.TaDate("Yesterday");
+    Assert.IsType(typeof(DateTime), parsedDate);
+  }
+
+  [Fact]
+  public void Properly_Parses_TaDate_MMDDYYYYString() {
+    var _parse = new Parser();
+    DateTime? parsedDate = _parse.TaDate("01/01/1900");
+    Assert.IsType(typeof(DateTime), parsedDate);
+  }
+
+  [Fact]
+  public void Properly_Parses_TaDate_4DigitString() {
+    var _parse = new Parser();
+    DateTime? parsedDate = _parse.TaDate("1900");
     Assert.IsType(typeof(DateTime), parsedDate);
   }
 

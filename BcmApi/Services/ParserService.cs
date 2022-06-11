@@ -95,6 +95,8 @@ namespace BcmApi.Services
           return Convert.ToDateTime(DateTime.Today);
         if (unparsed == "Yesterday")
           return Convert.ToDateTime(DateTime.Today.AddDays(-1));
+        if (unparsed.Count() == 4)
+          unparsed = "01/01/" + unparsed;
 
         return Convert.ToDateTime(unparsed);
       }
