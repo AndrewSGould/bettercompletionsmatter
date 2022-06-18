@@ -1,8 +1,12 @@
-# Better Completions Matter (BCM)
+# TAVIS
+
+A TrueAchievement companion application for enhanced stat analysis and community events.
+
+## Better Completions Matter (BCM)
 
 Yearly Achievement Hunting Contest Management Solution
 
-## Requirements
+### Requirements
 
 Each requirement will be tagged with [v(x)] to denote at which point the feature is planned for. For a rough idea:
 
@@ -11,7 +15,7 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - [v3] Targets features to allow an end user to manage the yearly contest tasks
 - [v4] Targets features to support the monthly bonuses and end user management
 
-### Home Page
+#### Home Page
 
 - Reflect the first page on the sheet [v1-v3]
   - Rules overview [v1]
@@ -22,7 +26,7 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
   - Discord link [v3]
   - Link to previous spreadsheets [v3]
 
-~~### RGSC Requirements~~
+~~#### RGSC Requirements~~
 
 ~~- Pull random game per users collection based on the below criteria [v1]~~
   ~~- Game must be over 1.2 ratio [v1]~~
@@ -38,30 +42,30 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 
   ~~- if a game has 0 completions, don't draw it [v1]~~
 
-### Completed Games Requirements
+#### Completed Games Requirements
 
 - Scan user for all completed games for the month [v1]
 - What happens when a DLC/TU comes out? Scrape every Game Collection. compare achievement count? [v1/2]
 - If a game is under 1.2 ratio, track it but ignore it [v1]
 
-### Page for each Player
+#### Page for each Player
 
 - View RGSC game [v2]
 
-### Admin page
+#### Admin page
 
 - Ability to add game to bonus category per person [v4]
 - Reroll for user [v3]
 - Think about how May Genre Tower would work [v4]
 - Add/remove players [v1]
 
-### Page for each individual game
+#### Page for each individual game
 
 - See who all has done it in the competition [v4]
 - Link it through to TA [v4]
 - Game works for 'x' bonuses [v4]
 
-### UHH Matchup Ideas
+#### UHH Matchup Ideas
 
 Overall goal is to generate a list of 'compatability' for every player.
 Player 1 has a xx% compatability with Player 2, a xx% compatability with Player 3, etc
@@ -69,7 +73,7 @@ Player 1 has a xx% compatability with Player 2, a xx% compatability with Player 
 - If a game is in both collections, add a point
 - After adding points for every matchup, find the highest 
 
-### Design Notes
+#### Design Notes
 
 - TA ID should be primary key for Player table?
 - Write Integration tests that ping TA to ensure scraping is working (run monthly?)
