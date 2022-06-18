@@ -4,6 +4,7 @@ namespace Bcm.Models {
   public class TA_CollectionEntry {
     public int Id {get; set;}
     public int GameId {get;set;}
+    public string? GameUrl {get;set;}
     public string? Title {get; set;}
     public Platform? Platform {get;set;}
     public int? PlayerTrueAchievement {get;set;}

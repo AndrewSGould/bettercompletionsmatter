@@ -1,4 +1,5 @@
 # Better Completions Matter (BCM)
+
 Yearly Achievement Hunting Contest Management Solution
 
 ## Requirements
@@ -21,19 +22,21 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
   - Discord link [v3]
   - Link to previous spreadsheets [v3]
 
-### RGSC Requirements
+~~### RGSC Requirements~~
 
-- Pull random game per users collection based on the below criteria [v1]
-  - Game must be over 1.2 ratio [v1]
-  - The highest time estimate is 100+ [v1]
-  - Only platforms Xbox 360, Xbox One, Series S/X, Windows [v1]
-  - Ignore games marked Not for Contest. [v1]
-  - Ignore games with unobtainables [v1]
-  - Ignore games with server closures [v1]
-  - Ignore games marked No Longer Owned [v1]
-  - 50 viable games minimum or it doesn't draw/returns error. [v1]
-    - return number of games needed ex 46/50? [v2]
-  - if a game has 0 completions, don't draw it [v1]
+~~- Pull random game per users collection based on the below criteria [v1]~~
+  ~~- Game must be over 1.2 ratio [v1]~~
+  ~~- The highest time estimate is 100+ [v1]~~
+  ~~- Ignore games marked Not for Contest. [v1]~~
+  ~~- Ignore games with unobtainables [v1]~~
+  ~~- Ignore games with server closures [v1]~~
+  ~~- Ignore games marked No Longer Owned [v1]~~
+  ~~- Only platforms Xbox 360, Xbox One, Series S/X, Windows [v1]~~
+
+  ~~- 50 viable games minimum or it doesn't draw/returns error. [v1]~~
+    ~~- return number of games needed ex 46/50? [v2]~~
+
+  ~~- if a game has 0 completions, don't draw it [v1]~~
 
 ### Completed Games Requirements
 
@@ -58,6 +61,14 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - Link it through to TA [v4]
 - Game works for 'x' bonuses [v4]
 
+### UHH Matchup Ideas
+
+Overall goal is to generate a list of 'compatability' for every player.
+Player 1 has a xx% compatability with Player 2, a xx% compatability with Player 3, etc
+
+- If a game is in both collections, add a point
+- After adding points for every matchup, find the highest 
+
 ### Design Notes
 
 - TA ID should be primary key for Player table?
@@ -76,4 +87,5 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - Thread and throttle TA hits to prevent unintentional DoS (Akka? ProtoActor?)
   - What time frame can I spread this out to while still being quick? 4hrs? Ideally sooner
 - In the Player table (or separate table?) track what contests the player is in
-  
+- Try scraping Period Summary - https://www.trueachievements.com/gamer/{gamertag}/periods/2022/05
+- Genres can be retrieved by ddlGenreIDs%3D81

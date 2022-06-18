@@ -36,4 +36,34 @@ export class PlayerProfileComponent implements OnInit {
       console.log(data);
     });
   }
+
+  generateRandomGame(playerId: any) {
+    this.bcmService?.generateBcmRandomGame(playerId).subscribe(data => {
+      console.log(data);
+    })
+  }
+
+  verifyRandomGameEligibility() {
+    this.bcmService?.verifyRandomGameEligibility().subscribe(data => {
+      console.log(data);
+    })
+  }
+
+  getFullPlayerCompatability() {
+    this.bcmService?.getFullPlayerCompatability().subscribe(data => {
+      console.log(data);
+    });
+  }
+
+  updateGameInfo() {
+    this.bcmService?.updateGameInfo().subscribe(data => {
+      console.log(data);
+    });
+  }
+
+  testGwgParse() {
+    this.bcmService?.testGwgParse().subscribe(data => {
+      console.log(data);
+    });
+  }
 }

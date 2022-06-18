@@ -247,4 +247,13 @@ public class ParserTests
     var parsedGameId = _parse.GameId(unparsedGameId);
     Assert.Equal(parsedGameId, expectedId); 
   }
+
+  [Theory]
+  [InlineData("<a href=\"/game/Absolute-Drift-Zen-Edition/achievements?gamerid=104571\" title=\"Absolute Drift: Zen Edition\">Absolute Drift: Zen Edition</a>"
+    , "/game/Absolute-Drift-Zen-Edition/")]
+  public void Properly_Parses_GameUrl(string unparsedGameUrl, string expectedUrl) {
+    var _parse = new Parser();
+    var parsedGameUrl = _parse.GameUrl(unparsedGameUrl);
+    Assert.Equal(parsedGameUrl, expectedUrl);
+  }
 }

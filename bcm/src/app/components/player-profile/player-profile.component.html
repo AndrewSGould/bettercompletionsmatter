@@ -8,10 +8,22 @@
   </select>
 </div>
 
+<button (click)="retrieveCompletedGames(playerSelect.value)">Sync All Data</button>
+<br />
+<button (click)="generateRandomGame(playerSelect.value)">Generate Random Games</button>
+<br />
+<button (click)="verifyRandomGameEligibility()">Verify Random Game Eligibility</button>
+<br />
+<button (click)="getFullPlayerCompatability()">Generate Player Compatability</button>
+<br />
+<button (click)="updateGameInfo()">Update Game Info</button>
+<br />
+<button (click)="testGwgParse()">Parse GwG</button>
+
+
 <div *ngFor="let game of completedGames">
   <h3>{{game.title}}</h3>
   <div>Ratio: {{game.ratio}}</div>
   <div>Time: {{game.time}}</div>
 </div>
 
-<button (click)="retrieveCompletedGames(playerSelect.value)">Fetch Completed Games</button>

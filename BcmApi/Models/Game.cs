@@ -3,6 +3,7 @@ namespace Bcm.Models;
 public class Game {
   public int Id {get; set;}
   public int TrueAchievementId {get;set;}
+  public string? Url {get;set;}
   public string? Title {get; set;}
   public int? TrueAchievement {get;set;}
   public int? Gamerscore {get;set;}
@@ -19,4 +20,9 @@ public class Game {
   public DateTime? ServerClosure {get;set;}
   public double? InstallSize {get;set;}
   public double? FullCompletionEstimate {get;set;}
+
+
+  public FeatureList FeatureList {get;set;}
+  public IList<GameGenre> GameGenres {get;set;}
+  public ICollection<PlayerGame> PlayerGames {get;set;}
 }

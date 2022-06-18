@@ -18,8 +18,11 @@ namespace BcmApi.Services
     bool Unobtainables(string unparsed);
     double? GameSize(string unparsed);
     double? FullCompletionEstimate(string unparsed);
+    int GameId(string unparsed);
+    string? GameUrl(string unparsed);
   }
 
+//TODO: should this instead be a collection of static classes?
 //TODO: improve performance here
   public class Parser : IParser 
   {
@@ -256,6 +259,21 @@ namespace BcmApi.Services
       catch(Exception ex) {
         Console.WriteLine($"Unable to parse FullCompletionEstimate of {unparsed}");
         throw new Exception($"Error parsing FullCompletionEstimate with {unparsed}", ex);
+      }
+    }
+
+    public string? GameUrl(string unparsed) {
+      try {
+        if (unparsed == "" || unparsed == null) return null;
+
+        var trimLeft = unparsed.Split(new string[]{"<a href=\""}, StringSplitOptions.None).Last().Trim();
+        var trimRight = trimLeft.Split(new string[]{"achievements?"}, StringSplitOptions.None).First().Trim();
+
+        return trimRight;
+      }
+      catch(Exception ex) {
+        Console.WriteLine($"Unable to parse GameUrl of {unparsed}");
+        throw new Exception($"Error parsing GameUrl with {unparsed}", ex);
       }
     }
   }

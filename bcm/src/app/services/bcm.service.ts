@@ -22,7 +22,27 @@ export class BcmService {
   }
 
   retrieveCompletedGames(playerId: any): Observable<any> {
-    return this.http.get(baseUrl + `players/retrieveCompletedGames?playerId=${playerId}`);
+    return this.http.get(baseUrl + `datasync/syncAllData`);
+  }
+
+  generateBcmRandomGame(playerId: any): Observable<any> {
+    return this.http.get(baseUrl + `bcm/getRandomGame?playerId=${playerId}`);
+  }
+
+  verifyRandomGameEligibility(): Observable<any> {
+    return this.http.get(baseUrl + `bcm/verifyRandomGameEligibility`);
+  }
+
+  getFullPlayerCompatability(): Observable<any> {
+    return this.http.get(baseUrl + `players/getFullPlayerCompatability`);
+  }
+
+  updateGameInfo(): Observable<any> {
+    return this.http.get(baseUrl + `datasync/testSyncGameInfo`);
+  }
+
+  testGwgParse(): Observable<any> {
+    return this.http.get(baseUrl + `datasync/testGwgParse`);
   }
 
   getAllGames(): Observable<Game[]> {
