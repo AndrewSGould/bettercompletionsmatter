@@ -1,8 +1,8 @@
 namespace Bcm.Models;
 
 public class Game {
-  public int Id {get; set;}
-  public int TrueAchievementId {get;set;}
+  public int Id {get; set;} = 0;
+  public int TrueAchievementId {get;set;} = 0;
   public string? Url {get;set;}
   public string? Title {get; set;}
   public int? TrueAchievement {get;set;}
@@ -22,7 +22,7 @@ public class Game {
   public double? FullCompletionEstimate {get;set;}
 
 
-  public FeatureList FeatureList {get;set;}
-  public IList<GameGenre> GameGenres {get;set;}
-  public ICollection<PlayerGame> PlayerGames {get;set;}
+  public FeatureList FeatureList {get;set;} = new FeatureList();
+  public IList<GameGenre> GameGenres {get;set;} = new List<GameGenre>();
+  public ICollection<PlayerGame> PlayerGames {get;set;} = new List<PlayerGame>();
 }

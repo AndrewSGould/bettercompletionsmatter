@@ -30,7 +30,7 @@ public class PlayersController : ControllerBase
     if (playerId == 0) return BadRequest();
 
     var completedGames = _context.Players!
-        .Join(_context.PlayerGames, player => player.Id, complGame => complGame.PlayerId, 
+        .Join(_context.PlayerGames!, player => player.Id, complGame => complGame.PlayerId, 
             (player, complGame) => new { Player = player, ComplGame = complGame})
         .Where(x => x.Player.Id == playerId)
         .Join(_context.Games!, complGame => complGame.ComplGame.GameId, game => game.Id,

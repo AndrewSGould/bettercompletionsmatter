@@ -220,7 +220,7 @@ public class DataSync : IDataSync {
   private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, Player player) {
     // lets figure out and update it if its the first time we see it in the players collection
     var newCollectionEntries = incomingData
-                                    .Where(incData => !_context.PlayerGames.Where(x => x.PlayerId == player.Id)
+                                    .Where(incData => !_context.PlayerGames!.Where(x => x.PlayerId == player.Id)
                                     .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new {pg, g})
                                     .Select(x => x.g.TrueAchievementId).Contains(incData.GameId));
 
@@ -299,8 +299,8 @@ public class DataSync : IDataSync {
     var gamesToUpdate = _context.Games!.Where(x => testingIds.Contains(x.Id));
 
     foreach(var game in gamesToUpdate) {
-      var genresToRemove = _context.GameGenres.Where(x => x.GameId == game.Id);
-      _context.GameGenres.RemoveRange(genresToRemove);
+      var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id);
+      _context.GameGenres!.RemoveRange(genresToRemove);
 
       ParseGamePage(game);
     }
@@ -331,7 +331,7 @@ public class DataSync : IDataSync {
     foreach(var genre in splitGenre) {
       var typedGenre = GenreList.FromName(genre.Trim());
       
-      _context.GameGenres.Add(new GameGenre {
+      _context.GameGenres!.Add(new GameGenre {
         GameId = game.Id,
         GenreId = typedGenre
       });
@@ -341,7 +341,7 @@ public class DataSync : IDataSync {
     var splitFeatures = features?.Split(new string[]{", "}, StringSplitOptions.None);
 
     
-    var featureListToUpdate = _context.FeatureLists.FirstOrDefault(x => x.Game.Id == game.Id);
+    var featureListToUpdate = _context.FeatureLists!.FirstOrDefault(x => x.Game.Id == game.Id);
     if (featureListToUpdate != null) {
       featureListToUpdate.BackwardsCompat = false;
       featureListToUpdate.CloudGaming = false;
@@ -440,7 +440,7 @@ public class DataSync : IDataSync {
       }
     }
 
-    _context.FeatureLists.Update(featureListToUpdate);
+    _context.FeatureLists!.Update(featureListToUpdate);
 
     stopWatch.Stop();
 
@@ -473,11 +473,11 @@ public class DataSync : IDataSync {
                             ?.Where(e => e.HasClass("game"))
                             ?.Select(x => x.InnerText);
 
-    foreach(var goldGame in gamesWithGold) {
-      var game = _context.Games.FirstOrDefault(x => x.Title == goldGame);
+    foreach(var goldGame in gamesWithGold!) {
+      var game = _context.Games!.FirstOrDefault(x => x.Title == goldGame);
 
       if (game != null) {
-        var featurelist = _context.FeatureLists.FirstOrDefault(x => x.Game == game);
+        var featurelist = _context.FeatureLists!.FirstOrDefault(x => x.Game == game);
         if (featurelist != null)
           featurelist.GamesWithGold = true;
         else {

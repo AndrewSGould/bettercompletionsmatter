@@ -23,7 +23,7 @@ public class BcmController : ControllerBase {
   public IActionResult GetRandomGame(int playerId)
   {
     var player = _context.Players!.First(x => x.Id == playerId);
-    var bcmRandomGameOptions = _context.PlayerGames
+    var bcmRandomGameOptions = _context.PlayerGames?
                     .Join(_context.Games!, pg => pg.GameId, 
                       g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
                     .Where(x => x.PlayersGames.PlayerId == playerId 
@@ -39,13 +39,13 @@ public class BcmController : ControllerBase {
                       && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!))
                     .ToList();
 
-    if (bcmRandomGameOptions.Count() < BcmRule.RandomMinimumEligibilityCount) {
+    if (bcmRandomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount) {
       return BadRequest($"{player.Name} did not have enough eligible games! " +
             $"Player needs to add {50 - bcmRandomGameOptions.Count()} more games.");
     }
     
     var rand = new Random();
-    var randomGame = bcmRandomGameOptions[rand.Next(bcmRandomGameOptions.Count())];
+    var randomGame = bcmRandomGameOptions?[rand.Next(bcmRandomGameOptions.Count())];
 
     return Ok(new {
       selectedGame = randomGame,
@@ -60,7 +60,7 @@ public class BcmController : ControllerBase {
     var players = _context.Players!.Where(x => x.Name != "zzScanMan1").ToList();
 
     foreach(var player in players) {
-      var bcmRandomGameOptions = _context.PlayerGames
+      var bcmRandomGameOptions = _context.PlayerGames?
             .Join(_context.Games!, pg => pg.GameId, 
               g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
             .Where(x => x.PlayersGames.PlayerId == player.Id
@@ -76,7 +76,7 @@ public class BcmController : ControllerBase {
               && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!))
             .ToList();
 
-      if (bcmRandomGameOptions.Count() < BcmRule.RandomMinimumEligibilityCount) {
+      if (bcmRandomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount) {
         playersIneligible.Add(new {
           Player = player.Name,
           EligibleCount = bcmRandomGameOptions.Count()

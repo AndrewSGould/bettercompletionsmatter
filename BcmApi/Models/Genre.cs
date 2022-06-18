@@ -4,5 +4,5 @@ public class Genre {
   public string? Name {get; set;}
 
 
-  public IList<GameGenre> GameGenres {get;set;}
+  public IList<GameGenre> GameGenres {get;set;} = new List<GameGenre>();
 }

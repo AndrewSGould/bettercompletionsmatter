@@ -16,12 +16,12 @@ namespace BcmApi.Context
       Configuration = configuration;
     }  
 
-    public DbSet<Game> Games { get; set; }
-    public DbSet<FeatureList> FeatureLists { get; set; }
-    public DbSet<Player> Players {get;set;}
-    public DbSet<PlayerGame> PlayerGames {get;set;}
-    public DbSet<Genre> Genres {get;set;}
-    public DbSet<GameGenre> GameGenres {get;set;}
+    public DbSet<Game>? Games { get; set; }
+    public DbSet<FeatureList>? FeatureLists { get; set; }
+    public DbSet<Player>? Players {get;set;}
+    public DbSet<PlayerGame>? PlayerGames {get;set;}
+    public DbSet<Genre>? Genres {get;set;}
+    public DbSet<GameGenre>? GameGenres {get;set;}
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -47,13 +47,13 @@ namespace BcmApi.Context
       modelBuilder.Entity<PlayerGame>()
         .Property(p => p.Ownership)
         .HasConversion(
-            p => p.Value,
+            p => p!.Value,
             p => Ownership.FromValue(p));
 
       modelBuilder.Entity<PlayerGame>()
         .Property(p => p.Platform)
         .HasConversion(
-            p => p.Value,
+            p => p!.Value,
             p => Platform.FromValue(p));
 
       modelBuilder.Entity<GameGenre>()
@@ -65,7 +65,7 @@ namespace BcmApi.Context
       modelBuilder.Entity<Genre>()
         .Property(p => p.Id)
         .HasConversion(
-            p => p.Value,
+            p => p!.Value,
             p => GenreList.FromValue(p));
     }
 

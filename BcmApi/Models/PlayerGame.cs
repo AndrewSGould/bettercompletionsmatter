@@ -12,9 +12,9 @@ public class PlayerGame {
   public bool NotForContests {get; set;} = false;
 
 
-  public int PlayerId {get;set;}
-  public Player Player {get;set;}
+  public int PlayerId {get;set;} = 0;
+  public Player Player {get;set;} = new Player();
 
-  public int GameId {get;set;}
-  public Game Game {get;set;}
+  public int GameId {get;set;} = 0;
+  public Game Game {get;set;} = new Game();
 }
