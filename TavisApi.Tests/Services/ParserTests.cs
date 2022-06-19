@@ -1,12 +1,16 @@
 using Tavis.Models;
 using TavisApi.Services;
-using Moq;
-using static TavisApi.Services.Parser;
 
 namespace TavisApi.Tests;
 
-public class ParserTests
-{    
+public class ParserTests : IDisposable
+{
+  Parser _parse;
+
+  public ParserTests() {
+    _parse = new Parser();
+  }
+
   [Theory]
   [InlineData("1,137 / 1,137", 1137)]
   [InlineData("534 / 20,021", 534)]
@@ -14,7 +18,6 @@ public class ParserTests
   [InlineData("-", null)]
   public void Properly_Parses_Users_Game_TAScore(string unparsedTaScore, int? expectedTaScore)
   {
-    var _parse = new Parser();
     int? parsedResult = _parse.PlayersGameSlashedValue(unparsedTaScore);
     Assert.Equal(expectedTaScore, parsedResult);
   }
@@ -27,7 +30,6 @@ public class ParserTests
   [InlineData("-", null)]
   public void Properly_Parses_Game_Total_TAScore(string unparsedTaScore, int? expectedTaScore)
   {
-    var _parse = new Parser();
     int? parsedResult = _parse.GameTotalSlashedValue(unparsedTaScore);
     Assert.Equal(expectedTaScore, parsedResult);
   }
@@ -57,7 +59,6 @@ public class ParserTests
     , "nintendo-switch")]
   public void Properly_Parses_Game_Platform(string unparsedPlatform, string expectedPlatform) 
   {
-    var _parse = new Parser();
     var parsedResult = _parse.GamePlatform(unparsedPlatform);
     Assert.IsType(typeof(Platform), parsedResult);
     Assert.Equal(parsedResult.Name, expectedPlatform);
@@ -69,7 +70,6 @@ public class ParserTests
   [InlineData("", false)]
   public void Properly_Parses_Game_NotForContests(string unparsedContests, bool expectedContestStatus) 
   {
-    var _parse = new Parser();
     var result = _parse.GameNotForContests(unparsedContests);
     Assert.Equal(result, expectedContestStatus);
   }
@@ -79,7 +79,6 @@ public class ParserTests
   [InlineData("260 / 3,800", 260)]
   public void Properly_Parses_Users_Game_Gamerscore(string unparsedGamerscore, int expectedGamerscore)
   {
-    var _parse = new Parser();
     int? parsedResult = _parse.PlayersGameSlashedValue(unparsedGamerscore);
     Assert.Equal(expectedGamerscore, parsedResult);
   }
@@ -90,7 +89,6 @@ public class ParserTests
   [InlineData("0 / 0", 0)]
   public void Properly_Parses_Game_Total_Gamerscore(string unparsedGamerscore, int expectedGamerscore)
   {
-    var _parse = new Parser();
     int? parsedResult = _parse.GameTotalSlashedValue(unparsedGamerscore);
     Assert.Equal(expectedGamerscore, parsedResult);
   }
@@ -99,7 +97,6 @@ public class ParserTests
   [InlineData("12 / 400", 12)]
   [InlineData("0 / 10", 0)]
   public void Properly_Parses_Users_Game_Achievements(string unparsedGamerscore, int expectedGamerscore) {
-    var _parse = new Parser();
     int? parsedResult = _parse.PlayersGameSlashedValue(unparsedGamerscore);
     Assert.Equal(expectedGamerscore, parsedResult);
   }
@@ -109,21 +106,18 @@ public class ParserTests
   [InlineData("0 / 10", 10)]
   [InlineData("0 / 0", 0)]
   public void Properly_Parses_Game_Total_Achievements(string unparsedGamerscore, int expectedGamerscore) {
-    var _parse = new Parser();
     int? parsedResult = _parse.GameTotalSlashedValue(unparsedGamerscore);
     Assert.Equal(expectedGamerscore, parsedResult);
   }
 
   [Fact]
   public void Properly_Parses_TaDate() {
-    var _parse = new Parser();
     DateTime? parsedDate = _parse.TaDate("10 Oct 14");
     Assert.IsType(typeof(DateTime), parsedDate);
   }
 
   [Fact]
   public void Properly_Parses_TaDate_Today() {
-    var _parse = new Parser();
     //TODO: actually check if its today
     DateTime? parsedDate = _parse.TaDate("Today");
     Assert.IsType(typeof(DateTime), parsedDate);
@@ -131,7 +125,6 @@ public class ParserTests
 
   [Fact]
   public void Properly_Parses_TaDate_Yesterday() {
-    var _parse = new Parser();
     //TODO: actually check if its yesterday
     DateTime? parsedDate = _parse.TaDate("Yesterday");
     Assert.IsType(typeof(DateTime), parsedDate);
@@ -139,14 +132,12 @@ public class ParserTests
 
   [Fact]
   public void Properly_Parses_TaDate_MMDDYYYYString() {
-    var _parse = new Parser();
     DateTime? parsedDate = _parse.TaDate("01/01/1900");
     Assert.IsType(typeof(DateTime), parsedDate);
   }
 
   [Fact]
   public void Properly_Parses_TaDate_4DigitString() {
-    var _parse = new Parser();
     DateTime? parsedDate = _parse.TaDate("1900");
     Assert.IsType(typeof(DateTime), parsedDate);
   }
@@ -167,7 +158,6 @@ public class ParserTests
   [InlineData("Xbox Game Pass PC", "Xbox Game Pass PC")]
   public void Properly_Parses_Game_Ownership(string unparsedOwnership, string expectedOwnership) 
   {
-    var _parse = new Parser();
     var parsedResult = _parse.GameOwnership(unparsedOwnership);
     Assert.IsType(typeof(Ownership), parsedResult);
     Assert.Equal(parsedResult.Name, expectedOwnership);
@@ -179,7 +169,6 @@ public class ParserTests
   [InlineData("13", 13)]
   [InlineData("0", 0)] 
   public void Properly_Parses_GamersCount(string unparsedGamersCount, int expectedCount) {
-    var _parse = new Parser();
     var parsedCount = _parse.GamersCount(unparsedGamersCount);
     Assert.Equal(parsedCount, expectedCount);
   }
@@ -191,7 +180,6 @@ public class ParserTests
   [InlineData("200+ hours", 200)]
   [InlineData("908-1000+ hours", 1000)]
   public void Properly_Parses_BaseGameCompletionEstimate(string unparsedBaseGameEstimate, double expectedEstimate) {
-    var _parse = new Parser();
     var parsedEstimate = _parse.BaseGameCompletionEstimate(unparsedBaseGameEstimate);
     Assert.Equal(parsedEstimate, expectedEstimate);
   }
@@ -206,7 +194,6 @@ public class ParserTests
   [InlineData("15GB", 15000)]
   [InlineData("1,016MB", 1016)]
   public void Properly_Parses_GameSize(string unparsedSize, double expectedSize) {
-    var _parse = new Parser();
     var parsedSize = _parse.GameSize(unparsedSize);
     Assert.Equal(parsedSize, expectedSize);
   }
@@ -220,7 +207,6 @@ public class ParserTests
   [InlineData("200+h", 200)]
   [InlineData("908-1000+h", 1000)]
   public void Properly_Parses_FullCompletionEstimate(string unparsedEstimate, double expectedEstimate) {
-    var _parse = new Parser();
     var parsedEstimate = _parse.FullCompletionEstimate(unparsedEstimate);
     Assert.Equal(parsedEstimate, expectedEstimate);
   }
@@ -234,7 +220,6 @@ public class ParserTests
     , true)]
   [InlineData("", false)]
   public void Properly_Parses_U_D_PDUs(string unparsedUnobtainables, bool expected) {
-    var _parse = new Parser();
     var hasUnobtainables = _parse.Unobtainables(unparsedUnobtainables);
     Assert.Equal(hasUnobtainables, expected);
   }
@@ -243,7 +228,6 @@ public class ParserTests
   [InlineData("<td id=\"tdPlatform_6589\"><img src=\"/images/platforms/xbox-series-x-s.png\" alt=\"xbox-series-x-s\" title=\"xbox-series-x-s\" width=\"43\" height=\"24\" loading=\"lazy\"></td>"
     , 6589)]
   public void Properly_Parses_GameId(string unparsedGameId, int expectedId) {
-    var _parse = new Parser();
     var parsedGameId = _parse.GameId(unparsedGameId);
     Assert.Equal(parsedGameId, expectedId); 
   }
@@ -252,8 +236,11 @@ public class ParserTests
   [InlineData("<a href=\"/game/Absolute-Drift-Zen-Edition/achievements?gamerid=104571\" title=\"Absolute Drift: Zen Edition\">Absolute Drift: Zen Edition</a>"
     , "/game/Absolute-Drift-Zen-Edition/")]
   public void Properly_Parses_GameUrl(string unparsedGameUrl, string expectedUrl) {
-    var _parse = new Parser();
     var parsedGameUrl = _parse.GameUrl(unparsedGameUrl);
     Assert.Equal(parsedGameUrl, expectedUrl);
+  }
+
+  public void Dispose() {
+
   }
 }

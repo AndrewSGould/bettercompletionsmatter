@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PlayerProfileComponent } from './player-profile.component';
 
 describe('PlayerProfileComponent', () => {
@@ -8,7 +8,8 @@ describe('PlayerProfileComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PlayerProfileComponent ]
+      declarations: [ PlayerProfileComponent ],
+      imports: [HttpClientTestingModule]
     })
     .compileComponents();
   });
