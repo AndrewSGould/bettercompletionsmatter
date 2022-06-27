@@ -74,7 +74,7 @@ public class PlayersController : ControllerBase
           InitialPlayer = startingPlayer,
           ComparedPlayer = comparingPlayer,
           Compatability = compatability,
-          Commonalities = commonalities
+          //Commonalities = commonalities //TODO: fix this
         });
 
         fullCompatResults = fullCompatResults.OrderBy(x => x.Compatability).ToList();

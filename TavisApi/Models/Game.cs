@@ -22,7 +22,7 @@ public class Game {
   public double? FullCompletionEstimate {get;set;}
 
 
-  public FeatureList FeatureList {get;set;} = new FeatureList();
-  public IList<GameGenre> GameGenres {get;set;} = new List<GameGenre>();
-  public ICollection<PlayerGame> PlayerGames {get;set;} = new List<PlayerGame>();
+  public FeatureList? FeatureList {get;set;}
+  public IList<GameGenre>? GameGenres {get;set;}
+  public ICollection<PlayerGame>? PlayerGames {get;set;}
 }

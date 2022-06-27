@@ -3,7 +3,7 @@ using Tavis.Models;
 
 namespace TavisApi.ContestRules;
 
-public class TavisRule {
+public class BcmRule {
   public const double MinimumRatio = 1.2;
   public const int RandomMaxEstimate = 100;
   public const int RandomMinimumEligibilityCount = 50;

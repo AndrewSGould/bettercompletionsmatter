@@ -5,6 +5,7 @@ using TavisApi.Context;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 using static TavisApi.Services.DataSync;
+using System.Linq;
 
 namespace TavisApi.Services;
 
@@ -186,7 +187,7 @@ public class DataSync : IDataSync {
   }
 
   private void SaveNewlyDetectedGames(List<TA_CollectionEntry> incomingData, List<int> taGameIdList) {
-    var unknownGames = incomingData.Where(incData => !taGameIdList.Contains(incData.GameId));
+    var unknownGames = incomingData.Where(incData => !taGameIdList.Contains(incData.GameId)).ToList();
 
     foreach(var game in unknownGames) {
       var newGame = new Game {

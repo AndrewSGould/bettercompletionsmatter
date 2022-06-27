@@ -27,15 +27,20 @@ public class DataSyncController : ControllerBase {
     stopWatch.Start();
     // ScanMan is an alt account that was autoadding all games to collection
     // useful for benchmarking, has over 7,000 games on the profile 
-    var players = _context.Players!.Where(x => x.Name != "zzScanMan1").ToList();
+    var players = _context.Players!.Where(x => x.IsActive).ToList();
+
+    Console.WriteLine($"Beginning data sync with {players.Count()} player(s) at {DateTime.Now}");
 
     var results = new List<TaParseResult>();
 
     foreach(var player in players) {
       var parsedPlayer = _dataSync.ParseTa(player.Id);
       results.Add(parsedPlayer);
+      player.LastSync = DateTime.Now;
       Console.WriteLine($"Player {player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
     }
+
+    _context.SaveChanges();
 
     var totalHits = 0;
     TimeSpan totalTimeHittingTa = new TimeSpan();
@@ -55,6 +60,8 @@ public class DataSyncController : ControllerBase {
     string totalTaHitTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
         totalTimeHittingTa.Hours, totalTimeHittingTa.Minutes, totalTimeHittingTa.Seconds,
         totalTimeHittingTa.Milliseconds / 10);
+
+    Console.WriteLine($"Completed data sync at {DateTime.Now}");
 
     return Ok(new {
       OverallTime = elapsedTime,

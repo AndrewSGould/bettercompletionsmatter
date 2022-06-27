@@ -21,6 +21,6 @@ public class FeatureList {
   public bool TransferableProgress {get;set;} = false;
 
 
-  public int FeatureListOfGameId { get; set; } = 0;
-  public Game Game { get; set; } = new Game();
+  public int? FeatureListOfGameId { get; set; }
+  public Game? Game { get; set; }
 }

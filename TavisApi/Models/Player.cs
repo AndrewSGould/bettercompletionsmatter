@@ -6,8 +6,8 @@ namespace Tavis.Models {
     public string? Region {get;set;}
     public string? Area {get;set;}
     public bool IsActive {get;set;} = false;
+    public DateTime? LastSync {get;set;}
 
-
-    public ICollection<PlayerGame> PlayerGames {get;set;} = new List<PlayerGame>();
+    public ICollection<PlayerGame>? PlayerGames {get;set;}
   }
 }
