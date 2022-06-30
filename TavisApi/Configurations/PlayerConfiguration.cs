@@ -1257,7 +1257,153 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Region = "United States",
         Area = "Maryland",
         IsActive = true
+      },
+      new Player {
+        Id = 157,
+        TrueAchievementId = 408827,
+        Name = "xI The Rock Ix",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 158,
+        TrueAchievementId = 85256,
+        Name = "tatersoup19",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 159,
+        TrueAchievementId = 347191,
+        Name = "nightw0lf",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 160,
+        TrueAchievementId = 1725,
+        Name = "N龱T廾 T廾A G龱D",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 161,
+        TrueAchievementId = 702307,
+        Name = "emz fergi",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 162,
+        TrueAchievementId = 262143,
+        Name = "Inigomontoya80",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 163,
+        TrueAchievementId = 597081,
+        Name = "PRTM CLUESCROL",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 164,
+        TrueAchievementId = 48289,
+        Name = "AZ Mongoose",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 165,
+        TrueAchievementId = 76517,
+        Name = "VulgarLatin",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 166,
+        TrueAchievementId = 643897,
+        Name = "TobyLinn",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 167,
+        TrueAchievementId = 52223,
+        Name = "Jblacq",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 168,
+        TrueAchievementId = 370170,
+        Name = "Enigma Gamer 77",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 169,
+        TrueAchievementId = 318602,
+        Name = "Xpovos",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 170,
+        TrueAchievementId = 409281,
+        Name = "Shadow",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 171,
+        TrueAchievementId = 276943,
+        Name = "Ahayzo",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 172,
+        TrueAchievementId = 364130,
+        Name = "Darklord Davis",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 173,
+        TrueAchievementId = 97393,
+        Name = "logicslayer",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 174,
+        TrueAchievementId = 723406,
+        Name = "HyRoad V2",
+        Region = null,
+        Area = null,
+        IsActive = true
       }
     );
   }
 }
+
+// freaky, hyroad, paul, hawkeye, its alive

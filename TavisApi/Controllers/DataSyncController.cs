@@ -34,8 +34,7 @@ public class DataSyncController : ControllerBase {
 
     var results = new List<TaParseResult>();
     var gcOptions = new TA_GC_Options {
-      CompletionStatus = TAGC_CompletionStatus.Complete,
-      DateCutoff = new DateTime(2022, 6, 1)
+      CompletionStatus = TAGC_CompletionStatus.Complete
     };
 
     foreach(var player in players) {
@@ -83,13 +82,23 @@ public class DataSyncController : ControllerBase {
   [HttpGet]
   [Route("testSyncGameInfo")]
   public IActionResult SyncGameInfo() {
+    Stopwatch stopWatch = new Stopwatch();
+    stopWatch.Start();
+    Console.WriteLine($"Beginning game sync with at {DateTime.Now}");
     //accept a list of game ids to update
     //loop over the game ids and get the URL from DB
     //parse out the game information
     //save to DB
     _dataSync.ParseGamePages(new List<int>());
+    Console.WriteLine($"Games have been sync'd, finished at {DateTime.Now}");
+    stopWatch.Stop();
 
-    return Ok();
+    TimeSpan ts = stopWatch.Elapsed;
+
+    string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+        ts.Hours, ts.Minutes, ts.Seconds,
+        ts.Milliseconds / 10);
+    return Ok(elapsedTime);
   }
 
   [HttpGet]

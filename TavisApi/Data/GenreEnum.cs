@@ -29,7 +29,7 @@ public sealed class GenreList : SmartEnum<GenreList> {
   public static readonly GenreList Bull = new GenreList(23, "Bull Sports");
   public static readonly GenreList CardAndBoard = new GenreList(24, "Card & Board");
   public static readonly GenreList Casino = new GenreList(25, "Casino");
-  public static readonly GenreList CCG = new GenreList(26, "Collectible Card Game");
+  public static readonly GenreList CCG = new GenreList(26, "Collectable Card Game");
   public static readonly GenreList Collection = new GenreList(27, "Collection");
   public static readonly GenreList Adventure = new GenreList(28, "Adventure");
   public static readonly GenreList PointAndClick = new GenreList(29, "Point & Click");

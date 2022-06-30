@@ -268,18 +268,24 @@ public class DataSync : IDataSync {
   }
 
   public void ParseGamePages(List<int> gamesToUpdateIds) {
-    //TODO: long term lets not hardcode ids mmkay
-    var testingIds = new List<int>();
-    testingIds.Add(1); testingIds.Add(2); testingIds.Add(3);
-    testingIds.Add(4); testingIds.Add(5); testingIds.Add(6);
-   
-    var gamesToUpdate = _context.Games!.Where(x => testingIds.Contains(x.Id));
 
+    var gamesToUpdate = _context.Games!.Where(x => x.PlayerGames!.Where(y => y.CompletionDate != null).Any());
+    Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.Now}");
+
+    var i = 0;
     foreach(var game in gamesToUpdate) {
       var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id);
       _context.GameGenres!.RemoveRange(genresToRemove);
 
-      ParseGamePage(game);
+      try {
+        ParseGamePage(game);  
+      }
+      catch(Exception ex) {
+        Console.WriteLine($"COULD NOT PARSE {game.Title} - {ex}");
+      }
+      
+      Thread.Sleep(2000);
+      Console.WriteLine($"Finished parsing {game.Title}, {i++} out of {gamesToUpdate.Count()}");
     }
 
     _context.SaveChanges();
