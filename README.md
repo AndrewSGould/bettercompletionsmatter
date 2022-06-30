@@ -44,7 +44,7 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 
 #### Completed Games Requirements
 
-- Scan user for all completed games for the month [v1]
+~~- Scan user for all completed games for the month [v1]~~
 - What happens when a DLC/TU comes out? Scrape every Game Collection. compare achievement count? [v1/2]
 - If a game is under 1.2 ratio, track it but ignore it [v1]
 
@@ -67,29 +67,21 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 
 #### UHH Matchup Ideas
 
-Overall goal is to generate a list of 'compatability' for every player.
-Player 1 has a xx% compatability with Player 2, a xx% compatability with Player 3, etc
+~~Overall goal is to generate a list of 'compatability' for every player.~~
+~~Player 1 has a xx% compatability with Player 2, a xx% compatability with Player 3, etc~~
 
-- If a game is in both collections, add a point
-- After adding points for every matchup, find the highest 
+~~- If a game is in both collections, add a point~~
+~~- After adding points for every matchup, find the highest~~
 
 #### Design Notes
 
 - TA ID should be primary key for Player table?
 - Write Integration tests that ping TA to ensure scraping is working (run monthly?)
-- Potential table structure:
-  - Player
-  - Game
-  - PlayersGame: fk to Game and Player
-  - Period: fk to Player
 - Diagnostics table that tracks processing time
   - Include 'Last Updated' field
-- Look into filtering Game Collection by genres
 - Change Api to versioning approach (v1/profile/.., v1/collection/.., v1/game/.., v1/period/.., v1/scraper/..)
-- Ideally hit TA once a week for data
 - What other games to parse? Period Summary? Game pages?
 - Thread and throttle TA hits to prevent unintentional DoS (Akka? ProtoActor?)
   - What time frame can I spread this out to while still being quick? 4hrs? Ideally sooner
 - In the Player table (or separate table?) track what contests the player is in
 - Try scraping Period Summary - https://www.trueachievements.com/gamer/{gamertag}/periods/2022/05
-- Genres can be retrieved by ddlGenreIDs%3D81
