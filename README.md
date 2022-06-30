@@ -85,3 +85,4 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
   - What time frame can I spread this out to while still being quick? 4hrs? Ideally sooner
 - In the Player table (or separate table?) track what contests the player is in
 - Try scraping Period Summary - https://www.trueachievements.com/gamer/{gamertag}/periods/2022/05
+- Ability to schedule syncs
