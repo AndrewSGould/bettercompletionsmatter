@@ -131,6 +131,13 @@ public class ParserTests : IDisposable
   }
 
   [Fact]
+  public void Properly_Parses_TaDate_Tomorrow() {
+    //TODO: actually check if its tomorrow
+    DateTime? parsedDate = _parse.TaDate("Tomorrow");
+    Assert.IsType(typeof(DateTime), parsedDate);
+  }
+
+  [Fact]
   public void Properly_Parses_TaDate_MMDDYYYYString() {
     DateTime? parsedDate = _parse.TaDate("01/01/1900");
     Assert.IsType(typeof(DateTime), parsedDate);
