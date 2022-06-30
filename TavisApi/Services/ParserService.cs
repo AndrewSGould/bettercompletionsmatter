@@ -277,4 +277,10 @@ namespace TavisApi.Services
       }
     }
   }
+
+  public enum ParserFlow {
+    Full,
+    CompletedGames,
+    CurrentMonth
+  }
 }

@@ -5,6 +5,7 @@ using TavisApi.Context;
 using TavisApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using static TavisApi.Services.DataSync;
+using static TavisApi.Services.TA_GameCollection;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -32,9 +33,13 @@ public class DataSyncController : ControllerBase {
     Console.WriteLine($"Beginning data sync with {players.Count()} player(s) at {DateTime.Now}");
 
     var results = new List<TaParseResult>();
+    var gcOptions = new TA_GC_Options {
+      CompletionStatus = TAGC_CompletionStatus.Complete,
+      DateCutoff = new DateTime(2022, 6, 1)
+    };
 
     foreach(var player in players) {
-      var parsedPlayer = _dataSync.ParseTa(player.Id);
+      var parsedPlayer = _dataSync.ParseTa(player.Id, gcOptions);
       results.Add(parsedPlayer);
       player.LastSync = DateTime.Now;
       Console.WriteLine($"Player {player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");

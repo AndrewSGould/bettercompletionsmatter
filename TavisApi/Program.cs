@@ -20,7 +20,7 @@ builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSetting
 //TODO: lets pull out the interface hookups
 builder.Services.AddScoped<IParser, Parser>();
 builder.Services.AddScoped<IDataSync, DataSync>();
-
+builder.Services.AddScoped<ITA_GameCollection, TA_GameCollection>();
 
 var app = builder.Build();
 
