@@ -343,6 +343,30 @@ public class GenreConfiguration : IEntityTypeConfiguration<Genre>
       new Genre {
         Id = GenreList.TurnBased,
         Name = GenreList.TurnBased.Name
+      },
+      new Genre {
+        Id = GenreList.Swimming,
+        Name = GenreList.Swimming.Name
+      },
+      new Genre {
+        Id = GenreList.Surfing,
+        Name = GenreList.Surfing.Name
+      },
+      new Genre {
+        Id = GenreList.Badminton,
+        Name = GenreList.Badminton.Name
+      },
+      new Genre {
+        Id = GenreList.TableTennis,
+        Name = GenreList.TableTennis.Name
+      },
+      new Genre {
+        Id = GenreList.Skating,
+        Name = GenreList.Skating.Name
+      },
+      new Genre {
+        Id = GenreList.Lacrosse,
+        Name = GenreList.Lacrosse.Name
       }
     );
   }

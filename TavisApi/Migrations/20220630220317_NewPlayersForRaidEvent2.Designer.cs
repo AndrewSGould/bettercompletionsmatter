@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TavisApi.Context;
 
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20220630220317_NewPlayersForRaidEvent2")]
+    partial class NewPlayersForRaidEvent2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -600,36 +602,6 @@ namespace TavisApi.Migrations
                         {
                             Id = 82,
                             Name = "Turn Based"
-                        },
-                        new
-                        {
-                            Id = 83,
-                            Name = "Swimming"
-                        },
-                        new
-                        {
-                            Id = 84,
-                            Name = "Surfing"
-                        },
-                        new
-                        {
-                            Id = 85,
-                            Name = "Badminton"
-                        },
-                        new
-                        {
-                            Id = 86,
-                            Name = "Table Tennis"
-                        },
-                        new
-                        {
-                            Id = 87,
-                            Name = "Skating"
-                        },
-                        new
-                        {
-                            Id = 88,
-                            Name = "Lacrosse"
                         });
                 });
 
@@ -2092,7 +2064,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 165,
                             IsActive = true,
-                            Name = "Vulgar Latin",
+                            Name = "VulgarLatin",
                             TrueAchievementId = 76517
                         },
                         new

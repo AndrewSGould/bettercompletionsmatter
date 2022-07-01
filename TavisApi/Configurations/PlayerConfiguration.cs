@@ -1325,7 +1325,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
       new Player {
         Id = 165,
         TrueAchievementId = 76517,
-        Name = "VulgarLatin",
+        Name = "Vulgar Latin",
         Region = null,
         Area = null,
         IsActive = true
@@ -1405,5 +1405,3 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
     );
   }
 }
-
-// freaky, hyroad, paul, hawkeye, its alive

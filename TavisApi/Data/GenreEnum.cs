@@ -86,6 +86,12 @@ public sealed class GenreList : SmartEnum<GenreList> {
   public static readonly GenreList Volleyball = new GenreList(80, "Volleyball");
   public static readonly GenreList Wrestling = new GenreList(81, "Wrestling");
   public static readonly GenreList TurnBased = new GenreList(82, "Turn Based");
+  public static readonly GenreList Swimming = new GenreList(83, "Swimming");
+  public static readonly GenreList Surfing = new GenreList(84, "Surfing");
+  public static readonly GenreList Badminton = new GenreList(85, "Badminton");
+  public static readonly GenreList TableTennis = new GenreList(86, "Table Tennis");
+  public static readonly GenreList Skating = new GenreList(87, "Skating");
+  public static readonly GenreList Lacrosse = new GenreList(88, "Lacrosse");
 
   private GenreList(int id, string name) : base(name, id)
   {

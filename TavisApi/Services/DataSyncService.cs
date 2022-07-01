@@ -269,7 +269,13 @@ public class DataSync : IDataSync {
 
   public void ParseGamePages(List<int> gamesToUpdateIds) {
 
-    var gamesToUpdate = _context.Games!.Where(x => x.PlayerGames!.Where(y => y.CompletionDate != null).Any());
+    var parseList = new List<int>{
+      9579,11035,11455,11669,12072,12483,12700,12873,12874,12875,12876,12877,12878,12879,12880,12881,12882,
+      12883,12884,12885,12886,12887,12888,12889,12890,12891,12892,12893,12894,12895,12896,12897,12898,12899,12900,
+      12901,12902,12903,12904,12905,12906,12907
+    };
+
+    var gamesToUpdate = _context.Games!.Where(x => parseList.Contains(x.Id));
     Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.Now}");
 
     var i = 0;
