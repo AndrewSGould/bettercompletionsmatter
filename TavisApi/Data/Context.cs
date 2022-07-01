@@ -16,12 +16,14 @@ namespace TavisApi.Context
       Configuration = configuration;
     }  
 
-    public DbSet<Game>? Games { get; set; }
-    public DbSet<FeatureList>? FeatureLists { get; set; }
+    public DbSet<Game>? Games {get; set;}
+    public DbSet<FeatureList>? FeatureLists {get; set;}
     public DbSet<Player>? Players {get;set;}
     public DbSet<PlayerGame>? PlayerGames {get;set;}
     public DbSet<Genre>? Genres {get;set;}
     public DbSet<GameGenre>? GameGenres {get;set;}
+    public DbSet<Contest>? Contests {get;set;}
+    public DbSet<PlayerContest>? PlayerContests {get;set;}
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,6 +45,8 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new GameConfiguration());
       modelBuilder.ApplyConfiguration(new PlayerGameConfiguration());
       modelBuilder.ApplyConfiguration(new GameGenreConfiguration());
+      modelBuilder.ApplyConfiguration(new ContestConfiguration());
+      modelBuilder.ApplyConfiguration(new PlayerContestConfiguration());
     }
   }
 }

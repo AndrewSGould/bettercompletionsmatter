@@ -9,5 +9,6 @@ namespace Tavis.Models {
     public DateTime? LastSync {get;set;}
 
     public ICollection<PlayerGame>? PlayerGames {get;set;}
+    public ICollection<PlayerContest>? PlayerContests { get; set; }
   }
 }

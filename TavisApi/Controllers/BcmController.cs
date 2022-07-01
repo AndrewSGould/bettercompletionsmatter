@@ -6,16 +6,34 @@ using TavisApi.ContestRules;
 using TavisApi.Context;
 using TavisApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using static TavisApi.Services.TA_GameCollection;
 
 [ApiController]
 [Route("api/[controller]")]
 public class TavisController : ControllerBase {
   private TavisContext _context;
   private readonly IParser _parser;
+  private readonly IDataSync _dataSync;
 
-  public TavisController(TavisContext context, IParser parser) {
+  public TavisController(TavisContext context, IParser parser, IDataSync dataSync) {
     _context = context;
     _parser = parser;
+    _dataSync = dataSync;
+  }
+
+  [HttpGet]
+  [Route("ta_sync")]
+  public IActionResult Sync()
+  {
+    var raidBossPlayers = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
+    var players = _context.Players!.Where(x => x.IsActive && raidBossPlayers.Contains(x.Id)).ToList();
+
+    var gcOptions = new TA_GC_Options { //TODO: change this to SyncOptions
+      CompletionStatus = TAGC_CompletionStatus.Complete,
+      DateCutoff = new DateTime(2021, 1, 1)
+    };
+
+    return Ok(_dataSync.DynamicSync(players, gcOptions));
   }
 
   [HttpGet]

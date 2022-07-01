@@ -11,6 +11,7 @@ using static TavisApi.Services.TA_GameCollection;
 namespace TavisApi.Services;
 
 public interface IDataSync {
+  object DynamicSync(List<Player> players, TA_GC_Options syncOptions);
   TaParseResult ParseTa(int playerId, TA_GC_Options gcOptions);
   void ParseGamePages(List<int> gamesToUpdateIds);
   void ParseGamesWithGold(ref int page);
@@ -21,11 +22,59 @@ public class DataSync : IDataSync {
   private TavisContext _context;
   private readonly IParser _parser;
   private readonly ITA_GameCollection _taGameCollection;
+  private readonly IDataSync _dataSync;
 
-  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection) {
+  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection, IDataSync dataSync) {
     _context = context;
     _parser = parser;
     _taGameCollection = taGameCollection;
+    _dataSync = dataSync;
+  }
+
+  public object DynamicSync(List<Player> players, TA_GC_Options syncOptions) {
+    Stopwatch stopWatch = new Stopwatch();
+    stopWatch.Start();
+
+    Console.WriteLine($"Beginning raid boss sync with {players.Count()} player(s) at {DateTime.Now}");
+
+    var results = new List<TaParseResult>();
+
+    foreach(var player in players) {
+      var parsedPlayer = _dataSync.ParseTa(player.Id, syncOptions);
+      results.Add(parsedPlayer);
+      player.LastSync = DateTime.Now;
+      Console.WriteLine($"Player {player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
+    }
+
+    _context.SaveChanges();
+
+    var totalHits = 0;
+    TimeSpan totalTimeHittingTa = new TimeSpan();
+    foreach (var result in results) {
+      totalHits = totalHits + result.TaHits;
+      totalTimeHittingTa = totalTimeHittingTa.Add(result.TimeHittingTa);
+    }
+
+    stopWatch.Stop();
+
+    TimeSpan ts = stopWatch.Elapsed;
+
+    string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+        ts.Hours, ts.Minutes, ts.Seconds,
+        ts.Milliseconds / 10);
+
+    string totalTaHitTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+        totalTimeHittingTa.Hours, totalTimeHittingTa.Minutes, totalTimeHittingTa.Seconds,
+        totalTimeHittingTa.Milliseconds / 10);
+
+    Console.WriteLine($"Completed raid boss sync at {DateTime.Now}");
+
+    return new {
+      OverallTime = elapsedTime,
+      TotalTaHits = totalHits,
+      TotalTimeHittingTa = totalTaHitTime,
+      PerPlayerTime = results
+    };
   }
 
   public TaParseResult ParseTa(int playerId, TA_GC_Options gcOptions) {
