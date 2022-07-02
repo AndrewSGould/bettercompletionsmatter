@@ -26,12 +26,15 @@ public class TA_GameCollection : ITA_GameCollection {
     if (gcOptions.ContestStatus == null)
       gcOptions.ContestStatus = TAGC_ContestStatus.All;
 
+    if (gcOptions.TimeZone == null)
+      gcOptions.TimeZone = "Eastern%20Standard%20Time";
+
     return gcOptions;
   }
 
   private string DynamicParse(int playerTrueAchId, int page, TA_GC_Options gameCollectionOptions) {
     return "https://www.trueachievements.com/gamecollection?executeformfunction&function=AjaxList&params=oGameCollection%7Co" +
-      "GameCollection_TimeZone=Eastern%20Standard%20Time" +
+      $"GameCollection_TimeZone={gameCollectionOptions.TimeZone}" +
       $"%26txtGamerID%3D{playerTrueAchId}" +
       "%26ddlSortBy%3DTitlename" +
       "%26ddlDLCInclusionSetting%3DAllDLC" +
@@ -75,6 +78,9 @@ public class TA_GameCollection : ITA_GameCollection {
     public TAGC_CompletionStatus? CompletionStatus {get; set;}
     public TAGC_ContestStatus? ContestStatus {get; set;}
     public DateTime? DateCutoff {get;set;}
+
+    //TODO: change to enum
+    public string? TimeZone {get;set;}
   }
 
   public class TAGC_CompletionStatus {

@@ -22,13 +22,11 @@ public class DataSync : IDataSync {
   private TavisContext _context;
   private readonly IParser _parser;
   private readonly ITA_GameCollection _taGameCollection;
-  private readonly IDataSync _dataSync;
 
-  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection, IDataSync dataSync) {
+  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection) {
     _context = context;
     _parser = parser;
     _taGameCollection = taGameCollection;
-    _dataSync = dataSync;
   }
 
   public object DynamicSync(List<Player> players, TA_GC_Options syncOptions) {
@@ -40,7 +38,7 @@ public class DataSync : IDataSync {
     var results = new List<TaParseResult>();
 
     foreach(var player in players) {
-      var parsedPlayer = _dataSync.ParseTa(player.Id, syncOptions);
+      var parsedPlayer = ParseTa(player.Id, syncOptions);
       results.Add(parsedPlayer);
       player.LastSync = DateTime.Now;
       Console.WriteLine($"Player {player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
@@ -317,12 +315,8 @@ public class DataSync : IDataSync {
   }
 
   public void ParseGamePages(List<int> gamesToUpdateIds) {
-
-    var parseList = new List<int>{
-      9579,11035,11455,11669,12072,12483,12700,12873,12874,12875,12876,12877,12878,12879,12880,12881,12882,
-      12883,12884,12885,12886,12887,12888,12889,12890,12891,12892,12893,12894,12895,12896,12897,12898,12899,12900,
-      12901,12902,12903,12904,12905,12906,12907
-    };
+    var fls = _context.FeatureLists!.Select(x => x.FeatureListOfGameId);
+    var parseList = _context.Games!.Where(x => !fls.Contains(x.Id)).Select(x => x.Id);
 
     var gamesToUpdate = _context.Games!.Where(x => parseList.Contains(x.Id));
     Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.Now}");

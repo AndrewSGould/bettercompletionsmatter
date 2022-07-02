@@ -8,6 +8,7 @@ public class ContestConfiguration : IEntityTypeConfiguration<Contest>
 {
   public void Configure(EntityTypeBuilder<Contest> builder)
   {
+    //TODO: change this to smart enum
     builder.HasData
     (
       new Contest {

@@ -66,4 +66,16 @@ export class PlayerProfileComponent implements OnInit {
       console.log(data);
     });
   }
+
+  raidBossSync() {
+    this.tavisService?.raidBossSync().subscribe(data => {
+      console.log(data);
+    }); 
+  }
+
+  calculateDamage() {
+    this.tavisService?.calculateDamage().subscribe(data => {
+      console.log(data);
+    }); 
+  }
 }

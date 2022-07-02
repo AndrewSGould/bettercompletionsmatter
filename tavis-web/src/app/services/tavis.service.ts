@@ -45,6 +45,14 @@ export class TavisService {
     return this.http.get(baseUrl + `datasync/testGwgParse`);
   }
 
+  raidBossSync(): Observable<any> {
+    return this.http.get(baseUrl + `raidboss/ta_sync`)
+  }
+
+  calculateDamage(): Observable<any> {
+    return this.http.get(baseUrl + `raidboss/calculateDamage`);
+  }
+
   getAllGames(): Observable<Game[]> {
     return this.http.get<Game[]>(baseUrl + 'games/getAll');
   }

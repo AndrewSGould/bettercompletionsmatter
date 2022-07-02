@@ -1401,6 +1401,14 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Region = null,
         Area = null,
         IsActive = true
+      },
+      new Player {
+        Id = 175,
+        TrueAchievementId = 257340,
+        Name = "GT3OptionFan",
+        Region = null,
+        Area = null,
+        IsActive = true
       }
     );
   }
