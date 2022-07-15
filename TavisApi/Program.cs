@@ -22,6 +22,7 @@ builder.Services.AddScoped<IParser, Parser>();
 builder.Services.AddScoped<IDataSync, DataSync>();
 builder.Services.AddScoped<ITA_GameCollection, TA_GameCollection>();
 builder.Services.AddScoped<IRaidBossService, RaidBossService>();
+builder.Services.AddScoped<IBcmService, BcmService>();
 
 var app = builder.Build();
 

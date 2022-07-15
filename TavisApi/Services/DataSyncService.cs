@@ -5,20 +5,11 @@ using TavisApi.Context;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 using static TavisApi.Services.DataSync;
-using System.Linq;
 using static TavisApi.Services.TA_GameCollection;
 
 namespace TavisApi.Services;
 
-public interface IDataSync {
-  object DynamicSync(List<Player> players, TA_GC_Options syncOptions);
-  TaParseResult ParseTa(int playerId, TA_GC_Options gcOptions);
-  void ParseGamePages(List<int> gamesToUpdateIds);
-  void ParseGamesWithGold(ref int page);
-}
-
 public class DataSync : IDataSync {
-
   private TavisContext _context;
   private readonly IParser _parser;
   private readonly ITA_GameCollection _taGameCollection;
@@ -29,11 +20,9 @@ public class DataSync : IDataSync {
     _taGameCollection = taGameCollection;
   }
 
-  public object DynamicSync(List<Player> players, TA_GC_Options syncOptions) {
+  public object DynamicSync(List<Player> players, SyncOptions syncOptions) {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
-
-    Console.WriteLine($"Beginning raid boss sync with {players.Count()} player(s) at {DateTime.Now}");
 
     var results = new List<TaParseResult>();
 
@@ -41,7 +30,6 @@ public class DataSync : IDataSync {
       var parsedPlayer = ParseTa(player.Id, syncOptions);
       results.Add(parsedPlayer);
       player.LastSync = DateTime.Now;
-      Console.WriteLine($"Player {player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
     }
 
     _context.SaveChanges();
@@ -65,8 +53,6 @@ public class DataSync : IDataSync {
         totalTimeHittingTa.Hours, totalTimeHittingTa.Minutes, totalTimeHittingTa.Seconds,
         totalTimeHittingTa.Milliseconds / 10);
 
-    Console.WriteLine($"Completed raid boss sync at {DateTime.Now}");
-
     return new {
       OverallTime = elapsedTime,
       TotalTaHits = totalHits,
@@ -75,10 +61,10 @@ public class DataSync : IDataSync {
     };
   }
 
-  public TaParseResult ParseTa(int playerId, TA_GC_Options gcOptions) {
+  public TaParseResult ParseTa(int playerId, SyncOptions gcOptions) {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
-    var player = _context.Players!.Where(x => x.Id == Convert.ToInt32(playerId)).First();
+    var player = _context.Players!.Where(x => x.Id == playerId).First();
 
     List<List<CollectionSplit>> entireGameList = new List<List<CollectionSplit>>();
     var page = 1;
@@ -113,7 +99,7 @@ public class DataSync : IDataSync {
     };
   }
 
-  private TimeSpan ParseCollectionPage(int playerTrueAchId, List<List<CollectionSplit>> entireCollection, TA_GC_Options gcOptions, ref int page) {
+  private TimeSpan ParseCollectionPage(int playerTrueAchId, List<List<CollectionSplit>> entireCollection, SyncOptions gcOptions, ref int page) {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 

@@ -28,20 +28,23 @@ public class DataSyncController : ControllerBase {
     stopWatch.Start();
     // ScanMan is an alt account that was autoadding all games to collection
     // useful for benchmarking, has over 7,000 games on the profile 
-    var players = _context.Players!.Where(x => x.IsActive).ToList();
+    var players = _context.Players!
+                    .Join(_context.PlayerContests!, p => p.Id, pc => pc.PlayerId, (p, pc) => 
+                      new { Player = p, PlayerContest = pc })
+                    .Where(x => x.Player.IsActive && x.PlayerContest.ContestId == 2).ToList();
 
     Console.WriteLine($"Beginning data sync with {players.Count()} player(s) at {DateTime.Now}");
 
     var results = new List<TaParseResult>();
-    var gcOptions = new TA_GC_Options {
-      CompletionStatus = TAGC_CompletionStatus.Complete
+    var gcOptions = new SyncOptions {
+      CompletionStatus = SyncOption_CompletionStatus.Complete
     };
 
     foreach(var player in players) {
-      var parsedPlayer = _dataSync.ParseTa(player.Id, gcOptions);
+      var parsedPlayer = _dataSync.ParseTa(player.Player.Id, gcOptions);
       results.Add(parsedPlayer);
-      player.LastSync = DateTime.Now;
-      Console.WriteLine($"Player {player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
+      player.Player.LastSync = DateTime.Now;
+      Console.WriteLine($"Player {player.Player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
     }
 
     _context.SaveChanges();

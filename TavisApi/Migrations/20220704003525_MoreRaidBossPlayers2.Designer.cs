@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TavisApi.Context;
 
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20220704003525_MoreRaidBossPlayers2")]
+    partial class MoreRaidBossPlayers2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2202,13 +2204,6 @@ namespace TavisApi.Migrations
                             IsActive = true,
                             Name = "GT3OptionFan",
                             TrueAchievementId = 257340
-                        },
-                        new
-                        {
-                            Id = 176,
-                            IsActive = true,
-                            Name = "kungfuskills",
-                            TrueAchievementId = 357761
                         });
                 });
 
@@ -3306,36 +3301,6 @@ namespace TavisApi.Migrations
                         {
                             ContestId = 2,
                             PlayerId = 126
-                        },
-                        new
-                        {
-                            ContestId = 2,
-                            PlayerId = 93
-                        },
-                        new
-                        {
-                            ContestId = 2,
-                            PlayerId = 124
-                        },
-                        new
-                        {
-                            ContestId = 2,
-                            PlayerId = 176
-                        },
-                        new
-                        {
-                            ContestId = 2,
-                            PlayerId = 72
-                        },
-                        new
-                        {
-                            ContestId = 2,
-                            PlayerId = 158
-                        },
-                        new
-                        {
-                            ContestId = 2,
-                            PlayerId = 118
                         });
                 });
 

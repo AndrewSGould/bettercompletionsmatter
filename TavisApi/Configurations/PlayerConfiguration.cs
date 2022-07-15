@@ -1409,6 +1409,14 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Region = null,
         Area = null,
         IsActive = true
+      },
+      new Player {
+        Id = 176,
+        TrueAchievementId = 357761,
+        Name = "kungfuskills",
+        Region = null,
+        Area = null,
+        IsActive = true
       }
     );
   }

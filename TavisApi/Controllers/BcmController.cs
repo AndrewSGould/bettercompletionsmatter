@@ -10,30 +10,33 @@ using static TavisApi.Services.TA_GameCollection;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TavisController : ControllerBase {
+public class BcmController : ControllerBase {
   private TavisContext _context;
   private readonly IParser _parser;
   private readonly IDataSync _dataSync;
+  private readonly IBcmService _bcmService;
 
-  public TavisController(TavisContext context, IParser parser, IDataSync dataSync) {
+  public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService) {
     _context = context;
     _parser = parser;
     _dataSync = dataSync;
+    _bcmService = bcmService;
   }
 
   [HttpGet]
   [Route("ta_sync")]
   public IActionResult Sync()
   {
-    var raidBossPlayers = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
-    var players = _context.Players!.Where(x => x.IsActive && raidBossPlayers.Contains(x.Id)).ToList();
+    var players = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
+    var bcmPlayers = _context.Players!.Where(x => x.IsActive && x.Name!.Contains("DudeWithTheFace")).ToList();
+    //var bcmPlayers = _bcmService.GetPlayers();
 
-    var gcOptions = new TA_GC_Options { //TODO: change this to SyncOptions
-      CompletionStatus = TAGC_CompletionStatus.Complete,
-      DateCutoff = new DateTime(2021, 1, 1)
+    //TODO: for now, this sync is setup to only pull random games
+    //  in the future, have the random game endpoint accept a sync option
+    var gcOptions = new SyncOptions {
     };
 
-    return Ok(_dataSync.DynamicSync(players, gcOptions));
+    return Ok(_dataSync.DynamicSync(bcmPlayers, gcOptions));
   }
 
   [HttpGet]

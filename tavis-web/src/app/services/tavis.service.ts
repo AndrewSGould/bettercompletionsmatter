@@ -22,15 +22,15 @@ export class TavisService {
   }
 
   retrieveCompletedGames(playerId: any): Observable<any> {
-    return this.http.get(baseUrl + `datasync/syncAllData`);
+    return this.http.get(baseUrl + `bcm/ta_sync`);
   }
 
-  generateTavisRandomGame(playerId: any): Observable<any> {
-    return this.http.get(baseUrl + `Tavis/getRandomGame?playerId=${playerId}`);
+  generateBcmRandomGame(playerId: any): Observable<any> {
+    return this.http.get(baseUrl + `bcm/getRandomGame?playerId=${playerId}`);
   }
 
   verifyRandomGameEligibility(): Observable<any> {
-    return this.http.get(baseUrl + `Tavis/verifyRandomGameEligibility`);
+    return this.http.get(baseUrl + `bcm/verifyRandomGameEligibility`);
   }
 
   getFullPlayerCompatability(): Observable<any> {
