@@ -15,7 +15,7 @@ public class RaidBossRule {
 
     if (player.Name == "eohjay" || player.Name == "FreakyRO" || player.Name == "Mental Knight 5" || player.Name == "Legohead 1977"
       || player.Name == "A1exRD" || player.Name == "Ahayzo" || player.Name == "BenL72" || player.Name == "ChewieOnIce" || player.Name == "ChinDocta"
-      || player.Name == "erutaerc" || player.Name == "FlutteryChicken" || player.Name == "Icefiretn" || player.Name == "Infamous"
+      || player.Name == "Erutaerc" || player.Name == "FlutteryChicken" || player.Name == "Icefiretn" || player.Name == "Infamous"
       || player.Name == "Jblacq" || player.Name == "JimbotUK" || player.Name == "mdp 73" || player.Name == "nightw0lf" || player.Name == "N龱T廾 T廾A G龱D"
       || player.Name == "Skeptical Mario" || player.Name == "Vulgar Latin" || player.Name == "Wakapeil")
       raidBossPlayer.Level = 2;
@@ -81,7 +81,7 @@ public class RaidBossRule {
       case "Enigma Gamer 77":
         raidBossPlayer.AttackApproach = "mysteriously strikes for";
         break;
-      case "erutaerc":
+      case "Erutaerc":
         raidBossPlayer.AttackApproach = "skcatta rof";
         break;
       case "FlutteryChicken":

@@ -367,6 +367,10 @@ public class GenreConfiguration : IEntityTypeConfiguration<Genre>
       new Genre {
         Id = GenreList.Lacrosse,
         Name = GenreList.Lacrosse.Name
+      },
+      new Genre {
+        Id = GenreList.Skydiving,
+        Name = GenreList.Skydiving.Name
       }
     );
   }
