@@ -49,7 +49,7 @@ public class RaidBossRule {
         raidBossPlayer.AttackApproach = "punches for";
         break;
       case "Sir Paulygon":
-        raidBossPlayer.AttackApproach = "attacks with a Granstaff for";
+        raidBossPlayer.AttackApproach = "attacks with G-Staff for";
         break;
       case "A1exRD":
         raidBossPlayer.AttackApproach = "writes a fifteen page framework  explaining his attack for";
@@ -124,7 +124,7 @@ public class RaidBossRule {
         raidBossPlayer.AttackApproach = "ducks for";
         break;
       case "mdp 73":
-        raidBossPlayer.AttackApproach = "gem swaps for";
+        raidBossPlayer.AttackApproach = "scrupulously deduces for";
         break;
       case "NBA Kirkland":
         raidBossPlayer.AttackApproach = "slamdunks for";
@@ -164,6 +164,9 @@ public class RaidBossRule {
         break;
       case "Xpovos":
         raidBossPlayer.AttackApproach = "attacks with a sickle for";
+        break;
+      case "smrnov":
+        raidBossPlayer.AttackApproach = "uses brute force for";
         break;
       default:
         raidBossPlayer.AttackApproach = "attacks for";

@@ -15,6 +15,7 @@ public class BcmController : ControllerBase {
   private readonly IParser _parser;
   private readonly IDataSync _dataSync;
   private readonly IBcmService _bcmService;
+  private static readonly Random rand = new Random();
 
   public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService) {
     _context = context;
@@ -28,7 +29,7 @@ public class BcmController : ControllerBase {
   public IActionResult Sync()
   {
     var players = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
-    var bcmPlayers = _context.Players!.Where(x => x.IsActive && x.Name!.Contains("DudeWithTheFace")).ToList();
+    var bcmPlayers = _context.Players!.Where(x => x.IsActive && x.Name!.Contains("ChewieOnIce")).ToList();
     //var bcmPlayers = _bcmService.GetPlayers();
 
     //TODO: for now, this sync is setup to only pull random games
@@ -78,8 +79,8 @@ public class BcmController : ControllerBase {
   [Route("verifyRandomGameEligibility")]
   public IActionResult VerifyRandomGameEligibility() {
     var playersIneligible = new List<object>();
-    var playersEligible = new List<object>();
-    var players = _context.Players!.Where(x => x.Name != "zzScanMan1").ToList();
+    var allPlayers = new List<object>();
+    var players = _bcmService.GetPlayers().OrderBy(x => x.Name);
 
     foreach(var player in players) {
       var randomGameOptions = _context.PlayerGames?
@@ -104,18 +105,62 @@ public class BcmController : ControllerBase {
           EligibleCount = randomGameOptions.Count()
         });
       }
-      else {
-        playersEligible.Add(new {
-          Player = player.Name,
-          EligibleCount = randomGameOptions.Count()
-        });
-      }
+
+      var random = rand.Next(0, randomGameOptions.Count());
+
+      allPlayers.Add(new {
+        Player = player.Name,
+        RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGameOptions?[random].Games.Title,
+        EligibleCount = randomGameOptions.Count()
+      });
     }
 
     var results = new {
       Invalids = playersIneligible,
-      Valids = playersEligible
+      FullList = allPlayers
     };
     return Ok(results);
+    
+
+    // var randomGames = _context.PlayerGames?
+    //   .Join(_context.Games!, pg => pg.GameId, 
+    //     g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
+    //   .Where(x => 
+    //      x.Games.SiteRatio > BcmRule.MinimumRatio
+    //     && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
+    //       || x.Games.FullCompletionEstimate == null)
+    //     && x.Games.GamersCompleted > 0
+    //     && !x.Games.Unobtainables
+    //     && !x.PlayersGames.NotForContests
+    //     && x.PlayersGames.CompletionDate == null
+    //     //&& x.Games.ServerClosure == null
+    //     && x.PlayersGames.Ownership != Tavis.Models.Ownership.NoLongerHave
+    //     && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!));
+
+    // foreach(var player in players) {
+    //   var randomGameOptions = randomGames?.Where(x => x.PlayersGames.PlayerId == player.Id).ToList();
+    //   var rand = new Random();
+
+    //   if (randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount) {
+    //     playersIneligible.Add(new {
+    //       Player = player.Name,
+    //       EligibleCount = randomGameOptions.Count()
+    //     });
+    //   }
+    //   else {
+    //     playersEligible.Add(new {
+    //       Player = player.Name,
+    //       EligibleCount = randomGameOptions.Count(),
+    //       RandomGame = randomGameOptions?[rand.Next(randomGameOptions.Count())].Games
+    //     });
+    //   }
+    // }
+
+    // var results = new {
+    //   Invalids = playersIneligible.ToList(),
+    //   Valids = playersEligible.ToList()
+    // };
+
+    // return Ok(playersEligible);
   }
 }

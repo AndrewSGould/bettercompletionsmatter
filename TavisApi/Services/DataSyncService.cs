@@ -106,6 +106,7 @@ public class DataSync : IDataSync {
     using var httpClient = new HttpClient();
     var gameCollectionUrl = _taGameCollection.ParseManager(playerTrueAchId, page, gcOptions);
     var request = new HttpRequestMessage(HttpMethod.Get, gameCollectionUrl);
+    request.Headers.TryAddWithoutValidation("User-Agent", "Other");
     var response = httpClient.Send(request);
     using var reader = new StreamReader(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();

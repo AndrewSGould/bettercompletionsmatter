@@ -37,8 +37,8 @@ export class PlayerProfileComponent implements OnInit {
     });
   }
 
-  generateRandomGame(playerId: any) {
-    this.tavisService?.generateBcmRandomGame(playerId).subscribe(data => {
+  generateRandomGame() {
+    this.tavisService?.generateBcmRandomGame().subscribe(data => {
       console.log(data);
     })
   }

@@ -25,8 +25,8 @@ export class TavisService {
     return this.http.get(baseUrl + `bcm/ta_sync`);
   }
 
-  generateBcmRandomGame(playerId: any): Observable<any> {
-    return this.http.get(baseUrl + `bcm/getRandomGame?playerId=${playerId}`);
+  generateBcmRandomGame(): Observable<any> {
+    return this.http.get(baseUrl + `bcm/getRandomGame`);
   }
 
   verifyRandomGameEligibility(): Observable<any> {
