@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using System;  
 using System.Collections.Generic;  
 using System.Linq;  
-using System.Threading.Tasks;  
-  
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 namespace TavisApi.Context  
 { 
   public class TavisContext : DbContext  
@@ -32,8 +33,9 @@ namespace TavisApi.Context
         .AddJsonFile("appsettings.json")
         .Build();
 
-      var connectionString = configuration.GetConnectionString("WebApiDatabase");
-      optionsBuilder.UseSqlServer(connectionString);
+      //var connectionString = configuration.GetConnectionString("WebApiDatabase");
+      var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
+      optionsBuilder.UseNpgsql(connectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +49,34 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new GameGenreConfiguration());
       modelBuilder.ApplyConfiguration(new ContestConfiguration());
       modelBuilder.ApplyConfiguration(new PlayerContestConfiguration());
+
+      var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+          v => v.ToUniversalTime(),
+          v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+      var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+          v => v.HasValue ? v.Value.ToUniversalTime() : v,
+          v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+      foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+      {
+          if (entityType.IsKeyless)
+          {
+              continue;
+          }
+
+          foreach (var property in entityType.GetProperties())
+          {
+              if (property.ClrType == typeof(DateTime))
+              {
+                  property.SetValueConverter(dateTimeConverter);
+              }
+              else if (property.ClrType == typeof(DateTime?))
+              {
+                  property.SetValueConverter(nullableDateTimeConverter);
+              }
+          }
+      }
     }
   }
 }

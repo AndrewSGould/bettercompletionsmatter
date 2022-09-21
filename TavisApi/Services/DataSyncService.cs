@@ -29,7 +29,8 @@ public class DataSync : IDataSync {
     foreach(var player in players) {
       var parsedPlayer = ParseTa(player.Id, syncOptions);
       results.Add(parsedPlayer);
-      player.LastSync = DateTime.Now;
+      player.LastSync = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+      Console.WriteLine($"{player.Name} has been parsed at {DateTime.Now}");
     }
 
     _context.SaveChanges();
@@ -305,12 +306,12 @@ public class DataSync : IDataSync {
     var fls = _context.FeatureLists!.Select(x => x.FeatureListOfGameId);
     var parseList = _context.Games!.Where(x => !fls.Contains(x.Id)).Select(x => x.Id);
 
-    var gamesToUpdate = _context.Games!.Where(x => parseList.Contains(x.Id));
+    var gamesToUpdate = _context.Games!.Where(x => parseList.Contains(x.Id)).ToList();
     Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.Now}");
 
     var i = 0;
     foreach(var game in gamesToUpdate) {
-      var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id);
+      var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id).ToList();
       _context.GameGenres!.RemoveRange(genresToRemove);
 
       try {

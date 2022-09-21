@@ -76,15 +76,15 @@ namespace TavisApi.Services
         if (unparsed == "" || unparsed == null) return null;
 
         if (unparsed == "Today")
-          return Convert.ToDateTime(DateTime.Today);
+          return Convert.ToDateTime(DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Utc));
         if (unparsed == "Yesterday")
-          return Convert.ToDateTime(DateTime.Today.AddDays(-1));
+          return Convert.ToDateTime(DateTime.SpecifyKind(DateTime.Today.AddDays(-1), DateTimeKind.Utc));
         if (unparsed == "Tomorrow")
-          return Convert.ToDateTime(DateTime.Today.AddDays(+1));
+          return Convert.ToDateTime(DateTime.SpecifyKind(DateTime.Today.AddDays(+1), DateTimeKind.Utc));
         if (unparsed.Count() == 4)
           unparsed = "01/01/" + unparsed;
 
-        return Convert.ToDateTime(unparsed);
+        return DateTime.SpecifyKind(Convert.ToDateTime(unparsed), DateTimeKind.Utc);
       }
       catch(Exception ex) {
         Console.WriteLine($"Unable to parse a TaDate of {unparsed}");

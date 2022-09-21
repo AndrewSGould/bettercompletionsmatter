@@ -106,42 +106,6 @@ public class RaidBossController : ControllerBase {
       HitsOnly = damages.Where(x => x.TotalAttacks != 0).OrderBy(x => x.PlayerName),
       StrongestHitsOfTheDay = damages.OrderBy(x => x.DamageDoneToday)
     });
-
-    // var applicableGames = _context.PlayerGames!
-    //                     .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => 
-    //                       new PlayerGameProfile { Games = g, PlayerGames = pg})
-    //                     .Where(x => 
-    //                       x.PlayerGames!.CompletionDate > raidBossContest.StartDate
-    //                       && raidBossIds.Contains(x.PlayerGames.PlayerId!.Value)
-    //                       && x.PlayerGames!.CompletionDate != null
-    //                       && x.PlayerGames.Platform == Platform.Xbox360);
-
-    // var first = _raidBoss.DetermineDamage(applicableGames.Where(x => DateTime.Compare(x.PlayerGames!.CompletionDate.Value, new DateTime(2022, 7, 1)) == 0));
-    // var second = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 2)));
-    // var third = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 3)));
-    // var fourth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 4)));
-    // var fifth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 5)));
-    // var sixth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 6)));
-    // var seventh = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 7)));
-    // var eighth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 8)));
-    // var ninth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 9)));
-    // var tenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 10)));
-    // var eleventh = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 11)));
-    // var twelth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 12)));
-    // var thirteenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 13)));
-    // var fourteenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 14)));
-    // var fifteenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 15)));
-    // var sixteenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 16)));
-    // var seventeeth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 17)));
-    // var eighteenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 18)));
-    // var ninteenth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 19)));
-    // var twentieth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 20)));
-    // var twentyfirst = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 21)));
-    // var twentysecond = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 22)));
-    // var twentythird = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 23)));
-    // var twentyfourth = _raidBoss.DetermineDamage(applicableGames.Where(x => x.PlayerGames!.CompletionDate == new DateTime(2022, 7, 24)));
-
-    // return Ok();
   }
 
   private class DamageResponse {

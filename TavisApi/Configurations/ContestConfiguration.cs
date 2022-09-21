@@ -14,14 +14,14 @@ public class ContestConfiguration : IEntityTypeConfiguration<Contest>
       new Contest {
         Id = 1,
         Name = "Better Completions Matter",
-        StartDate = new DateTime(2022, 1, 1),
-        EndDate = new DateTime(2023, 1, 1)
+        StartDate = DateTime.SpecifyKind(new DateTime(2022, 1, 1), DateTimeKind.Utc),
+        EndDate = DateTime.SpecifyKind(new DateTime(2023, 1, 1), DateTimeKind.Utc)
       },
       new Contest {
         Id = 2,
         Name = "Raid Boss",
-        StartDate = new DateTime(2022, 7, 1),
-        EndDate = new DateTime(2022, 8, 1)
+        StartDate = DateTime.SpecifyKind(new DateTime(2022, 7, 1), DateTimeKind.Utc),
+        EndDate = DateTime.SpecifyKind(new DateTime(2022, 8, 1), DateTimeKind.Utc)
       }
     );
   }

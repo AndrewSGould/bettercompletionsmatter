@@ -29,7 +29,16 @@ public class BcmController : ControllerBase {
   public IActionResult Sync()
   {
     var players = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
-    var bcmPlayers = _context.Players!.Where(x => x.IsActive && x.Name!.Contains("ChewieOnIce")).ToList();
+    var bcmPlayers = _context.Players!.Where(x => x.IsActive && (
+      x.Name!.Contains("Big Ell")
+      || x.Name!.Contains("FlutteryChicken")
+      || x.Name!.Contains("Hatton90")
+      || x.Name!.Contains("Mark B")
+      || x.Name!.Contains("Matrarch")
+      || x.Name!.Contains("Simpso")
+      || x.Name!.Contains("Whtthfgg")
+      || x.Name!.Contains("WildwoodMike")
+      )).ToList();
     //var bcmPlayers = _bcmService.GetPlayers();
 
     //TODO: for now, this sync is setup to only pull random games
@@ -88,8 +97,8 @@ public class BcmController : ControllerBase {
               g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
             .Where(x => x.PlayersGames.PlayerId == player.Id
               && x.Games.SiteRatio > BcmRule.MinimumRatio
-              && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
-                || x.Games.FullCompletionEstimate == null)
+              // && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
+              //   || x.Games.FullCompletionEstimate == null)
               && x.Games.GamersCompleted > 0
               && !x.Games.Unobtainables
               && !x.PlayersGames.NotForContests
@@ -99,10 +108,11 @@ public class BcmController : ControllerBase {
               && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!))
             .ToList();
 
-      if (randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount) {
+      if (randomGameOptions?.Count() < BcmRule.HeadToHeadMinimumEligibilityCount) {
         playersIneligible.Add(new {
           Player = player.Name,
-          EligibleCount = randomGameOptions.Count()
+          EligibleCount = randomGameOptions.Count(),
+          Options = randomGameOptions.Select(x => x.Games.Title)
         });
       }
 
@@ -111,7 +121,8 @@ public class BcmController : ControllerBase {
       allPlayers.Add(new {
         Player = player.Name,
         RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGameOptions?[random].Games.Title,
-        EligibleCount = randomGameOptions.Count()
+        EligibleCount = randomGameOptions.Count(),
+        Options = randomGameOptions.Select(x => x.Games.Title)
       });
     }
 

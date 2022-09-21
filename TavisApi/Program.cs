@@ -7,8 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var connectionString = builder.Configuration.GetConnectionString("WebApiDatabase");
-builder.Services.AddDbContext<TavisContext>(x => x.UseSqlServer(connectionString));
+//var connectionString = builder.Configuration.GetConnectionString("WebApiDatabase");
+var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
+builder.Services.AddDbContext<TavisContext>(x => x.UseNpgsql(connectionString));
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

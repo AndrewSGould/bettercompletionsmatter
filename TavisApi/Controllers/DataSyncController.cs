@@ -43,7 +43,7 @@ public class DataSyncController : ControllerBase {
     foreach(var player in players) {
       var parsedPlayer = _dataSync.ParseTa(player.Player.Id, gcOptions);
       results.Add(parsedPlayer);
-      player.Player.LastSync = DateTime.Now;
+      player.Player.LastSync = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
       Console.WriteLine($"Player {player.Player.Name} has been parsed with a processing time of {parsedPlayer.Performance}");
     }
 
