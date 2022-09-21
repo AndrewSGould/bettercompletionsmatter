@@ -1,16 +1,4 @@
-<div>
-  <label>Select your Player: </label>
-  <select #playerSelect (change)="updatePlayerProfile(playerSelect.value)">
-    <option value="0">--None--</option>
-    <option *ngFor="let player of players" value={{player.id}}>
-      {{player.name}}
-    </option>
-  </select>
-</div>
-
-<button (click)="retrieveCompletedGames(playerSelect.value)">Sync BCM RGSC</button>
-<br />
-<button (click)="generateRandomGame()">Generate Random Games</button>
+<button (click)="retrieveCompletedGames()">Full Sync</button>
 <br />
 <button (click)="verifyRandomGameEligibility()">Verify Random Game Eligibility</button>
 <br />
@@ -20,14 +8,3 @@
 <br />
 <button (click)="testGwgParse()">Parse GwG</button>
 <br />
-<button (click)="raidBossSync()">Raid Boss Sync</button>
-<br />
-<button (click)="calculateDamage()">Raid Boss Damage</button>
-
-
-<div *ngFor="let game of completedGames">
-  <h3>{{game.title}}</h3>
-  <div>Ratio: {{game.ratio}}</div>
-  <div>Time: {{game.time}}</div>
-</div>
-

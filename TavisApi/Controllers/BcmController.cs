@@ -131,47 +131,5 @@ public class BcmController : ControllerBase {
       FullList = allPlayers
     };
     return Ok(results);
-    
-
-    // var randomGames = _context.PlayerGames?
-    //   .Join(_context.Games!, pg => pg.GameId, 
-    //     g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
-    //   .Where(x => 
-    //      x.Games.SiteRatio > BcmRule.MinimumRatio
-    //     && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
-    //       || x.Games.FullCompletionEstimate == null)
-    //     && x.Games.GamersCompleted > 0
-    //     && !x.Games.Unobtainables
-    //     && !x.PlayersGames.NotForContests
-    //     && x.PlayersGames.CompletionDate == null
-    //     //&& x.Games.ServerClosure == null
-    //     && x.PlayersGames.Ownership != Tavis.Models.Ownership.NoLongerHave
-    //     && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!));
-
-    // foreach(var player in players) {
-    //   var randomGameOptions = randomGames?.Where(x => x.PlayersGames.PlayerId == player.Id).ToList();
-    //   var rand = new Random();
-
-    //   if (randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount) {
-    //     playersIneligible.Add(new {
-    //       Player = player.Name,
-    //       EligibleCount = randomGameOptions.Count()
-    //     });
-    //   }
-    //   else {
-    //     playersEligible.Add(new {
-    //       Player = player.Name,
-    //       EligibleCount = randomGameOptions.Count(),
-    //       RandomGame = randomGameOptions?[rand.Next(randomGameOptions.Count())].Games
-    //     });
-    //   }
-    // }
-
-    // var results = new {
-    //   Invalids = playersIneligible.ToList(),
-    //   Valids = playersEligible.ToList()
-    // };
-
-    // return Ok(playersEligible);
   }
 }

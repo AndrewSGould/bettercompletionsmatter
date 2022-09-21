@@ -12,16 +12,12 @@ const baseUrl = 'http://localhost:4200/api/';
 export class TavisService {
 
   constructor(private http: HttpClient) { }
-  
-  getAllPlayers(): Observable<Player[]> {
-    return this.http.get<Player[]>(baseUrl + 'players/getAll');
-  }
 
   getPlayersGames(playerId: any): Observable<Game[]> {
     return this.http.get<Game[]>(baseUrl + `players/getPlayersGames?playerId=${playerId}`);
   }
 
-  retrieveCompletedGames(playerId: any): Observable<any> {
+  retrieveCompletedGames(): Observable<any> {
     return this.http.get(baseUrl + `bcm/ta_sync`);
   }
 

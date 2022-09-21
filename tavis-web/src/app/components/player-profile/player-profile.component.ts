@@ -19,28 +19,12 @@ export class PlayerProfileComponent implements OnInit {
   completedGames: Game[] = [];
 
   ngOnInit(): void {
-    this.tavisService?.getAllPlayers().subscribe(data => {
-      this.players = data;
-    });
   }
 
-  updatePlayerProfile(playerId: any) {
-    this.tavisService?.getPlayersGames(playerId).subscribe(data => {
-      this.completedGames = data;
-    })
-  }
-
-  retrieveCompletedGames(playerId: any) {
-    this.tavisService?.retrieveCompletedGames(playerId).subscribe(data => {
-      alert('finished!');
+  retrieveCompletedGames() {
+    this.tavisService?.retrieveCompletedGames().subscribe(data => {
       console.log(data);
     });
-  }
-
-  generateRandomGame() {
-    this.tavisService?.generateBcmRandomGame().subscribe(data => {
-      console.log(data);
-    })
   }
 
   verifyRandomGameEligibility() {
@@ -65,17 +49,5 @@ export class PlayerProfileComponent implements OnInit {
     this.tavisService?.testGwgParse().subscribe(data => {
       console.log(data);
     });
-  }
-
-  raidBossSync() {
-    this.tavisService?.raidBossSync().subscribe(data => {
-      console.log(data);
-    }); 
-  }
-
-  calculateDamage() {
-    this.tavisService?.calculateDamage().subscribe(data => {
-      console.log(data);
-    }); 
   }
 }
