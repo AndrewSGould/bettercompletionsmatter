@@ -86,3 +86,10 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - In the Player table (or separate table?) track what contests the player is in
 - Try scraping Period Summary - https://www.trueachievements.com/gamer/{gamertag}/periods/2022/05
 - Ability to schedule syncs
+
+#### Roles
+
+- Super Admin (god user)
+- Admin (user who can do larger TA syncs)
+- BcmAdmin, RaidBossAdmin (administrative duties per contest)
+- Member

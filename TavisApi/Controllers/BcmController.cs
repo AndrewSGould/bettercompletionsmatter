@@ -24,7 +24,7 @@ public class BcmController : ControllerBase {
     _bcmService = bcmService;
   }
 
-  [HttpGet]
+  [HttpGet, Authorize(Roles = "Super Admin")]
   [Route("ta_sync")]
   public IActionResult Sync()
   {

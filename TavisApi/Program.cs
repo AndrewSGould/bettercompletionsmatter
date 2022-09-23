@@ -27,8 +27,8 @@ builder.Services.AddAuthentication(opt =>
     ValidateAudience = true,
     ValidateLifetime = true,
     ValidateIssuerSigningKey = true,
-    ValidIssuer = "https://localhost:4300",
-    ValidAudience = "https://localhost:4200",
+    ValidIssuer = "http://localhost:4300",
+    ValidAudience = "http://localhost:4200",
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
   };
 });
@@ -40,12 +40,23 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("EnableCORS", builder => 
+    { 
+        builder.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod(); 
+    });
+});
+
 //TODO: lets pull out the interface hookups
 builder.Services.AddScoped<IParser, Parser>();
 builder.Services.AddScoped<IDataSync, DataSync>();
 builder.Services.AddScoped<ITA_GameCollection, TA_GameCollection>();
 builder.Services.AddScoped<IRaidBossService, RaidBossService>();
 builder.Services.AddScoped<IBcmService, BcmService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
@@ -59,6 +70,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("EnableCORS");
 
 app.UseAuthentication();
 

@@ -111,5 +111,7 @@
       }
     }
   },
-  "defaultProject": "tavis"
+  "cli": {
+    "analytics": false
+  }
 }
