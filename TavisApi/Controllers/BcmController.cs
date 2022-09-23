@@ -1,12 +1,12 @@
 namespace WebApi.Controllers;
 
-using System.Diagnostics;
-using Tavis.Models;
 using TavisApi.ContestRules;
 using TavisApi.Context;
 using TavisApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using static TavisApi.Services.TA_GameCollection;
+using Microsoft.AspNetCore.Authorization;
+using Tavis.Models;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -28,25 +28,24 @@ public class BcmController : ControllerBase {
   [Route("ta_sync")]
   public IActionResult Sync()
   {
+    var hhPlayers = RaidBossController.HhPlayers;
+    var playersToScan = new List<Player>();
+
     var players = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
-    var bcmPlayers = _context.Players!.Where(x => x.IsActive && (
-      x.Name!.Contains("Big Ell")
-      || x.Name!.Contains("FlutteryChicken")
-      || x.Name!.Contains("Hatton90")
-      || x.Name!.Contains("Mark B")
-      || x.Name!.Contains("Matrarch")
-      || x.Name!.Contains("Simpso")
-      || x.Name!.Contains("Whtthfgg")
-      || x.Name!.Contains("WildwoodMike")
-      )).ToList();
+    var bcmPlayers = _context.Players!.Where(x => x.IsActive).ToList();
     //var bcmPlayers = _bcmService.GetPlayers();
+
+    foreach (var player in bcmPlayers) {
+      if (hhPlayers.Any(x => x.Player == player.Name))
+        playersToScan.Add(player);
+    }
 
     //TODO: for now, this sync is setup to only pull random games
     //  in the future, have the random game endpoint accept a sync option
     var gcOptions = new SyncOptions {
     };
 
-    return Ok(_dataSync.DynamicSync(bcmPlayers, gcOptions));
+    return Ok(_dataSync.DynamicSync(playersToScan, gcOptions));
   }
 
   [HttpGet]

@@ -2,6 +2,9 @@ using TavisApi.Context;
 using TavisApi.Services;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,25 @@ var builder = WebApplication.CreateBuilder(args);
 //var connectionString = builder.Configuration.GetConnectionString("WebApiDatabase");
 var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
 builder.Services.AddDbContext<TavisContext>(x => x.UseNpgsql(connectionString));
+
+builder.Services.AddAuthentication(opt =>
+{
+  opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+  opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+  options.TokenValidationParameters = new TokenValidationParameters
+  {
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+    ValidIssuer = "https://localhost:4300",
+    ValidAudience = "https://localhost:4200",
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
+  };
+});
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,11 +54,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

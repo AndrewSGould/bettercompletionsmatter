@@ -13,16 +13,8 @@ export class TavisService {
 
   constructor(private http: HttpClient) { }
 
-  getPlayersGames(playerId: any): Observable<Game[]> {
-    return this.http.get<Game[]>(baseUrl + `players/getPlayersGames?playerId=${playerId}`);
-  }
-
   retrieveCompletedGames(): Observable<any> {
     return this.http.get(baseUrl + `bcm/ta_sync`);
-  }
-
-  generateBcmRandomGame(): Observable<any> {
-    return this.http.get(baseUrl + `bcm/getRandomGame`);
   }
 
   verifyRandomGameEligibility(): Observable<any> {
@@ -41,16 +33,8 @@ export class TavisService {
     return this.http.get(baseUrl + `datasync/testGwgParse`);
   }
 
-  raidBossSync(): Observable<any> {
-    return this.http.get(baseUrl + `raidboss/ta_sync`)
-  }
-
-  calculateDamage(): Observable<any> {
-    return this.http.get(baseUrl + `raidboss/calculateDamage`);
-  }
-
-  getAllGames(): Observable<Game[]> {
-    return this.http.get<Game[]>(baseUrl + 'games/getAll');
+  hhUpdate(): Observable<any> {
+    return this.http.get(baseUrl + `raidboss/hh`);
   }
 
   addCompletedGame(data: Game): Observable<any> {

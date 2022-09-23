@@ -23,6 +23,7 @@ export class PlayerProfileComponent implements OnInit {
 
   retrieveCompletedGames() {
     this.tavisService?.retrieveCompletedGames().subscribe(data => {
+      alert('finished!')
       console.log(data);
     });
   }
@@ -49,5 +50,11 @@ export class PlayerProfileComponent implements OnInit {
     this.tavisService?.testGwgParse().subscribe(data => {
       console.log(data);
     });
+  }
+
+  hhUpdate() {
+    this.tavisService?.hhUpdate().subscribe(data => {
+      console.log(data);
+    })
   }
 }

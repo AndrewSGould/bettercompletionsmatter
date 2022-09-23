@@ -6,5 +6,4 @@ namespace TavisApi.Services;
 public interface IRaidBossService
 {
   List<Player> GetPlayers();
-  double DetermineDamage(IQueryable<PlayerGameProfile> games);
 }
