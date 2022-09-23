@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { PlayerProfileComponent } from './components/player-profile/player-profile.component';
 import { LoginComponent } from './components/login/login.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { HomeComponent } from './components/home/home.component';
@@ -16,7 +15,6 @@ export function tokenGetter() {
 @NgModule({
   declarations: [
     AppComponent,
-    PlayerProfileComponent,
     LoginComponent,
     HomeComponent
   ],

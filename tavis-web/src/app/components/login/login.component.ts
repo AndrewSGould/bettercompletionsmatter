@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
           localStorage.setItem("jwt", token); 
           localStorage.setItem("refreshToken", refreshToken);
           this.invalidLogin = false; 
-          this.router.navigate(["/"]);
+          this.router.navigate(["/home"]);
         },
         error: (err: HttpErrorResponse) => this.invalidLogin = true
       })

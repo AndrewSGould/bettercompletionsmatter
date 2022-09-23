@@ -3,7 +3,11 @@
     <a href="#" class="navbar-brand">Tavis</a>
     <div class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a routerLink="player-profile" class="nav-link">Player Profile</a>
+        <a routerLink="home" class="nav-link">Home</a>
+      </li>
+      <li class="nav-item">
+        <a *ngIf="!isUserAuthenticated()" routerLink="login" class="nav-link">Login</a>
+        <a *ngIf="isUserAuthenticated()" class="nav-link" (click)="logOut()">Log out</a>
       </li>
     </div>
   </nav>
