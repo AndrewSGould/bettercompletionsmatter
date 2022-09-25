@@ -13,8 +13,12 @@ export class TavisService {
 
   constructor(private http: HttpClient) { }
 
-  retrieveCompletedGames(): Observable<any> {
-    return this.http.get(baseUrl + `bcm/ta_sync`);
+  fullSync(): Observable<any> {
+    return this.http.get(baseUrl + `datasync/full`);
+  }
+
+  syncInfo(): Observable<any> {
+    return this.http.get(baseUrl + `datasync/syncInfo`);
   }
 
   verifyRandomGameEligibility(): Observable<any> {

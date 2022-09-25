@@ -26,6 +26,7 @@ namespace TavisApi.Context
     public DbSet<Contest>? Contests {get;set;}
     public DbSet<PlayerContest>? PlayerContests {get;set;}
     public DbSet<Login>? Logins { get; set; }
+    public DbSet<SyncHistory>? SyncHistory { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -51,6 +52,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new ContestConfiguration());
       modelBuilder.ApplyConfiguration(new PlayerContestConfiguration());
       modelBuilder.ApplyConfiguration(new UserConfiguration());
+      modelBuilder.ApplyConfiguration(new SyncHistoryConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

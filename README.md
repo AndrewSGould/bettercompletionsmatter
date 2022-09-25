@@ -93,3 +93,9 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 - Admin (user who can do larger TA syncs)
 - BcmAdmin, RaidBossAdmin (administrative duties per contest)
 - Member
+
+### Sync Manager
+
+- Show how many Players will be sync'd
+- Estimate how long the Sync will take (estimated)
+  - Calculate this based off of Sync history. Average of sync time / average of players synced

@@ -20,7 +20,7 @@ public class DataSync : IDataSync {
     _taGameCollection = taGameCollection;
   }
 
-  public object DynamicSync(List<Player> players, SyncOptions syncOptions) {
+  public object DynamicSync(List<Player> players, SyncOptions syncOptions, SyncHistory syncLog) {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 
@@ -53,6 +53,8 @@ public class DataSync : IDataSync {
     string totalTaHitTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
         totalTimeHittingTa.Hours, totalTimeHittingTa.Minutes, totalTimeHittingTa.Seconds,
         totalTimeHittingTa.Milliseconds / 10);
+
+    syncLog.TaHits = totalHits;
 
     return new {
       OverallTime = elapsedTime,

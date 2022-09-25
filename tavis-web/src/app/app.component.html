@@ -6,6 +6,9 @@
         <a routerLink="home" class="nav-link">Home</a>
       </li>
       <li class="nav-item">
+        <a routerLink="sync" class="nav-link">Sync Manager</a>
+      </li>
+      <li class="nav-item">
         <a *ngIf="!isUserAuthenticated()" routerLink="login" class="nav-link">Login</a>
         <a *ngIf="isUserAuthenticated()" class="nav-link" (click)="logOut()">Log out</a>
       </li>

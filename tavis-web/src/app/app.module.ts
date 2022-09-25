@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { HomeComponent } from './components/home/home.component';
+import { SyncManagerComponent } from './components/sync-manager/sync-manager.component';
 
 export function tokenGetter() { 
   return localStorage.getItem("jwt"); 
@@ -16,7 +17,8 @@ export function tokenGetter() {
   declarations: [
     AppComponent,
     LoginComponent,
-    HomeComponent
+    HomeComponent,
+    SyncManagerComponent
   ],
   imports: [
     BrowserModule,

@@ -6,6 +6,8 @@ using TavisApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using static TavisApi.Services.DataSync;
 using static TavisApi.Services.TA_GameCollection;
+using Microsoft.AspNetCore.Authorization;
+using Tavis.Models;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -18,6 +20,58 @@ public class DataSyncController : ControllerBase {
     _context = context;
     _parser = parser;
     _dataSync = dataSync;
+  }
+
+  [HttpGet, Authorize(Roles = "Super Admin")]
+  [Route("syncInfo")]
+  public IActionResult SyncInfo() {
+    // return players to be scanned
+    // return average estimated time
+    var syncs = _context.SyncHistory!.Where(x => x.Profile == SyncProfileList.Full);
+    var averageHits = (syncs.Average(x => x.TaHits) / syncs.Average(x => x.PlayerCount)) * RaidBossController.HhPlayers.Count();
+    var averageRuntime = syncs.Average(x => (x.End! - x.Start!).Value.TotalSeconds);
+
+    return Ok(new {
+      PlayerCount = RaidBossController.HhPlayers.Count(),
+      EstimatedRuntime = averageRuntime,
+      EstimatedTaHits = averageHits
+    });
+  }
+
+  [HttpGet, Authorize(Roles = "Super Admin")]
+  [Route("full")]
+  public IActionResult Sync()
+  {
+    var hhPlayers = RaidBossController.HhPlayers;
+    var playersToScan = new List<Player>();
+
+    var players = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
+    var bcmPlayers = _context.Players!.Where(x => x.IsActive).ToList();
+    //var bcmPlayers = _bcmService.GetPlayers();
+
+    var syncLog = new SyncHistory {
+      Start = DateTime.UtcNow,
+      PlayerCount = hhPlayers.Count(),
+      Profile = SyncProfileList.Full
+    };
+
+    foreach (var player in bcmPlayers) {
+      if (hhPlayers.Any(x => x.Player == player.Name))
+        playersToScan.Add(player);
+    }
+
+    //TODO: for now, this sync is setup to only pull random games
+    //  in the future, have the random game endpoint accept a sync option
+    var gcOptions = new SyncOptions {
+    };
+
+    var results = _dataSync.DynamicSync(playersToScan, gcOptions, syncLog);
+
+    syncLog.End = DateTime.UtcNow;
+    _context.SyncHistory!.Add(syncLog);
+    _context.SaveChanges();
+
+    return Ok();
   }
 
   [HttpGet]

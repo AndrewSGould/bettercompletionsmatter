@@ -22,13 +22,6 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  retrieveCompletedGames() {
-    this.tavisService?.retrieveCompletedGames().subscribe(data => {
-      alert('finished!')
-      console.log(data);
-    });
-  }
-
   verifyRandomGameEligibility() {
     this.tavisService?.verifyRandomGameEligibility().subscribe(data => {
       console.log(data);
