@@ -6,6 +6,7 @@ using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 using static TavisApi.Services.DataSync;
 using static TavisApi.Services.TA_GameCollection;
+using Microsoft.AspNetCore.SignalR;
 
 namespace TavisApi.Services;
 
@@ -20,16 +21,23 @@ public class DataSync : IDataSync {
     _taGameCollection = taGameCollection;
   }
 
-  public object DynamicSync(List<Player> players, SyncOptions syncOptions, SyncHistory syncLog) {
+  public object DynamicSync(List<Player> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub) {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 
     var results = new List<TaParseResult>();
 
     foreach(var player in players) {
+      hub.Clients.All.SendAsync("SyncSignal", $"Parsing {player.Name}...");
+
+      var parseStart = DateTime.UtcNow;
+      
       var parsedPlayer = ParseTa(player.Id, syncOptions);
       results.Add(parsedPlayer);
       player.LastSync = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+
+      var parseEnd = DateTime.UtcNow;
+
       Console.WriteLine($"{player.Name} has been parsed at {DateTime.Now}");
     }
 

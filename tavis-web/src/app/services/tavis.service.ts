@@ -25,10 +25,6 @@ export class TavisService {
     return this.http.get(baseUrl + `bcm/verifyRandomGameEligibility`);
   }
 
-  getFullPlayerCompatability(): Observable<any> {
-    return this.http.get(baseUrl + `players/getFullPlayerCompatability`);
-  }
-
   updateGameInfo(): Observable<any> {
     return this.http.get(baseUrl + `datasync/testSyncGameInfo`);
   }
@@ -38,11 +34,7 @@ export class TavisService {
   }
 
   hhUpdate(): Observable<any> {
-    return this.http.get(baseUrl + `raidboss/hh`);
-  }
-
-  addCompletedGame(data: Game): Observable<any> {
-    return this.http.post(baseUrl + 'games/addCompletedGame', data);
+    return this.http.get(baseUrl + `bcm/hh`);
   }
 
   create(data: any): Observable<any> {

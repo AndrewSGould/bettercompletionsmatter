@@ -8,6 +8,8 @@ import { LoginComponent } from './components/login/login.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { HomeComponent } from './components/home/home.component';
 import { SyncManagerComponent } from './components/sync-manager/sync-manager.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { BcmAdminComponent } from './components/bcm-admin/bcm-admin.component';
 
 export function tokenGetter() { 
   return localStorage.getItem("jwt"); 
@@ -18,7 +20,8 @@ export function tokenGetter() {
     AppComponent,
     LoginComponent,
     HomeComponent,
-    SyncManagerComponent
+    SyncManagerComponent,
+    BcmAdminComponent
   ],
   imports: [
     BrowserModule,
@@ -26,6 +29,7 @@ export function tokenGetter() {
     ReactiveFormsModule,
     HttpClientModule,
     FormsModule,
+    MatProgressBarModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,

@@ -21,34 +21,4 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
-  verifyRandomGameEligibility() {
-    this.tavisService?.verifyRandomGameEligibility().subscribe(data => {
-      console.log(data);
-    })
-  }
-
-  getFullPlayerCompatability() {
-    this.tavisService?.getFullPlayerCompatability().subscribe(data => {
-      console.log(data);
-    });
-  }
-
-  updateGameInfo() {
-    this.tavisService?.updateGameInfo().subscribe(data => {
-      console.log(data);
-    });
-  }
-
-  testGwgParse() {
-    this.tavisService?.testGwgParse().subscribe(data => {
-      console.log(data);
-    });
-  }
-
-  hhUpdate() {
-    this.tavisService?.hhUpdate().subscribe(data => {
-      console.log(data);
-    })
-  }
 }

@@ -37,24 +37,23 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("EnableCORS", builder => 
-    { 
-        builder.AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod(); 
-    });
+  options.AddPolicy("CorsPolicy", builder => builder
+    .WithOrigins("http://localhost:4200")
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
 });
 
 //TODO: lets pull out the interface hookups
 builder.Services.AddScoped<IParser, Parser>();
 builder.Services.AddScoped<IDataSync, DataSync>();
 builder.Services.AddScoped<ITA_GameCollection, TA_GameCollection>();
-builder.Services.AddScoped<IRaidBossService, RaidBossService>();
 builder.Services.AddScoped<IBcmService, BcmService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -71,12 +70,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("EnableCORS");
+app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<SyncSignal>("/datasync");
 
 app.Run();

@@ -6,4 +6,15 @@
   <span>Number of estimated TA Hits: {{totalTaHits}}</span>
   <br />
   <span>Total Estimated Time: {{(totalEstimatedTime! / 60 | number)}} minute(s)</span>
+  <br />
+  <br />
+  <span>Players Scanned: {{scannedPlayerCount - 1}} out of {{playersToSync}}</span>
+  <br />
+  <mat-progress-bar mode="determinate" value="{{progressBarStatus}}"></mat-progress-bar>
+  <span>Status: {{syncStatus}}</span>
 </div>
+<br />
+<button (click)="updateGameInfo()">Update Game Info</button>
+<br />
+<button (click)="testGwgParse()">Parse GwG</button>
+<br />
