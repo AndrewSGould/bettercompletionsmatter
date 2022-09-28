@@ -81,6 +81,8 @@ namespace TavisApi.Services
           return Convert.ToDateTime(DateTime.SpecifyKind(DateTime.Today.AddDays(-1), DateTimeKind.Utc));
         if (unparsed == "Tomorrow")
           return Convert.ToDateTime(DateTime.SpecifyKind(DateTime.Today.AddDays(+1), DateTimeKind.Utc));
+        if (unparsed == "TBA")
+          return null;
         if (unparsed.Count() == 4)
           unparsed = "01/01/" + unparsed;
 
@@ -151,8 +153,8 @@ namespace TavisApi.Services
 
     public double DecimalString(string unparsed) {
       try {
-        if (unparsed == "" || unparsed == null) return 0.0;
-        return double.Parse(unparsed);
+        if (unparsed == "" || unparsed == null || unparsed == "-") return 0.000;
+        return double.Parse(unparsed, NumberStyles.Float);
       }
       catch(Exception ex) {
         Console.WriteLine($"Unable to parse DecimalString of {unparsed}");

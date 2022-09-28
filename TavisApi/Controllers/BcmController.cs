@@ -25,7 +25,7 @@ public class BcmController : ControllerBase {
     _bcmService = bcmService;
   }
 
-  [HttpGet, Authorize(Roles = "Super Admin")]
+  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
   [Route("verifyRandomGameEligibility")]
   public IActionResult VerifyRandomGameEligibility() {
     var playersIneligible = new List<object>();
@@ -38,8 +38,8 @@ public class BcmController : ControllerBase {
               g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
             .Where(x => x.PlayersGames.PlayerId == player.Id
               && x.Games.SiteRatio > BcmRule.MinimumRatio
-              // && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
-              //   || x.Games.FullCompletionEstimate == null)
+              && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
+                || x.Games.FullCompletionEstimate == null)
               && x.Games.GamersCompleted > 0
               && !x.Games.Unobtainables
               && !x.PlayersGames.NotForContests
@@ -49,11 +49,11 @@ public class BcmController : ControllerBase {
               && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!))
             .ToList();
 
-      if (randomGameOptions?.Count() < BcmRule.HeadToHeadMinimumEligibilityCount) {
+      if (randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount) {
         playersIneligible.Add(new {
           Player = player.Name,
           EligibleCount = randomGameOptions.Count(),
-          Options = randomGameOptions.Select(x => x.Games.Title)
+          //Options = randomGameOptions.Select(x => x.Games.Title)
         });
       }
 
@@ -63,7 +63,7 @@ public class BcmController : ControllerBase {
         Player = player.Name,
         RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGameOptions?[random].Games.Title,
         EligibleCount = randomGameOptions.Count(),
-        Options = randomGameOptions.Select(x => x.Games.Title)
+        //Options = randomGameOptions.Select(x => x.Games.Title)
       });
     }
 
@@ -74,7 +74,7 @@ public class BcmController : ControllerBase {
     return Ok(results);
   }
 
-  [HttpGet, Authorize(Roles = "Super Admin")]
+  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
   [Route("hh")]
   public IActionResult Hh()
   {
@@ -111,7 +111,7 @@ public class BcmController : ControllerBase {
           foreach(var game in missingGames) {
             update.Games.Add(new GameReport {
               Title = game,
-              AchievementCount = null
+              AchievementCount = 0
             });
           }
         }
@@ -121,12 +121,13 @@ public class BcmController : ControllerBase {
       }
     }
 
-    var firstSyncToday = players.Where(x => x.LastSync.GetValueOrDefault().Date != null && x.LastSync.GetValueOrDefault().Date == DateTime.Now.Date)
-                                .OrderByDescending(x => x.LastSync)
-                                .FirstOrDefault().LastSync;
+    // var firstSyncToday = players.Where(x => x.LastSync.GetValueOrDefault().Date != null && x.LastSync.GetValueOrDefault().Date == DateTime.Now.Date)
+    //                             .OrderByDescending(x => x.LastSync)
+    //                             .FirstOrDefault().LastSync;
 
     return Ok(new {
-      Scanned = firstSyncToday,
+      //Scanned = firstSyncToday,
+      Scanned = DateTime.UtcNow,
       Report = report
     });
   }
@@ -218,12 +219,12 @@ public class BcmController : ControllerBase {
         },
         new HhPlayer {
           Player = "Erutaerc",
-          Games = new string[] {"Vandal Hearts: Flames of Judgment", "Rise Eterna", "Nexomon", "Neoverse", "The Witcher 3: Wild Hunt - Game of the Year Edition"},
+          Games = new string[] {"Vandal Hearts: Flames of Judgment", "Fort Triumph", "Nexomon", "Neoverse", "The Witcher 3: Wild Hunt - Game of the Year Edition"},
           Rival = "IcyThrasher"
         },
         new HhPlayer {
           Player = "IcyThrasher",
-          Games = new string[] {"Vandal Hearts: Flames of Judgment", "Rise Eterna", "Nexomon", "Neoverse", "The Witcher 3: Wild Hunt - Game of the Year Edition"},
+          Games = new string[] {"Vandal Hearts: Flames of Judgment", "Fort Triumph", "Nexomon", "Neoverse", "The Witcher 3: Wild Hunt - Game of the Year Edition"},
           Rival = "Erutaerc"
         },
         new HhPlayer {
@@ -277,7 +278,7 @@ public class BcmController : ControllerBase {
           Rival = "Legohead 1977"
         },
         new HhPlayer {
-          Player = "IronFistOfSnuff",
+          Player = "IronFistofSnuff",
           Games = new string[] {"Chasm", "Bugsnax", "Exception", "Neon City Riders", "The Gunk"},
           Rival = "A1exRD"
         },
@@ -369,10 +370,10 @@ public class BcmController : ControllerBase {
         new HhPlayer {
           Player = "CrunchyGoblin68",
           Games = new string[] {"Sunset Overdrive", "Assassin's Creed Chronicles: Russia", "Pikuniku", "Outlast", "Dead Space 2"},
-          Rival = "xLAx Jester"
+          Rival = "xLAx JesteR"
         },
         new HhPlayer {
-          Player = "xLAx Jester",
+          Player = "xLAx JesteR",
           Games = new string[] {"Sunset Overdrive", "Assassin's Creed Chronicles: Russia", "Pikuniku", "Outlast", "Dead Space 2"},
           Rival = "CrunchyGoblin68"
         },
@@ -426,6 +427,16 @@ public class BcmController : ControllerBase {
           Games = new string[] {"Guacamelee! Super Turbo Championship Edition", "Far Cry 5", "Crackdown 3: Campaign", "The Outer Worlds", "Assassin's Creed Chronicles: China"},
           Rival = "Whtthfgg"
         },
+        new HhPlayer {
+          Player = "MrGompers",
+          Games = new string[] {"A Memoir Blue", "Desert Child", "Lost Grimoires 3: The Forgotten Well", "Queen's Quest 5: Symphony of Death", "Sam & Max Beyond Time and Space"},
+          Rival = "Northern Lass"
+        },
+        new HhPlayer {
+          Player = "Northern Lass",
+          Games = new string[] {"A Memoir Blue", "Desert Child", "Lost Grimoires 3: The Forgotten Well", "Queen's Quest 5: Symphony of Death", "Sam & Max Beyond Time and Space"},
+          Rival = "MrGompers"
+        }
       });
 
   public class HhPlayer {

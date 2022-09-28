@@ -17,25 +17,28 @@ public class DataSyncController : ControllerBase {
   private readonly IParser _parser;
   private readonly IDataSync _dataSync;
   private readonly IHubContext<SyncSignal> _hub;
+  private readonly IBcmService _bcmService;
 
-  public DataSyncController(TavisContext context, IParser parser, IDataSync dataSync, IHubContext<SyncSignal> hub) {
+  public DataSyncController(TavisContext context, IParser parser, IDataSync dataSync, IHubContext<SyncSignal> hub, IBcmService bcmService) {
     _context = context;
     _parser = parser;
     _dataSync = dataSync;
     _hub = hub;
+    _bcmService = bcmService;
   }
 
   [HttpGet, Authorize(Roles = "Super Admin")]
   [Route("syncInfo")]
   public IActionResult SyncInfo() {
-    // return players to be scanned
-    // return average estimated time
+    var playersToScan = BcmController.HhPlayers.Count();
+    //var playersToScan = _bcmService.GetPlayers().Count();
+
     var syncs = _context.SyncHistory!.Where(x => x.Profile == SyncProfileList.Full);
-    var averageHits = (syncs.Average(x => x.TaHits) / syncs.Average(x => x.PlayerCount)) * BcmController.HhPlayers.Count();
-    var averageRuntime = syncs.Average(x => (x.End! - x.Start!).Value.TotalSeconds);
+    var averageHits = (syncs.Average(x => x.TaHits) / syncs.Average(x => x.PlayerCount)) * playersToScan;
+    var averageRuntime = (syncs.Average(x => (x.End! - x.Start!).Value.TotalSeconds) / syncs.Average(x => x.PlayerCount) * playersToScan);
 
     return Ok(new {
-      PlayerCount = BcmController.HhPlayers.Count(),
+      PlayerCount = playersToScan,
       EstimatedRuntime = averageRuntime,
       EstimatedTaHits = averageHits
     });
@@ -54,7 +57,7 @@ public class DataSyncController : ControllerBase {
 
     var syncLog = new SyncHistory {
       Start = DateTime.UtcNow,
-      PlayerCount = hhPlayers.Count(),
+      PlayerCount = playersToScan.Count(),
       Profile = SyncProfileList.Full
     };
 

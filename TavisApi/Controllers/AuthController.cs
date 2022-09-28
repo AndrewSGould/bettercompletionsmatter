@@ -32,10 +32,10 @@ public class AuthController : ControllerBase
       return Unauthorized();
 
     var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, loginModel.Username),
-            new Claim(ClaimTypes.Role, "Super Admin")
-        };
+      {
+          new Claim(ClaimTypes.Name, loginModel.Username),
+          new Claim(ClaimTypes.Role, "Super Admin")
+      };
 
     var accessToken = _tokenService.GenerateAccessToken(claims);
 

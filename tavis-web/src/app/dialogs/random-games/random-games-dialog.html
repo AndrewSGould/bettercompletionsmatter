@@ -1,0 +1,18 @@
+<h4>Valid Draws</h4>
+<div>
+  <ul style="list-style-type: none;">
+    <li *ngFor="let valid of data.fullList" >
+      <span *ngIf="valid.randomGame !== ''"><b>{{valid.player}}</b> drew <i>{{valid.randomGame}}</i></span>
+    </li>
+  </ul>
+</div>
+
+<h4>Insufficient Eligible Games</h4>
+<div>
+  <ul style="list-style-type: none;">
+    <li *ngFor="let invalid of data.invalids">
+      <b>{{invalid.player}}</b>
+      <span>&nbsp;(Needs {{50 - invalid.eligibleCount}} more games for a valid draw)</span>
+    </li>
+  </ul>
+</div>

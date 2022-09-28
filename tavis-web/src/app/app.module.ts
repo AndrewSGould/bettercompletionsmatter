@@ -10,6 +10,11 @@ import { HomeComponent } from './components/home/home.component';
 import { SyncManagerComponent } from './components/sync-manager/sync-manager.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BcmAdminComponent } from './components/bcm-admin/bcm-admin.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
+import { RandomGamesDialog } from './dialogs/random-games/random-games-dialog';
 
 export function tokenGetter() { 
   return localStorage.getItem("jwt"); 
@@ -21,7 +26,8 @@ export function tokenGetter() {
     LoginComponent,
     HomeComponent,
     SyncManagerComponent,
-    BcmAdminComponent
+    BcmAdminComponent,
+    RandomGamesDialog
   ],
   imports: [
     BrowserModule,
@@ -30,6 +36,10 @@ export function tokenGetter() {
     HttpClientModule,
     FormsModule,
     MatProgressBarModule,
+    MatButtonModule,
+    MatDialogModule,
+    BrowserAnimationsModule,
+    CommonModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,

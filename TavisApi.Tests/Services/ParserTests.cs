@@ -138,6 +138,13 @@ public class ParserTests : IDisposable
   }
 
   [Fact]
+  public void Properly_Parses_TaDate_TBA() {
+    //TODO: actually check if its tomorrow
+    DateTime? parsedDate = _parse.TaDate("TBA");
+    Assert.Null(parsedDate);
+  }
+
+  [Fact]
   public void Properly_Parses_TaDate_MMDDYYYYString() {
     DateTime? parsedDate = _parse.TaDate("01/01/1900");
     Assert.IsType(typeof(DateTime), parsedDate);
@@ -178,6 +185,18 @@ public class ParserTests : IDisposable
   public void Properly_Parses_GamersCount(string unparsedGamersCount, int expectedCount) {
     var parsedCount = _parse.GamersCount(unparsedGamersCount);
     Assert.Equal(parsedCount, expectedCount);
+  }
+
+  [Theory]
+  [InlineData("", 0.0)]
+  [InlineData("-", 0.0)]
+  [InlineData(null, 0.0)]
+  [InlineData("0", 0.0)] 
+  [InlineData("1.0038", 1.0038)] 
+  [InlineData("19.8733", 19.8733)] 
+  public void Properly_Parses_DecimalString(string unparsedDecimal, double expectedDecimal) {
+    var parsedDecimal = _parse.DecimalString(unparsedDecimal);
+    Assert.Equal(parsedDecimal, expectedDecimal);
   }
 
   [Theory]
