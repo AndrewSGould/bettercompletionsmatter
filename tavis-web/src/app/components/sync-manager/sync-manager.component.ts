@@ -47,6 +47,13 @@ export class SyncManagerComponent implements OnInit {
     });
   }
 
+  syncLastMonthsCompletions() {
+    this.tavisService?.syncLastMonthsCompletions().subscribe(data => {
+      alert('finished!')
+      console.log(data);
+    });
+  }
+
   updateGameInfo() {
     this.tavisService?.updateGameInfo().subscribe(data => {
       console.log(data);

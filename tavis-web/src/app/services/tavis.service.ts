@@ -37,6 +37,14 @@ export class TavisService {
     return this.http.get(baseUrl + `bcm/hh`);
   }
 
+  syncLastMonthsCompletions(): Observable<any> {
+    return this.http.get(baseUrl + `datasync/lastmonthscompletions`);
+  }
+
+  produceBcmReport(): Observable<any> {
+    return this.http.get(baseUrl + `bcm/produceBcmReport`);
+  }
+
   create(data: any): Observable<any> {
     return this.http.post(baseUrl, data);
   }

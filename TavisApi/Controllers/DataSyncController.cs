@@ -27,11 +27,11 @@ public class DataSyncController : ControllerBase {
     _bcmService = bcmService;
   }
 
+  // Gets the stats of the scan, runtime, players scanned, etc
   [HttpGet, Authorize(Roles = "Super Admin")]
   [Route("syncInfo")]
   public IActionResult SyncInfo() {
-    var playersToScan = BcmController.HhPlayers.Count();
-    //var playersToScan = _bcmService.GetPlayers().Count();
+    var playersToScan = _bcmService.GetPlayers().Count();
 
     var syncs = _context.SyncHistory!.Where(x => x.Profile == SyncProfileList.Full);
     var averageHits = (syncs.Average(x => x.TaHits) / syncs.Average(x => x.PlayerCount)) * playersToScan;
@@ -44,16 +44,14 @@ public class DataSyncController : ControllerBase {
     });
   }
 
+  // Does a full scan of, currently, BCM players
+  // parameters can be customized to limit game collection size
+  // to reduce the amount of hits on TA
   [HttpGet, Authorize(Roles = "Super Admin")]
   [Route("full")]
   public IActionResult Sync()
   {
-    var hhPlayers = BcmController.HhPlayers;
-    var playersToScan = new List<Player>();
-
-    var players = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
-    var bcmPlayers = _context.Players!.Where(x => x.IsActive).ToList();
-    //var bcmPlayers = _bcmService.GetPlayers();
+    var playersToScan = _bcmService.GetPlayers();
 
     var syncLog = new SyncHistory {
       Start = DateTime.UtcNow,
@@ -61,14 +59,42 @@ public class DataSyncController : ControllerBase {
       Profile = SyncProfileList.Full
     };
 
-    foreach (var player in bcmPlayers) {
-      if (hhPlayers.Any(x => x.Player == player.Name))
-        playersToScan.Add(player);
-    }
-
-    //TODO: for now, this sync is setup to only pull random games
-    //  in the future, have the random game endpoint accept a sync option
+    // no options, sync everything
     var gcOptions = new SyncOptions {
+    };
+
+    var results = _dataSync.DynamicSync(playersToScan.OrderBy(x => x.Name).ToList(), gcOptions, syncLog, _hub);
+
+    syncLog.End = DateTime.UtcNow;
+    _context.SyncHistory!.Add(syncLog);
+    _context.SaveChanges();
+
+    return Ok();
+  }
+
+  // does a scan of completed games within the past month only
+  [HttpGet, Authorize(Roles = "Super Admin")]
+  [Route("lastmonthscompletions")]
+  public IActionResult SyncLastMonthsCompletions() 
+  {
+    var playersToScan = _bcmService.GetPlayers();
+
+    var syncLog = new SyncHistory {
+      Start = DateTime.UtcNow,
+      PlayerCount = playersToScan.Count(),
+      Profile = SyncProfileList.LastMonthsCompleted
+    };
+
+    // TODO: move this to private method and unit test
+    var now = DateTime.Now;    
+    var firstDayCurrentMonth = new DateTime(now.Year, now.Month, 1);
+    var lastDayLastMonth = firstDayCurrentMonth.AddMonths(-1).AddDays(-1);
+
+    var gcOptions = new SyncOptions {
+      CompletionStatus = SyncOption_CompletionStatus.Complete,
+      ContestStatus = SyncOption_ContestStatus.All,
+      DateCutoff = lastDayLastMonth,
+      TimeZone = SyncOption_Timezone.EST
     };
 
     var results = _dataSync.DynamicSync(playersToScan.OrderBy(x => x.Name).ToList(), gcOptions, syncLog, _hub);
@@ -83,6 +109,8 @@ public class DataSyncController : ControllerBase {
   //TODO: this is here just to test
   //eventually, pull this out to the service only
   //and ONLY call this when the user requests it
+  //---------------------
+  //this goes to all game pages to update the ancillary info
   [HttpGet]
   [Route("testSyncGameInfo")]
   public IActionResult SyncGameInfo() {
@@ -105,6 +133,8 @@ public class DataSyncController : ControllerBase {
     return Ok(elapsedTime);
   }
 
+  // goes to a special TA page and marks
+  // all games present as GwG
   [HttpGet]
   [Route("testGwgParse")]
   public IActionResult ParseGwg() {

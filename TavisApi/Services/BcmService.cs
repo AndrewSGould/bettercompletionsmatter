@@ -13,6 +13,6 @@ public class BcmService : IBcmService
 
   public List<Player> GetPlayers() {
     var bcmPlayers = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
-    return _context.Players!.Where(x => x.IsActive && bcmPlayers.Contains(x.Id)).ToList();
+    return _context.Players!.Where(x => x.IsActive && bcmPlayers.Contains(x.Id)).OrderBy(x => x.Name).ToList();
   }
 }

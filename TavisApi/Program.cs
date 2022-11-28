@@ -8,10 +8,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var configurationBuilder = new ConfigurationBuilder()
+                            .SetBasePath(builder.Environment.ContentRootPath)
+                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+                            .AddEnvironmentVariables();
 
-//var connectionString = builder.Configuration.GetConnectionString("WebApiDatabase");
-var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
+builder.Configuration.AddConfiguration(configurationBuilder.Build());
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<TavisContext>(x => x.UseNpgsql(connectionString));
 
 builder.Services.AddAuthentication(opt =>
@@ -27,8 +32,8 @@ builder.Services.AddAuthentication(opt =>
     ValidateAudience = true,
     ValidateLifetime = true,
     ValidateIssuerSigningKey = true,
-    ValidIssuer = "http://localhost:4300",
-    ValidAudience = "http://localhost:4200",
+    ValidIssuer = builder.Configuration["ServerConfigs:IssuerServer"],
+    ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
   };
 });
@@ -43,8 +48,8 @@ builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSetting
 
 builder.Services.AddCors(options =>
 {
-  options.AddPolicy("CorsPolicy", builder => builder
-    .WithOrigins("http://localhost:4200")
+  options.AddPolicy("CorsPolicy", build => build
+    .WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
@@ -58,8 +63,6 @@ builder.Services.AddScoped<IBcmService, BcmService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
