@@ -32,11 +32,7 @@ export class TavisService {
   testGwgParse(): Observable<any> {
     return this.http.get(baseUrl + `datasync/testGwgParse`);
   }
-
-  hhUpdate(): Observable<any> {
-    return this.http.get(baseUrl + `bcm/hh`);
-  }
-
+  
   syncLastMonthsCompletions(): Observable<any> {
     return this.http.get(baseUrl + `datasync/lastmonthscompletions`);
   }

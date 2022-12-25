@@ -25,12 +25,6 @@ export class BcmAdminComponent implements OnInit {
     })
   }
 
-  hhUpdate() {
-    this.tavisService?.hhUpdate().subscribe(data => {
-      console.log(data);
-    })
-  }
-
   produceBcmReport() {
     this.tavisService?.produceBcmReport().subscribe(data => {
       console.log(data);

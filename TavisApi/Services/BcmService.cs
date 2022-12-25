@@ -15,4 +15,8 @@ public class BcmService : IBcmService
     var bcmPlayers = _context.PlayerContests!.Where(x => x.ContestId == 1).Select(x => x.PlayerId);
     return _context.Players!.Where(x => x.IsActive && bcmPlayers.Contains(x.Id)).OrderBy(x => x.Name).ToList();
   }
+
+  public DateTime? GetContestStartDate() {
+    return _context.Contests.Where(x => x.Id == 1).Select(x => x.StartDate).FirstOrDefault();
+  }
 }

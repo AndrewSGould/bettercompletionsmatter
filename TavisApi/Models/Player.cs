@@ -10,5 +10,6 @@ namespace Tavis.Models {
 
     public ICollection<PlayerGame>? PlayerGames {get;set;}
     public ICollection<PlayerContest>? PlayerContests { get; set; }
+    public ICollection<PlayerCompletionHistory>? PlayerCompletionHistories { get; set; }
   }
 }

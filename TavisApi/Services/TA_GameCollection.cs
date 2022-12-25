@@ -72,6 +72,7 @@ public class TA_GameCollection : ITA_GameCollection {
     public SyncOption_CompletionStatus? CompletionStatus {get; set;}
     public SyncOption_ContestStatus? ContestStatus {get; set;}
     public DateTime? DateCutoff {get;set;}
+    public DateTime? LastUnlockCutoff {get; set;}
     public SyncOption_Timezone? TimeZone {get;set;}
   }
 

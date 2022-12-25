@@ -25,8 +25,9 @@ namespace TavisApi.Context
     public DbSet<GameGenre>? GameGenres {get;set;}
     public DbSet<Contest>? Contests {get;set;}
     public DbSet<PlayerContest>? PlayerContests {get;set;}
-    public DbSet<Login>? Logins { get; set; }
-    public DbSet<SyncHistory>? SyncHistory { get; set; }
+    public DbSet<Login>? Logins {get; set;}
+    public DbSet<SyncHistory>? SyncHistory {get; set;}
+    public DbSet<PlayerCompletionHistory>? PlayerCompletionHistory {get; set;}
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

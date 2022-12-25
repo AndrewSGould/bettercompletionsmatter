@@ -51,7 +51,7 @@ public class DataSyncController : ControllerBase {
   [Route("full")]
   public IActionResult Sync()
   {
-    var playersToScan = _bcmService.GetPlayers();
+    var playersToScan = _bcmService.GetPlayers().Where(x => x.Name.Contains("Echo"));
 
     var syncLog = new SyncHistory {
       Start = DateTime.UtcNow,
@@ -91,9 +91,8 @@ public class DataSyncController : ControllerBase {
     var lastDayLastMonth = firstDayCurrentMonth.AddMonths(-1).AddDays(-1);
 
     var gcOptions = new SyncOptions {
-      CompletionStatus = SyncOption_CompletionStatus.Complete,
       ContestStatus = SyncOption_ContestStatus.All,
-      DateCutoff = lastDayLastMonth,
+      LastUnlockCutoff = lastDayLastMonth,
       TimeZone = SyncOption_Timezone.EST
     };
 

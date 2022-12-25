@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using static TavisApi.Services.DataSync;
 using static TavisApi.Services.TA_GameCollection;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
 
 namespace TavisApi.Services;
 
@@ -86,6 +87,14 @@ public class DataSync : IDataSync {
 
     StructureCollectionPage(entireGameList, incomingData, player);
 
+    // Games can lose their completion if achievements are added
+    // Let's remember when the players originally completed the game
+    SaveRecompletionHistory(incomingData, taGameIdList, player);
+
+    // a user can remove a game from their collection if they never
+    // started it. let's make sure to have Tavis forget about it
+    RemoveGamesFromCollection(incomingData, player, gcOptions);
+
     SaveNewlyDetectedGames(incomingData, taGameIdList);
     UpdateGameInformation(incomingData, taGameIdList);
 
@@ -108,6 +117,62 @@ public class DataSync : IDataSync {
       TaHits = page,
       TimeHittingTa = timeHittingTa
     };
+  }
+
+  private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, Player player, SyncOptions gcOptions) {
+    // Only remove Games from collection if we are doing a full sync
+    if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value || 
+      gcOptions.ContestStatus.Value != SyncOption_ContestStatus.All.Value || 
+      gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null)
+        return;    
+
+    // Get all the TA ID's Tavis has for the player
+    var gamesInCollection = _context.PlayerGames.Where(x => x.PlayerId == player.Id)
+                              .Join(_context.Games, pg => pg.GameId, g => g.Id, (pg, g) => new {pg, g})
+                              .Select(x => (int)x.g.TrueAchievementId).ToList();
+
+    // Get all the TA ID's for the newly scanned games
+    var incomingGames = incomingData.Select(x => x.GameId).ToList();
+
+    // Find the ID's that are in the collection but not in the incoming data
+    // These games have been removed from their collection
+    var removedGames = gamesInCollection.Except(incomingGames).ToList();
+
+    // Translate the TA ID of the game to Tavis' Game ID
+    var tavisGameIds = _context.Games.Where(x => removedGames.Contains(x.TrueAchievementId)).Select(x => x.Id).ToList();
+
+    // Have the DB forget about the removed games
+    foreach (var gameId in tavisGameIds) {
+      var removedGame = _context.PlayerGames.Where(x => x.GameId == gameId && x.PlayerId == player.Id).First();
+      _context.PlayerGames.Remove(removedGame);
+    }
+
+    _context.SaveChanges();
+  }
+
+  private void SaveRecompletionHistory(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player) {
+    // Get all scanned games that are completed
+    var incomingCompletedGames = incomingData.Where(x => x.CompletionDate != null);
+    var completedIncomingGames = incomingCompletedGames
+                                  .Join(_context.Games, cig => cig.GameId, g => g.TrueAchievementId, (cig, g) => new {cig, g});
+
+    // Get the current completion status of the player's games
+    var playersCurrentCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == player.Id && x.CompletionDate != null)
+                                                            .OrderByDescending(x => x.CompletionDate);
+
+    // Compare the incoming completions with the completions on the PlayerGames table. If it's different it's a re-completion
+    foreach(var incomingCompletion in completedIncomingGames) {
+      var previouslyCompletedGame = playersCurrentCompletedGames.Where(x => x.Game.TrueAchievementId == incomingCompletion.g.TrueAchievementId).FirstOrDefault();
+      if (previouslyCompletedGame != null && incomingCompletion.cig.CompletionDate != previouslyCompletedGame.CompletionDate) {
+        _context.PlayerCompletionHistory.Add(new PlayerCompletionHistory {
+          PlayerId = player.Id,
+          GameId = incomingCompletion.g.Id,
+          CompletionDate = previouslyCompletedGame.CompletionDate ?? DateTime.MinValue
+        });
+      }
+    }
+
+    _context.SaveChanges();
   }
 
   private TimeSpan ParseCollectionPage(int playerTrueAchId, List<List<CollectionSplit>> entireCollection, SyncOptions gcOptions, ref int page) {
@@ -143,9 +208,15 @@ public class DataSync : IDataSync {
       if (collectionPage.Count() == 100) {
 
         // if we have a cutoff, lets try to quit parsing early
-        if (gcOptions.DateCutoff != null) {
+        if (gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null) {
           var lastEntry = collectionPage.Last();
           var lastEntryCompletionDate = _parser.TaDate(lastEntry![6].CollectionValuesHtml!);
+          var lastUnlockDate = _parser.TaDate(lastEntry![7].CollectionValuesHtml);
+
+          if (lastUnlockDate < gcOptions.LastUnlockCutoff) {
+            stopWatch.Stop();
+            return stopWatch.Elapsed;
+          }
 
           if (lastEntryCompletionDate < gcOptions.DateCutoff) {
             stopWatch.Stop();
