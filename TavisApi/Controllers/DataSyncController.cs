@@ -51,7 +51,7 @@ public class DataSyncController : ControllerBase {
   [Route("full")]
   public IActionResult Sync()
   {
-    var playersToScan = _bcmService.GetPlayers().Where(x => x.Name.Contains("Echo"));
+    var playersToScan = _bcmService.GetPlayers();
 
     var syncLog = new SyncHistory {
       Start = DateTime.UtcNow,

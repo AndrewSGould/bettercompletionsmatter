@@ -14,8 +14,8 @@ public class ContestConfiguration : IEntityTypeConfiguration<Contest>
       new Contest {
         Id = 1,
         Name = "Better Completions Matter",
-        StartDate = DateTime.SpecifyKind(new DateTime(2022, 1, 1), DateTimeKind.Utc),
-        EndDate = DateTime.SpecifyKind(new DateTime(2023, 1, 1), DateTimeKind.Utc)
+        StartDate = DateTime.SpecifyKind(new DateTime(2023, 1, 1), DateTimeKind.Utc),
+        EndDate = DateTime.SpecifyKind(new DateTime(2024, 1, 1), DateTimeKind.Utc)
       },
       new Contest {
         Id = 2,

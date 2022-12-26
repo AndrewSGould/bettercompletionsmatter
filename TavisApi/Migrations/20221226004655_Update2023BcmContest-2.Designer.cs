@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20221226004655_Update2023BcmContest-2")]
+    partial class Update2023BcmContest2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1119,7 +1121,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 44,
                             Area = "Oklahoma",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Mattism",
                             Region = "United States",
                             TrueAchievementId = 17362
@@ -1515,7 +1517,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 89,
                             Area = "Maryland",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "KooshMoose",
                             Region = "United States",
                             TrueAchievementId = 435315
@@ -1964,7 +1966,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 140,
                             Area = "British Columbia",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Ace",
                             Region = "Canada",
                             TrueAchievementId = 684086

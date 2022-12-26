@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20221225233133_Bcm2023Players")]
+    partial class Bcm2023Players
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,9 +49,9 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 1,
-                            EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "Better Completions Matter",
-                            StartDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                            StartDate = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -1119,7 +1121,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 44,
                             Area = "Oklahoma",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Mattism",
                             Region = "United States",
                             TrueAchievementId = 17362
@@ -1515,7 +1517,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 89,
                             Area = "Maryland",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "KooshMoose",
                             Region = "United States",
                             TrueAchievementId = 435315
@@ -1964,7 +1966,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 140,
                             Area = "British Columbia",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Ace",
                             Region = "Canada",
                             TrueAchievementId = 684086
@@ -2484,222 +2486,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 60
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 50
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 140
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 177
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 164
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 24
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 101
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 56
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 114
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 145
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 76
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 129
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 178
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 15
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 83
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 26
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 74
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 106
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 179
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 16
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 180
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 85
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 121
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 181
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 65
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 109
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 161
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 2
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 29
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 154
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 182
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 10
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 41
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 124
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 77
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 57
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 73
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 126
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 54
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 42
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 88
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 78
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 62
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 22
+                            PlayerId = 6
                         },
                         new
                         {
@@ -2709,72 +2496,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 19
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 183
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 3
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 98
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 184
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 17
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 79
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 55
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 68
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 89
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 185
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 1
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 186
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 63
+                            PlayerId = 8
                         },
                         new
                         {
@@ -2784,122 +2506,12 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 8
+                            PlayerId = 10
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 119
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 187
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 122
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 149
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 44
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 188
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 189
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 190
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 191
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 72
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 27
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 39
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 94
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 192
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 58
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 193
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 86
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 120
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 194
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 33
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 195
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 93
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 144
+                            PlayerId = 11
                         },
                         new
                         {
@@ -2909,17 +2521,62 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 104
+                            PlayerId = 13
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 196
+                            PlayerId = 14
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 197
+                            PlayerId = 15
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 16
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 17
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 18
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 19
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 20
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 1
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 2
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 3
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 4
                         },
                         new
                         {
@@ -2934,12 +2591,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 198
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 127
+                            PlayerId = 22
                         },
                         new
                         {
@@ -2949,32 +2601,32 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 70
+                            PlayerId = 24
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 36
+                            PlayerId = 25
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 136
+                            PlayerId = 26
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 199
+                            PlayerId = 27
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 47
+                            PlayerId = 28
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 91
+                            PlayerId = 29
                         },
                         new
                         {
@@ -2984,12 +2636,322 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
+                            PlayerId = 31
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 32
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 33
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 34
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 35
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 36
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 37
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 38
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 39
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 40
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 41
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 42
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 43
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 44
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 45
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 46
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 47
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 48
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 49
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 50
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 51
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 52
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 53
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 54
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 55
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 56
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 57
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 58
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 59
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 60
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 61
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 62
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 63
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 64
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 65
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 66
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 67
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 68
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 69
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 70
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 71
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 72
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 73
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 74
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 75
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 76
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 77
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 78
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 79
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 80
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 81
+                        },
+                        new
+                        {
+                            ContestId = 1,
                             PlayerId = 82
                         },
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 18
+                            PlayerId = 83
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 84
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 85
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 86
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 87
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 88
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 89
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 90
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 91
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 92
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 93
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 94
                         },
                         new
                         {
@@ -2999,7 +2961,637 @@ namespace TavisApi.Migrations
                         new
                         {
                             ContestId = 1,
-                            PlayerId = 80
+                            PlayerId = 96
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 97
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 98
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 99
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 100
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 101
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 102
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 103
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 104
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 105
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 106
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 107
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 108
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 109
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 110
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 111
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 112
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 113
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 114
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 115
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 116
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 117
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 118
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 119
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 120
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 121
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 122
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 123
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 124
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 125
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 126
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 127
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 128
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 129
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 130
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 131
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 132
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 133
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 134
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 135
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 136
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 137
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 138
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 139
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 140
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 141
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 142
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 143
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 144
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 145
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 146
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 147
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 148
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 149
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 150
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 151
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 152
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 153
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 154
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 155
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 156
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 50
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 140
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 171
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 164
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 56
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 114
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 83
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 49
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 106
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 172
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 161
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 168
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 2
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 29
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 77
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 54
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 174
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 62
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 22
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 7
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 162
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 3
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 132
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 167
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 17
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 89
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 1
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 32
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 173
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 8
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 119
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 122
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 134
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 48
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 39
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 159
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 94
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 160
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 163
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 66
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 64
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 170
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 144
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 12
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 81
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 11
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 166
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 165
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 36
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 136
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 91
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 157
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 95
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 169
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 59
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 175
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 105
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 120
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 9
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 126
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 93
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 124
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 176
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 72
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 158
+                        },
+                        new
+                        {
+                            ContestId = 2,
+                            PlayerId = 118
                         });
                 });
 
