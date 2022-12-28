@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20221226182850_Bcm2023AddPhilip")]
+    partial class Bcm2023AddPhilip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -953,7 +955,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 25,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "nuttywray",
                             Region = "England",
                             TrueAchievementId = 292068
@@ -1007,7 +1009,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 31,
                             Area = "Rhineland-Palatinate",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "GD GodSpeed",
                             Region = "Germany",
                             TrueAchievementId = 767838
@@ -1338,7 +1340,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 69,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "WoodsMonk",
                             Region = "England",
                             TrueAchievementId = 46893
@@ -1356,7 +1358,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 71,
                             Area = "Cardiff",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Kitty Skies",
                             Region = "Wales",
                             TrueAchievementId = 321249
@@ -1392,7 +1394,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 75,
                             Area = "Virginia",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "SprinkyDink",
                             Region = "United States",
                             TrueAchievementId = 391799
@@ -1681,7 +1683,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 108,
                             Area = "Lower Saxony",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "III Torpedo III",
                             Region = "Germany",
                             TrueAchievementId = 94956
@@ -1724,7 +1726,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 113,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Muetschens",
                             Region = "Switzerland",
                             TrueAchievementId = 64293
@@ -1742,7 +1744,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 115,
                             Area = "New York",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "K4rn4ge",
                             Region = "United States",
                             TrueAchievementId = 2898
@@ -3005,46 +3007,6 @@ namespace TavisApi.Migrations
                         {
                             ContestId = 1,
                             PlayerId = 99
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 75
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 25
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 71
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 31
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 115
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 113
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 108
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 69
                         });
                 });
 

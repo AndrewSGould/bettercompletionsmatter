@@ -70,7 +70,7 @@ public class BcmController : ControllerBase {
         Player = player.Name,
         RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGameOptions?[random].Games.Title,
         EligibleCount = randomGameOptions.Count(),
-        GameList = randomGameOptions.Select(x => x.Games.Title).ToList()
+        GameList = randomGameOptions.Select(x => x.Games.Title).OrderBy(x => x).ToList()
       });
     }
 

@@ -439,6 +439,42 @@ public class PlayerContestConfiguration : IEntityTypeConfiguration<PlayerContest
       new PlayerContest {
         PlayerId = 80,
         ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 99,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 75,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 25,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 71,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 31,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 115,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 113,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 108,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 69,
+        ContestId = 1
       }
 #endregion
     );

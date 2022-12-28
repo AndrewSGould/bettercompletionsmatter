@@ -208,7 +208,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "nuttywray",
         Region = "England",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 26,
@@ -256,7 +256,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "GD GodSpeed",
         Region = "Germany",
         Area = "Rhineland-Palatinate",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 32,
@@ -560,7 +560,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "WoodsMonk",
         Region = "England",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 70,
@@ -576,7 +576,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Kitty Skies",
         Region = "Wales",
         Area = "Cardiff",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 72,
@@ -608,7 +608,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "SprinkyDink",
         Region = "United States",
         Area = "Virginia",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 76,
@@ -800,7 +800,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "PhillipWendell",
         Region = "United States",
         Area = "Georgia",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 100,
@@ -872,7 +872,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "III Torpedo III",
         Region = "Germany",
         Area = "Lower Saxony",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 109,
@@ -912,7 +912,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Muetschens",
         Region = "Switzerland",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 114,
@@ -928,7 +928,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "K4rn4ge",
         Region = "United States",
         Area = "New York",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 116,
@@ -1540,7 +1540,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
       },
       new Player {
         Id = 192,
-        TrueAchievementId = 107004,
+        TrueAchievementId = 274932,
         Name = "princit",
         Region = "Brazil",
         Area = null,
