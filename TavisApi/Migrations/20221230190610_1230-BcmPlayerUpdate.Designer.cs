@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20221230190610_1230-BcmPlayerUpdate")]
+    partial class _1230BcmPlayerUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -830,7 +832,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 11,
                             Area = "Ontario",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "smrnov",
                             Region = "Canada",
                             TrueAchievementId = 1815
@@ -1127,7 +1129,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 45,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Alyssiya",
                             Region = "England",
                             TrueAchievementId = 667139
@@ -1577,7 +1579,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 96,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Redanian",
                             Region = "England",
                             TrueAchievementId = 401906
@@ -1672,7 +1674,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 107,
                             Area = "Massachusetts",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "SaucySlingo",
                             Region = "United States",
                             TrueAchievementId = 333080
@@ -1698,7 +1700,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 110,
                             Area = "Cardiff",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "Lord Zell",
                             Region = "Wales",
                             TrueAchievementId = 434741
@@ -1937,7 +1939,7 @@ namespace TavisApi.Migrations
                         {
                             Id = 137,
                             Area = "Louisiana",
-                            IsActive = true,
+                            IsActive = false,
                             Name = "ILethalStang",
                             Region = "United States",
                             TrueAchievementId = 628247
@@ -2016,7 +2018,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 146,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "MrWolfw00d",
                             Region = "England",
                             TrueAchievementId = 375330
@@ -2154,7 +2156,7 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 163,
-                            IsActive = true,
+                            IsActive = false,
                             Name = "PRTM CLUESCROL",
                             TrueAchievementId = 597081
                         },
@@ -2470,76 +2472,6 @@ namespace TavisApi.Migrations
                             Name = "AcaelusT",
                             Region = "South America",
                             TrueAchievementId = 684497
-                        },
-                        new
-                        {
-                            Id = 204,
-                            IsActive = true,
-                            Name = "Ow Nitram",
-                            TrueAchievementId = 44122
-                        },
-                        new
-                        {
-                            Id = 205,
-                            IsActive = true,
-                            Name = "PaunchyDeer473",
-                            TrueAchievementId = 349069
-                        },
-                        new
-                        {
-                            Id = 206,
-                            IsActive = true,
-                            Name = "SlayingUrchin3",
-                            TrueAchievementId = 613063
-                        },
-                        new
-                        {
-                            Id = 207,
-                            IsActive = true,
-                            Name = "Raw Sauce Ross",
-                            TrueAchievementId = 368168
-                        },
-                        new
-                        {
-                            Id = 208,
-                            IsActive = true,
-                            Name = "DANIELJJ14",
-                            TrueAchievementId = 567738
-                        },
-                        new
-                        {
-                            Id = 209,
-                            IsActive = true,
-                            Name = "Saint Riley",
-                            TrueAchievementId = 380038
-                        },
-                        new
-                        {
-                            Id = 210,
-                            IsActive = true,
-                            Name = "GoatFondler1",
-                            TrueAchievementId = 1009214
-                        },
-                        new
-                        {
-                            Id = 211,
-                            IsActive = true,
-                            Name = "Morbid237",
-                            TrueAchievementId = 315362
-                        },
-                        new
-                        {
-                            Id = 212,
-                            IsActive = true,
-                            Name = "Chezno",
-                            TrueAchievementId = 743880
-                        },
-                        new
-                        {
-                            Id = 213,
-                            IsActive = true,
-                            Name = "JonnyDelicious",
-                            TrueAchievementId = 20116
                         });
                 });
 
@@ -3208,96 +3140,6 @@ namespace TavisApi.Migrations
                         {
                             ContestId = 1,
                             PlayerId = 203
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 110
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 146
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 206
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 45
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 207
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 208
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 137
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 96
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 209
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 107
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 210
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 211
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 11
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 163
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 212
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 213
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 204
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 205
                         });
                 });
 

@@ -44,8 +44,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
-builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
-
 builder.Services.AddCors(options =>
 {
   options.AddPolicy("CorsPolicy", build => build
@@ -54,6 +52,8 @@ builder.Services.AddCors(options =>
     .AllowAnyHeader()
     .AllowCredentials());
 });
+
+builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 //TODO: lets pull out the interface hookups
 builder.Services.AddScoped<IParser, Parser>();

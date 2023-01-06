@@ -1,0 +1,47 @@
+version: '3.8'
+
+networks:
+  network:
+    driver: bridge
+
+services:
+  frontend:
+    container_name: frontend
+    image: web
+    build: 
+      context: ./tavis-web
+    ports:
+      - "4200:8080"
+    networks: 
+      - network
+  
+  backend:
+    container_name: backend
+    image: api
+    depends_on:
+      - postgres_image
+    build:
+      context: ./TavisApi
+    networks: 
+      - network
+    ports:
+      - "4300:80"
+    environment:
+      DB_CONNECTION_STRING: "Data Source=localhost;Initial Catalog=tavis_dev;Persist Security Info=True;User ID=postgres;Password=pomFp0$1;"
+    
+  postgres_image:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "pomFp0$1"
+      POSTGRES_DB: "tavis_dev"
+    networks:
+      - network
+
+volumes:
+  db_volume:

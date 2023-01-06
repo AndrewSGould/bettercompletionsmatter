@@ -475,6 +475,126 @@ public class PlayerContestConfiguration : IEntityTypeConfiguration<PlayerContest
       new PlayerContest {
         PlayerId = 69,
         ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 116,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 34,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 112,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 143,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 51,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 20,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 105,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 170,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 200,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 201,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 202,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 203,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 110,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 146,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 206,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 45,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 207,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 208,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 137,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 96,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 209,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 107,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 210,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 211,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 11,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 163,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 212,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 213,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 204,
+        ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 205,
+        ContestId = 1
       }
 #endregion
     );

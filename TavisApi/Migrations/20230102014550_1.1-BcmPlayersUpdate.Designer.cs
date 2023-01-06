@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20230102014550_1.1-BcmPlayersUpdate")]
+    partial class _11BcmPlayersUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3288,16 +3290,6 @@ namespace TavisApi.Migrations
                         {
                             ContestId = 1,
                             PlayerId = 213
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 204
-                        },
-                        new
-                        {
-                            ContestId = 1,
-                            PlayerId = 205
                         });
                 });
 

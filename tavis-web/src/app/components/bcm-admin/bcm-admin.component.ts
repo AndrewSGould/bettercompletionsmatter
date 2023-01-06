@@ -30,5 +30,17 @@ export class BcmAdminComponent implements OnInit {
       console.log(data);
     })
   }
+
+  produceStatReport() {
+    this.tavisService?.produceStatReport().subscribe(data => {
+      console.log(data);
+    })
+  }
+
+  unique14chars() {
+    this.tavisService?.unique14chars().subscribe(data => {
+      console.log(data);
+    })
+  }
 }
 

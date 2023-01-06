@@ -96,7 +96,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "smrnov",
         Region = "Canada",
         Area = "Ontario",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 12,
@@ -168,7 +168,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "AC Rock3tman",
         Region = "Germany",
         Area = "Hesse",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 21,
@@ -280,7 +280,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "UltimateDespair",
         Region = "England",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 35,
@@ -368,7 +368,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Alyssiya",
         Region = "England",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 46,
@@ -416,7 +416,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Ethigy",
         Region = "United States",
         Area = "Washington",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 52,
@@ -776,7 +776,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Redanian",
         Region = "England",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 97,
@@ -848,7 +848,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "xLAx JesteR",
         Region = "England",
         Area = "Derbyshire",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 106,
@@ -864,7 +864,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "SaucySlingo",
         Region = "United States",
         Area = "Massachusetts",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 108,
@@ -888,7 +888,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Lord Zell",
         Region = "Wales",
         Area = "Cardiff",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 111,
@@ -904,7 +904,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Not A Designer",
         Region = "United States",
         Area = "Tennessee",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 113,
@@ -936,7 +936,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "bryan dot exe",
         Region = "United States",
         Area = "Texas",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 117,
@@ -1104,7 +1104,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "ILethalStang",
         Region = "United States",
         Area = "Louisiana",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 138,
@@ -1152,7 +1152,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "SKOOT2006",
         Region = "United States",
         Area = "Texas",
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 144,
@@ -1176,7 +1176,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "MrWolfw00d",
         Region = "England",
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 147,
@@ -1312,7 +1312,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "PRTM CLUESCROL",
         Region = null,
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 164,
@@ -1368,7 +1368,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Name = "Shadow",
         Region = null,
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 171,
@@ -1462,8 +1462,8 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Id = 182,
         TrueAchievementId = 413009,
         Name = "FAREP Bunitin",
-        Region = "Brazil",
-        Area = null,
+        Region = "South America",
+        Area = "Brazil",
         IsActive = true
       },
       new Player {
@@ -1542,8 +1542,8 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Id = 192,
         TrueAchievementId = 274932,
         Name = "princit",
-        Region = "Brazil",
-        Area = null,
+        Region = "South America",
+        Area = "Brazil",
         IsActive = true
       },
       new Player {
@@ -1598,7 +1598,119 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
         Id = 199,
         TrueAchievementId = 386934,
         Name = "wellingtonbalbo",
-        Region = "Brazil",
+        Region = "South America",
+        Area = "Brazil",
+        IsActive = true
+      },
+      new Player {
+        Id = 200,
+        TrueAchievementId = 404521,
+        Name = "KingsOfDispair",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 201,
+        TrueAchievementId = 689458,
+        Name = "EdenWeekes86",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 202,
+        TrueAchievementId = 719694,
+        Name = "MobileSuitVB",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 203,
+        TrueAchievementId = 684497,
+        Name = "AcaelusT",
+        Region = "South America",
+        Area = "Argentina",
+        IsActive = true
+      },
+      new Player {
+        Id = 204,
+        TrueAchievementId = 44122,
+        Name = "Ow Nitram",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 205,
+        TrueAchievementId = 349069,
+        Name = "PaunchyDeer473",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 206,
+        TrueAchievementId = 613063,
+        Name = "SlayingUrchin3",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 207,
+        TrueAchievementId = 368168,
+        Name = "Raw Sauce Ross",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 208,
+        TrueAchievementId = 567738,
+        Name = "DANIELJJ14",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 209,
+        TrueAchievementId = 380038,
+        Name = "Saint Riley",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 210,
+        TrueAchievementId = 1009214,
+        Name = "GoatFondler1",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 211,
+        TrueAchievementId = 315362,
+        Name = "Morbid237",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 212,
+        TrueAchievementId = 743880,
+        Name = "Chezno",
+        Region = null,
+        Area = null,
+        IsActive = true
+      },
+      new Player {
+        Id = 213,
+        TrueAchievementId = 20116,
+        Name = "JonnyDelicious",
+        Region = null,
         Area = null,
         IsActive = true
       }

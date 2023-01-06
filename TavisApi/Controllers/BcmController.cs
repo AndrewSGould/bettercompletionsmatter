@@ -85,6 +85,125 @@ public class BcmController : ControllerBase {
   }
 
   [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [Route("produceStatReport")]
+  public IActionResult StatReport() {
+    var bcmPlayers = _bcmService.GetPlayers();
+    var statSpread = new List<object>();
+
+    foreach(var player in bcmPlayers) {
+      var playerGames = _context.PlayerGames.Where(x => x.PlayerId == player.Id);
+
+      var gamerscoreTotal = playerGames.Sum(x => x.Gamerscore);
+      var trueachievementTotal = playerGames.Sum(x => x.TrueAchievement);
+      var completions = playerGames.Count(x => x.CompletionDate != null);
+
+      var stats = new {
+        Player = player.Name,
+        Gamerscore = gamerscoreTotal,
+        TrueAchievement = trueachievementTotal,
+        Ratio = trueachievementTotal == 0 ? 0 : Math.Round((decimal)((decimal)trueachievementTotal / gamerscoreTotal), 4),
+        TAD = trueachievementTotal == 0 ? 0 : trueachievementTotal - gamerscoreTotal,
+        Completions = completions
+      };
+
+      statSpread.Add(stats);
+    }
+    
+
+    return Ok(statSpread);
+  }
+
+  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [Route("unique14chars")]
+  public IActionResult Unique14Chars() {
+    List<string> gamesHigherThan14Chars = _context.Players.Join(_context.PlayerGames, p => p.Id, pg => pg.PlayerId, 
+                                    (p, pg) => new { Player = p, PlayerGame = pg})
+                                    .Join(_context.Games, ppg => ppg.PlayerGame.GameId, g => g.Id,
+                                      (ppg, g) => new {PlayerWithGame = ppg, Game = g})
+                                        .Where(x => x.PlayerWithGame.Player.Name.Contains("Echo")
+                                          && x.PlayerWithGame.PlayerGame.CompletionDate == null).ToList()
+                                          .Where(x => x.Game.Title.Distinct().Count() > 13).Select(x => x.Game.Title).ToList();
+
+    var gamesToRemove = new List<string>();
+
+    foreach(var game in gamesHigherThan14Chars) {
+      var gametest = game;
+      
+      if (gametest.Contains("(WP)"))
+        gametest = gametest.Replace("(WP)", "");
+
+      if (gametest.Contains("(Windows)"))
+        gametest = gametest.Replace("(Windows)", "");
+
+      if (gametest.Contains("(Xbox 360)"))
+        gametest = gametest.Replace("(Xbox 360)", "");
+
+      if (gametest.Contains("(Xbox One)"))
+        gametest = gametest.Replace("(Xbox One)", "");
+
+      if (gametest.Contains(" II"))
+        gametest = gametest.Replace(" II", "");
+
+      if (gametest.Contains(" III"))
+        gametest = gametest.Replace(" III", "");
+
+      if (gametest.Contains(" IV"))
+        gametest = gametest.Replace(" IV", "");
+      
+      if (gametest.Contains(" V"))
+        gametest = gametest.Replace(" V", "");
+
+      if (gametest.Contains(" VI"))
+        gametest = gametest.Replace(" VI", "");
+
+      if (gametest.Contains(" VII"))
+        gametest = gametest.Replace(" VII", "");
+
+      if (gametest.Contains(" VIII"))
+        gametest = gametest.Replace(" VIII", "");
+      
+      if (gametest.Contains(" IX"))
+        gametest = gametest.Replace(" IX", "");
+
+      if (gametest.Contains(" X"))
+        gametest = gametest.Replace(" X", "");
+
+      if (gametest.Contains(" XI"))
+        gametest = gametest.Replace(" XI", "");
+
+      if (gametest.Contains(" XII"))
+        gametest = gametest.Replace(" XII", "");
+
+      if (gametest.Contains(" XIII"))
+        gametest = gametest.Replace(" XIII", "");
+
+      if (gametest.Contains(" XIV"))
+        gametest = gametest.Replace(" XIV", "");
+
+      if (gametest.Contains(" XV"))
+        gametest = gametest.Replace(" XV", "");
+
+      if (gametest.Contains(" XVI"))
+        gametest = gametest.Replace(" XVI", "");
+
+      if (gametest.Contains("(JP)"))
+        gametest = gametest.Replace("(JP)", "");
+
+      if (gametest.Contains("(EU)"))
+        gametest = gametest.Replace("(EU)", "");
+
+      if (gametest.Distinct().Count(char.IsLetter) < 14)
+        gamesToRemove.Add(game);
+    }
+
+    foreach(var game in gamesToRemove) {
+      gamesHigherThan14Chars.Remove(game);
+    }
+
+    return Ok(gamesHigherThan14Chars);
+  }
+
+  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
   [Route("produceBcmReport")]
   public IActionResult BcmReport() {
     WriteExcelFile();

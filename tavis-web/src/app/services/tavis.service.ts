@@ -41,6 +41,14 @@ export class TavisService {
     return this.http.get(baseUrl + `bcm/produceBcmReport`);
   }
 
+  produceStatReport(): Observable<any> {
+    return this.http.get(baseUrl + `bcm/produceStatReport`);
+  }
+
+  unique14chars(): Observable<any> {
+    return this.http.get(baseUrl + `bcm/unique14chars`);
+  }
+
   create(data: any): Observable<any> {
     return this.http.post(baseUrl, data);
   }
