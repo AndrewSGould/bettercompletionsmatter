@@ -7,14 +7,24 @@ using TavisApi.Services;
 
 public class TokenService : ITokenService
 {
+  private readonly string _apiServer;
+  private readonly string _clientServer;
+
+  public TokenService(IConfiguration config) {
+    var serverConfigs = config.GetSection("ServerConfigs");
+
+    _apiServer = serverConfigs["IssuerServer"];
+    _clientServer = serverConfigs["AudienceServer"];
+  }
+
   public string GenerateAccessToken(IEnumerable<Claim> claims)
   {
     var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
     var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
     
     var tokeOptions = new JwtSecurityToken(
-      issuer: "http://localhost:4300",
-      audience: "http://localhost:4200",
+      issuer: _apiServer,
+      audience: _clientServer,
       claims: claims,
       expires: DateTime.Now.AddMinutes(5),
       signingCredentials: signinCredentials

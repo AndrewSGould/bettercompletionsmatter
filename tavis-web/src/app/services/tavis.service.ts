@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Game } from 'src/models/game';
 import { Player } from 'src/models/player';
+import { environment } from '../../environments/environment';
 
-const baseUrl = 'http://localhost:4200/api/';
+const baseUrl = environment.api.baseUrl;
 
 @Injectable({
   providedIn: 'root'

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as signalR from "@microsoft/signalr"
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class SignalrService {
 
   public startConnection = () => {
     this.hubConnection = new signalR.HubConnectionBuilder()
-                          .withUrl('http://localhost:4300/datasync')
+                          .withUrl(environment.api.base + 'datasync')
                           .build();
     this.hubConnection
       .start()
