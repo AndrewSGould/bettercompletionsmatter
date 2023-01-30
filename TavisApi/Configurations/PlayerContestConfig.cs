@@ -595,6 +595,10 @@ public class PlayerContestConfiguration : IEntityTypeConfiguration<PlayerContest
       new PlayerContest {
         PlayerId = 205,
         ContestId = 1
+      },
+      new PlayerContest {
+        PlayerId = 160,
+        ContestId = 1
       }
 #endregion
     );

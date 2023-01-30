@@ -114,99 +114,17 @@ public class BcmController : ControllerBase {
   }
 
   [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
-  [Route("unique14chars")]
-  public IActionResult Unique14Chars() {
-    List<string> gamesHigherThan14Chars = _context.Players.Join(_context.PlayerGames, p => p.Id, pg => pg.PlayerId, 
-                                    (p, pg) => new { Player = p, PlayerGame = pg})
-                                    .Join(_context.Games, ppg => ppg.PlayerGame.GameId, g => g.Id,
-                                      (ppg, g) => new {PlayerWithGame = ppg, Game = g})
-                                        .Where(x => x.PlayerWithGame.Player.Name.Contains("Echo")
-                                          && x.PlayerWithGame.PlayerGame.CompletionDate == null).ToList()
-                                          .Where(x => x.Game.Title.Distinct().Count() > 13).Select(x => x.Game.Title).ToList();
-
-    var gamesToRemove = new List<string>();
-
-    foreach(var game in gamesHigherThan14Chars) {
-      var gametest = game;
-      
-      if (gametest.Contains("(WP)"))
-        gametest = gametest.Replace("(WP)", "");
-
-      if (gametest.Contains("(Windows)"))
-        gametest = gametest.Replace("(Windows)", "");
-
-      if (gametest.Contains("(Xbox 360)"))
-        gametest = gametest.Replace("(Xbox 360)", "");
-
-      if (gametest.Contains("(Xbox One)"))
-        gametest = gametest.Replace("(Xbox One)", "");
-
-      if (gametest.Contains(" II"))
-        gametest = gametest.Replace(" II", "");
-
-      if (gametest.Contains(" III"))
-        gametest = gametest.Replace(" III", "");
-
-      if (gametest.Contains(" IV"))
-        gametest = gametest.Replace(" IV", "");
-      
-      if (gametest.Contains(" V"))
-        gametest = gametest.Replace(" V", "");
-
-      if (gametest.Contains(" VI"))
-        gametest = gametest.Replace(" VI", "");
-
-      if (gametest.Contains(" VII"))
-        gametest = gametest.Replace(" VII", "");
-
-      if (gametest.Contains(" VIII"))
-        gametest = gametest.Replace(" VIII", "");
-      
-      if (gametest.Contains(" IX"))
-        gametest = gametest.Replace(" IX", "");
-
-      if (gametest.Contains(" X"))
-        gametest = gametest.Replace(" X", "");
-
-      if (gametest.Contains(" XI"))
-        gametest = gametest.Replace(" XI", "");
-
-      if (gametest.Contains(" XII"))
-        gametest = gametest.Replace(" XII", "");
-
-      if (gametest.Contains(" XIII"))
-        gametest = gametest.Replace(" XIII", "");
-
-      if (gametest.Contains(" XIV"))
-        gametest = gametest.Replace(" XIV", "");
-
-      if (gametest.Contains(" XV"))
-        gametest = gametest.Replace(" XV", "");
-
-      if (gametest.Contains(" XVI"))
-        gametest = gametest.Replace(" XVI", "");
-
-      if (gametest.Contains("(JP)"))
-        gametest = gametest.Replace("(JP)", "");
-
-      if (gametest.Contains("(EU)"))
-        gametest = gametest.Replace("(EU)", "");
-
-      if (gametest.Distinct().Count(char.IsLetter) < 14)
-        gamesToRemove.Add(game);
-    }
-
-    foreach(var game in gamesToRemove) {
-      gamesHigherThan14Chars.Remove(game);
-    }
-
-    return Ok(gamesHigherThan14Chars);
-  }
-
-  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
   [Route("produceBcmReport")]
   public IActionResult BcmReport() {
     WriteExcelFile();
+
+    return Ok();
+  }
+
+  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [Route("produceCompletedGamesReport")]
+  public IActionResult CompletedGamesReport() {
+    WriteCompletedGamesExcelFile();
 
     return Ok();
   }
@@ -360,6 +278,104 @@ public class BcmController : ControllerBase {
 
           sheetData.AppendChild(newRow);
         }
+      }
+
+      workbookPart.Workbook.Save();
+    }
+  }
+
+  private void WriteCompletedGamesExcelFile() {
+    // get the GameId of every completion already recorded by BCM
+    var historicallyCompletedGames = _context.BcmCompletionHistory.Select(x => x.GameId);
+
+    // get the GameId of every completion Tavis knows of
+    var completedGames = _context.PlayerGames
+                  .Where(x => x.CompletionDate != null && x.CompletionDate >= _bcmService.GetContestStartDate())
+                  .GroupBy(x => x.GameId)
+                  .Select(x => x.First())
+                  .ToList()
+                  .Select(x => x.GameId)
+                  .ToList();
+
+    // the difference between all completions minus historical completions are new to Tavis
+    var newlyCompletedGames = completedGames.Except(historicallyCompletedGames);
+    var thisMonthsCompletions = new List<Game>();
+
+    // record these new additions to the historical data
+    foreach(var newCompletion in newlyCompletedGames) {
+      var newGameCompletion = _context.Games.FirstOrDefault(x => x.Id == newCompletion);
+      thisMonthsCompletions.Add(newGameCompletion);
+
+      _context.BcmCompletionHistory.Add(new BcmCompletionHistory {
+        GameId = newGameCompletion.Id,
+        Title = newGameCompletion.Title,
+        SiteRatio = newGameCompletion.SiteRatio,
+        ReleaseDate = newGameCompletion.ReleaseDate
+      });
+    }
+
+    _context.SaveChanges();
+    var completedGamesReport = new List<object>();
+
+    // get the first day of last month
+    var today = DateTime.Today;
+    var firstOfLastMonth = new DateTime(today.Year, today.Month, 1).AddMonths(-1);       
+
+    foreach(var game in thisMonthsCompletions.OrderBy(x => x.Title)) {
+      if (game.SiteRatio >= 1.2) {
+        completedGamesReport.Add(new {
+          Title = game.Title,
+          Ratio = game.ReleaseDate >= firstOfLastMonth ? "TBD" : game.SiteRatio.ToString()
+        });
+      }
+    }
+
+    // now that we have all completions recorded, let's generate the new spreadsheet
+    using (SpreadsheetDocument document = SpreadsheetDocument.Create("completedgames.xlsx", SpreadsheetDocumentType.Workbook))
+    {
+      WorkbookPart workbookPart = document.AddWorkbookPart();
+      workbookPart.Workbook = new Workbook();
+
+      Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
+      DocumentFormat.OpenXml.UInt32Value sheetNumber = 1;
+
+      // Lets converts our object data to Datatable for a simplified logic.
+      // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
+      DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(completedGamesReport), (typeof(DataTable)));
+
+      WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+      var sheetData = new SheetData();
+      worksheetPart.Worksheet = new Worksheet(sheetData);
+
+      Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Completed Games" };
+
+      sheets.Append(sheet);
+
+      Row headerRow = new Row();
+
+      List<String> columns = new List<string>();
+      foreach (System.Data.DataColumn column in table.Columns)
+      {
+        columns.Add(column.ColumnName);
+
+        Cell cell = new Cell();
+        cell.DataType = CellValues.String;
+        cell.CellValue = new CellValue(column.ColumnName);
+        headerRow.AppendChild(cell);
+      }
+
+      foreach (DataRow dsrow in table.Rows)
+      {
+        Row newRow = new Row();
+        foreach (String col in columns)
+        {
+          Cell cell = new Cell();
+          cell.DataType = CellValues.String;
+          cell.CellValue = new CellValue(dsrow[col].ToString());
+          newRow.AppendChild(cell);
+        }
+
+        sheetData.AppendChild(newRow);
       }
 
       workbookPart.Workbook.Save();

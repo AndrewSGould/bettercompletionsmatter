@@ -40,6 +40,8 @@ yarn-error.log
 testem.log
 /typings
 node_modules/
+*.xls
+*.xlsx
 
 # System files
 .DS_Store

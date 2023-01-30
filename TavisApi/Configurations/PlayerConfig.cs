@@ -1285,10 +1285,10 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player>
       new Player {
         Id = 160,
         TrueAchievementId = 1725,
-        Name = "N龱T廾 T廾A G龱D",
+        Name = "N0TH THA G0D",
         Region = null,
         Area = null,
-        IsActive = false
+        IsActive = true
       },
       new Player {
         Id = 161,

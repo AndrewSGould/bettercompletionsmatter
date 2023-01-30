@@ -26,4 +26,5 @@ public class Game {
   public IList<GameGenre>? GameGenres {get;set;}
   public ICollection<PlayerGame>? PlayerGames {get;set;}
   public ICollection<PlayerCompletionHistory>? PlayerCompletionHistories {get;set;}
+  public ICollection<BcmCompletionHistory>? BcmCompletionHistories {get; set;}
 }

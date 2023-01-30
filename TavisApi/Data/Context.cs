@@ -28,6 +28,7 @@ namespace TavisApi.Context
     public DbSet<Login>? Logins {get; set;}
     public DbSet<SyncHistory>? SyncHistory {get; set;}
     public DbSet<PlayerCompletionHistory>? PlayerCompletionHistory {get; set;}
+    public DbSet<BcmCompletionHistory>? BcmCompletionHistory {get; set;}
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

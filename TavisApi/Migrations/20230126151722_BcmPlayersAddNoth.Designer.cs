@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20230126151722_BcmPlayersAddNoth")]
+    partial class BcmPlayersAddNoth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,33 +23,6 @@ namespace TavisApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Tavis.Models.BcmCompletionHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("GameId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ReleaseDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<double?>("SiteRatio")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId");
-
-                    b.ToTable("BcmCompletionHistory");
-                });
 
             modelBuilder.Entity("Tavis.Models.Contest", b =>
                 {
@@ -3396,15 +3371,6 @@ namespace TavisApi.Migrations
                     b.ToTable("SyncHistory");
                 });
 
-            modelBuilder.Entity("Tavis.Models.BcmCompletionHistory", b =>
-                {
-                    b.HasOne("Tavis.Models.Game", "Game")
-                        .WithMany("BcmCompletionHistories")
-                        .HasForeignKey("GameId");
-
-                    b.Navigation("Game");
-                });
-
             modelBuilder.Entity("Tavis.Models.FeatureList", b =>
                 {
                     b.HasOne("Tavis.Models.Game", "Game")
@@ -3493,8 +3459,6 @@ namespace TavisApi.Migrations
 
             modelBuilder.Entity("Tavis.Models.Game", b =>
                 {
-                    b.Navigation("BcmCompletionHistories");
-
                     b.Navigation("FeatureList");
 
                     b.Navigation("GameGenres");
