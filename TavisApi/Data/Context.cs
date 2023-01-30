@@ -37,8 +37,8 @@ namespace TavisApi.Context
         .AddJsonFile("appsettings.json")
         .Build();
 
-      //var connectionString = configuration.GetConnectionString("WebApiDatabase");
-      var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
+      var connectionString = configuration.GetConnectionString("DefaultConnection");
+      //var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
       optionsBuilder.UseNpgsql(connectionString);
     }
 
