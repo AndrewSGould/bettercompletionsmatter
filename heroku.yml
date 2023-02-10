@@ -1,7 +1,4 @@
 build:
   docker:
-    backend: Dockerfile
-    worker: TavisApi/Dockerfile
-  docker:
-    frontend: Dockerfile
-    worker: tavis-web/Dockerfile
+    frontend: tavis-web/Dockerfile
+    backend: TavisApi/Dockerfile
