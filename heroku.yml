@@ -1,6 +1,5 @@
 build:
   docker:
-    web: tavis-web/Dockerfile
-    web: TavisApi/Dockerfile
+    web: Dockerfile
 run:
   web: dotnet TavisApi.dll
