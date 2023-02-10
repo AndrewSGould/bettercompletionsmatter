@@ -44,14 +44,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
-builder.Services.AddCors(options =>
-{
-  options.AddPolicy("CorsPolicy", build => build
-    .WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-    .AllowCredentials());
-});
+// builder.Services.AddCors(options =>
+// {
+//   options.AddPolicy("CorsPolicy", build => build
+//     .WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
+//     .AllowAnyMethod()
+//     .AllowAnyHeader()
+//     .AllowCredentials());
+// });
 
 builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
