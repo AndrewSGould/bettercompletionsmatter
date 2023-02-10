@@ -4,4 +4,3 @@ build:
     web: TavisApi/Dockerfile
 run:
   web: npm run start
-  worker: dotnet TavisApi/bin/Debug/net6.0/TavisApi.dll
