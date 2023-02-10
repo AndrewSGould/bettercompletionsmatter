@@ -28,7 +28,7 @@ public class TA_GameCollection : ITA_GameCollection {
 
   private string DynamicParse(int playerTrueAchId, int page, SyncOptions gameCollectionOptions) {
     return "https://www.trueachievements.com/gamecollection?executeformfunction&function=AjaxList&params=oGameCollection%7Co" +
-      $"GameCollection_TimeZone={gameCollectionOptions.TimeZone}" +
+      $"GameCollection_TimeZone={gameCollectionOptions.TimeZone.Value}" +
       $"%26txtGamerID%3D{playerTrueAchId}" +
       "%26ddlSortBy%3DTitlename" +
       "%26ddlDLCInclusionSetting%3DAllDLC" +

@@ -308,9 +308,7 @@ public class BcmController : ControllerBase {
 
       _context.BcmCompletionHistory.Add(new BcmCompletionHistory {
         GameId = newGameCompletion.Id,
-        Title = newGameCompletion.Title,
-        SiteRatio = newGameCompletion.SiteRatio,
-        ReleaseDate = newGameCompletion.ReleaseDate
+        SiteRatio = newGameCompletion.SiteRatio
       });
     }
 
@@ -325,7 +323,8 @@ public class BcmController : ControllerBase {
       if (game.SiteRatio >= 1.2) {
         completedGamesReport.Add(new {
           Title = game.Title,
-          Ratio = game.ReleaseDate >= firstOfLastMonth ? "TBD" : game.SiteRatio.ToString()
+          Ratio = game.ReleaseDate >= firstOfLastMonth ? "TBD" : game.SiteRatio.ToString(),
+          CompletionTime = (game.Gamerscore == 200 || game.Gamerscore == 400 || game.Gamerscore == 1000) ? game.FullCompletionEstimate : null
         });
       }
     }

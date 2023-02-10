@@ -344,8 +344,10 @@ public class DataSync : IDataSync {
     foreach(var gameToUpdate in gamesToUpdate) {
       var knownGame = knownGames.First(x => x.GameId == gameToUpdate.TrueAchievementId);
 
-      //we'll skip updating things that likely will never change
-      //values skipped: TA ID, Title, Publisher, Developer, ReleaseDate, Url
+      gameToUpdate.Publisher = knownGame.Publisher;
+      gameToUpdate.Developer = knownGame.Developer;
+      gameToUpdate.ReleaseDate = knownGame.ReleaseDate;
+      gameToUpdate.Title = knownGame.Title;
       gameToUpdate.TrueAchievement = knownGame.TotalTrueAchievement;
       gameToUpdate.Gamerscore = knownGame.TotalGamerscore;
       gameToUpdate.AchievementCount = knownGame.TotalAchievementCount;

@@ -34,13 +34,13 @@ public class DataSyncController : ControllerBase {
     var playersToScan = _bcmService.GetPlayers().Count();
 
     var syncs = _context.SyncHistory!.Where(x => x.Profile == SyncProfileList.Full);
-    var averageHits = (syncs.Average(x => x.TaHits) / syncs.Average(x => x.PlayerCount)) * playersToScan;
-    var averageRuntime = (syncs.Average(x => (x.End! - x.Start!).Value.TotalSeconds) / syncs.Average(x => x.PlayerCount) * playersToScan);
+    // var averageHits = (syncs.Average(x => x.TaHits) / syncs.Average(x => x.PlayerCount)) * playersToScan;
+    // var averageRuntime = (syncs.Average(x => (x.End! - x.Start!).Value.TotalSeconds) / syncs.Average(x => x.PlayerCount) * playersToScan);
 
     return Ok(new {
       PlayerCount = playersToScan,
-      EstimatedRuntime = averageRuntime,
-      EstimatedTaHits = averageHits
+      // EstimatedRuntime = averageRuntime,
+      // EstimatedTaHits = averageHits
     });
   }
 
