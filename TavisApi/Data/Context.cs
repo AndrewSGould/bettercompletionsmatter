@@ -32,13 +32,12 @@ namespace TavisApi.Context
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      var configuration = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json")
-        .Build();
+      // var configuration = new ConfigurationBuilder()
+      //   .SetBasePath(Directory.GetCurrentDirectory())
+      //   .AddJsonFile("appsettings.json")
+      //   .Build();
 
-      var connectionString = configuration.GetConnectionString("DefaultConnection");
-      //var connectionString = "Host=localhost;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp0$1;";
+      var connectionString = Configuration.GetConnectionString("DefaultConnection");
       optionsBuilder.UseNpgsql(connectionString);
     }
 

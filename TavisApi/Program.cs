@@ -14,6 +14,9 @@ var configurationBuilder = new ConfigurationBuilder()
                             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
                             .AddEnvironmentVariables();
 
+if (builder.Environment.EnvironmentName.Trim() == string.Empty)
+  configurationBuilder.AddJsonFile("appsettings.Production.json", optional: false, reloadOnChange: true);
+
 builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -32,8 +35,8 @@ builder.Services.AddAuthentication(opt =>
     ValidateAudience = true,
     ValidateLifetime = true,
     ValidateIssuerSigningKey = true,
-    // ValidIssuer = builder.Configuration["ServerConfigs:IssuerServer"],
-    // ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
+    ValidIssuer = builder.Configuration["ServerConfigs:IssuerServer"],
+    ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
   };
 });
