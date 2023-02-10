@@ -13,4 +13,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /TavisApi
 COPY --from=build-env /TavisApi/out .
 # ENTRYPOINT ["dotnet", "TavisApi.dll"]
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet HerokuApp.dll
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet TavisApi.dll
