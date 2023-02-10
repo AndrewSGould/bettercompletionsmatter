@@ -32,8 +32,8 @@ builder.Services.AddAuthentication(opt =>
     ValidateAudience = true,
     ValidateLifetime = true,
     ValidateIssuerSigningKey = true,
-    ValidIssuer = builder.Configuration["ServerConfigs:IssuerServer"],
-    ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
+    // ValidIssuer = builder.Configuration["ServerConfigs:IssuerServer"],
+    // ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
   };
 });
@@ -42,7 +42,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
+// builder.Services.AddSignalR();
 
 // builder.Services.AddCors(options =>
 // {
@@ -63,6 +63,11 @@ builder.Services.AddScoped<IBcmService, BcmService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
+var port = Environment.GetEnvironmentVariable("PORT"); 
+
+if (!string.IsNullOrWhiteSpace(port)) { 	
+  app.Urls.Add("http://*:" + port); 
+} 
 
 using (var scope = app.Services.CreateScope())
 {
@@ -81,7 +86,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("CorsPolicy");
+// app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 
@@ -89,5 +94,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<SyncSignal>("/datasync");
-
 app.Run();
