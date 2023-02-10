@@ -2,3 +2,5 @@ build:
   docker:
     frontend: tavis-web/Dockerfile
     backend: TavisApi/Dockerfile
+run:
+  web: npm run start
