@@ -3,4 +3,4 @@ build:
     web: tavis-web/Dockerfile
     web: TavisApi/Dockerfile
 run:
-  web: npm run start
+  web: dotnet TavisApi.dll
