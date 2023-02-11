@@ -2,6 +2,8 @@
 
 A TrueAchievement companion application for enhanced stat analysis and community events.
 
+[![build and test](https://github.com/AndrewSGould/tavis/actions/workflows/main.yml/badge.svg)](https://github.com/AndrewSGould/tavis/actions/workflows/main.yml)
+
 ## Better Completions Matter (BCM)
 
 Yearly Achievement Hunting Contest Management Solution
