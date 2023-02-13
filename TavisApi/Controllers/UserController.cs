@@ -24,10 +24,8 @@ public class UserController : ControllerBase
   } 
 
   [HttpGet, Route("availableAreas")]
-  public IActionResult AvailableAreas()
+  public IActionResult AvailableAreas(string selectedRegion)
   {
-    //TODO pass in region to filter down the areas
-    var test = "United States";
-    return Ok(_context.Players.Where(x => x.Region.Contains(test)).Select(x => x.Area).Where(x => x != null).Distinct().OrderBy(x => x));
+    return Ok(_context.Players.Where(x => x.Region.Contains(selectedRegion)).Select(x => x.Area).Where(x => x != null).Distinct().OrderBy(x => x));
   }
 }
