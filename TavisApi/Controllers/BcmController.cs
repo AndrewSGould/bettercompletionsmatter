@@ -29,6 +29,35 @@ public class BcmController : ControllerBase {
     _bcmService = bcmService;
   }
 
+  [HttpGet]
+  [Route("getBcmPlayerList")]
+  public IActionResult BcmPlayerList() {
+    return Ok(_bcmService.GetPlayers());
+  }
+
+  [HttpGet]
+  [Route("getBcmPlayer")]
+  public IActionResult BcmPlayer(int playerId) {
+    var bcmPlayer = _context.Players.First(x => x.Id == playerId);
+
+    if (bcmPlayer == null) return BadRequest("Player not found");
+
+    var bcmPlayerSummary = new Object();
+
+    var playerGames = _context.PlayerGames
+                        .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
+                        .Where(x => x.PlayersGames.PlayerId == bcmPlayer.Id
+                          && x.PlayersGames.CompletionDate != null
+                          && x.PlayersGames.CompletionDate >= _bcmService.GetContestStartDate());
+
+    bcmPlayerSummary = new {
+      Player = bcmPlayer,
+      Games = playerGames
+    };
+
+    return Ok(bcmPlayerSummary);
+  }
+
   // Get random games, sorted by eligibility, then alphabetically by player
   [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
   [Route("verifyRandomGameEligibility")]
