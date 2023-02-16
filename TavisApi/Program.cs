@@ -51,7 +51,7 @@ builder.Services.AddCors(options =>
 {
   options.AddPolicy("CorsPolicy", build => build
     //.WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
-    .WithOrigins("https://asg-tavis-web.herokuapp.com")
+    //.WithOrigins("https://asg-tavis-web.herokuapp.com")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
