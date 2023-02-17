@@ -50,8 +50,7 @@ builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
   options.AddPolicy("CorsPolicy", build => build
-    //.WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
-    //.WithOrigins()
+    .WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
