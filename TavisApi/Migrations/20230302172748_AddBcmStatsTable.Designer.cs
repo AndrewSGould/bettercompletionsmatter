@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,10 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20230302172748_AddBcmStatsTable")]
+    partial class AddBcmStatsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,9 +77,6 @@ namespace TavisApi.Migrations
                     b.Property<double?>("HighestTimeEstimate")
                         .HasColumnType("double precision");
 
-                    b.Property<int?>("PlayerId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("Rank")
                         .HasColumnType("integer");
 
@@ -88,9 +87,6 @@ namespace TavisApi.Migrations
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PlayerId")
-                        .IsUnique();
 
                     b.ToTable("BcmStats");
                 });
@@ -3451,15 +3447,6 @@ namespace TavisApi.Migrations
                     b.Navigation("Game");
                 });
 
-            modelBuilder.Entity("Tavis.Models.BcmStat", b =>
-                {
-                    b.HasOne("Tavis.Models.Player", "Player")
-                        .WithOne("BcmStats")
-                        .HasForeignKey("Tavis.Models.BcmStat", "PlayerId");
-
-                    b.Navigation("Player");
-                });
-
             modelBuilder.Entity("Tavis.Models.FeatureList", b =>
                 {
                     b.HasOne("Tavis.Models.Game", "Game")
@@ -3566,8 +3553,6 @@ namespace TavisApi.Migrations
 
             modelBuilder.Entity("Tavis.Models.Player", b =>
                 {
-                    b.Navigation("BcmStats");
-
                     b.Navigation("PlayerCompletionHistories");
 
                     b.Navigation("PlayerContests");

@@ -163,7 +163,9 @@ public class DataSync : IDataSync {
     // Compare the incoming completions with the completions on the PlayerGames table. If it's different it's a re-completion
     foreach(var incomingCompletion in completedIncomingGames) {
       var previouslyCompletedGame = playersCurrentCompletedGames.Where(x => x.Game.TrueAchievementId == incomingCompletion.g.TrueAchievementId).FirstOrDefault();
-      if (previouslyCompletedGame != null && incomingCompletion.cig.CompletionDate != previouslyCompletedGame.CompletionDate) {
+
+      if (previouslyCompletedGame != null && 
+          incomingCompletion.cig.CompletionDate != previouslyCompletedGame.CompletionDate) {
         _context.PlayerCompletionHistory.Add(new PlayerCompletionHistory {
           PlayerId = player.Id,
           GameId = incomingCompletion.g.Id,

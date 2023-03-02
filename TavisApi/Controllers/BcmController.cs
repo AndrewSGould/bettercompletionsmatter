@@ -30,9 +30,99 @@ public class BcmController : ControllerBase {
   }
 
   [HttpGet]
-  [Route("getBcmPlayerList")]
-  public IActionResult BcmPlayerList() {
-    return Ok(_bcmService.GetPlayers());
+  [Route("getBcmLeaderboardList")]
+  public IActionResult BcmLeaderboardList() {
+    var players = _bcmService.GetPlayers();
+
+    var leaderboard = new List<Leaderboard>();
+
+    foreach(var player in players) {
+      leaderboard.Add(new Leaderboard {
+        Player = player,
+        BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
+      });
+    }
+
+    return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
+  }
+
+  public class Leaderboard {
+    public Player Player {get; set;}
+    public BcmStat BcmStats {get; set;}
+  }
+
+  [HttpGet]
+  [Route("recalcBcmLeaderboard")]
+  public IActionResult RecalcBcmLeaderboard() {
+    var players = _bcmService.GetPlayers();
+
+    var leaderboardList = new List<Ranking>();
+
+    foreach (var player in players) {
+      var playerBcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
+
+      if (playerBcmStats == null) {
+        playerBcmStats = new BcmStat();
+        _context.BcmStats.Add(playerBcmStats);
+      }
+
+      playerBcmStats.PlayerId = player.Id;
+
+      var playerCompletions = _context.PlayerGames
+                                      .Where(x => x.PlayerId == player.Id && 
+                                        x.CompletionDate != null && 
+                                        x.CompletionDate >= _bcmService.GetContestStartDate());
+
+      var gamesCompletedThisYear = playerCompletions.Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g}).ToList();
+
+      var completedGamesCount = gamesCompletedThisYear.Count();
+      var ratioOfGames = gamesCompletedThisYear.Select(x => x.Games.SiteRatio);
+      var estimateOfGames = gamesCompletedThisYear.Select(x => x.Games.FullCompletionEstimate);
+
+      playerBcmStats.Completions = completedGamesCount;
+      playerBcmStats.AverageRatio = ratioOfGames.DefaultIfEmpty(0).Average();
+      playerBcmStats.HighestRatio = ratioOfGames.DefaultIfEmpty(0).Max();
+      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Average();
+      playerBcmStats.HighestTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Max();
+  
+      double? basePoints = 0.0;
+      foreach (var game in gamesCompletedThisYear) {
+        var pointValue = _bcmService.CalcBcmValue(game.Games.SiteRatio, game.Games.FullCompletionEstimate);
+        if (pointValue != null)
+          basePoints += pointValue;
+      }
+
+      playerBcmStats.BasePoints = basePoints;
+      playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
+
+      leaderboardList.Add(new Ranking {
+        PlayerId = player.Id,
+        BcmPoints = playerBcmStats.BasePoints
+      });
+    }
+
+    _context.SaveChanges();
+
+    // after saving point calculations, lets order the leaderboard and save again for the rankings
+    leaderboardList = leaderboardList.OrderByDescending(x => x.BcmPoints).ToList();
+
+    foreach(var player in players) {
+      var playerBcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id);
+      var previousRanking = playerBcmStats.Rank;
+      var newRanking = leaderboardList.FindIndex(x => x.PlayerId == player.Id) + 1;
+
+      playerBcmStats.Rank = newRanking;
+      playerBcmStats.RankMovement = newRanking - previousRanking;
+    }
+
+    _context.SaveChanges();
+    
+    return Ok();
+  }
+
+  public class Ranking {
+    public int PlayerId {get; set;}
+    public double? BcmPoints {get; set;}
   }
 
   [HttpGet]
@@ -52,7 +142,8 @@ public class BcmController : ControllerBase {
 
     bcmPlayerSummary = new {
       Player = bcmPlayer,
-      Games = playerGames
+      Games = playerGames,
+      Ranking = _context.BcmStats.First(x => x.PlayerId == playerId)
     };
 
     return Ok(bcmPlayerSummary);
@@ -243,6 +334,7 @@ public class BcmController : ControllerBase {
             && x.PlayerGames.CompletionDate != null
             && x.PlayerGames.CompletionDate > bcmStart)
           .ToList()
+          .OrderByDescending(x => x.PlayerGames.CompletionDate)
           .Select(x => new UserDetails {
             DateCompleted = x.PlayerGames.CompletionDate.Value.ToString("MMM dd"),
             GameTitle = x.Games.Title,
@@ -250,22 +342,22 @@ public class BcmController : ControllerBase {
           })
           .ToList();
 
-        var playerCompletionHistory = _context.PlayerCompletionHistory.Where(x => x.PlayerId == player.Id).ToList();
-        
-        foreach(var completedGame in playerCompletionHistory) {
-          var game = _context.Games
-                      .Join(_context.PlayerGames, g => g.Id, pg => pg.GameId, (g, pg) => new {Games = g, PlayerGames = pg})
-                      .Where(x => x.Games.Id == completedGame.GameId)
-                      .FirstOrDefault();
+        // var playerCompletionHistory = _context.PlayerCompletionHistory.Where(x => x.PlayerId == player.Id).ToList();
 
-          playersCompletedGames.Add(new UserDetails {
-            DateCompleted = completedGame.CompletionDate.ToString("MMM dd"),
-            GameTitle = game.Games.Title,
-            Ratio = game.Games.SiteRatio
-          });
-        }
 
-        playersCompletedGames = playersCompletedGames.OrderBy(x => DateTime.Parse(x.DateCompleted)).ToList();
+        // foreach(var completedGame in playerCompletionHistory.Where(x => x.CompletionDate > bcmStart)) {
+        //   var game = _context.Games
+        //               .Join(_context.PlayerGames, g => g.Id, pg => pg.GameId, (g, pg) => new {Games = g, PlayerGames = pg})
+        //               .Where(x => x.Games.Id == completedGame.GameId)
+        //               .OrderBy(x => x.PlayerGames.CompletionDate)
+        //               .FirstOrDefault();
+
+        //   playersCompletedGames.Add(new UserDetails {
+        //     DateCompleted = completedGame.CompletionDate.ToString("MMM dd"),
+        //     GameTitle = game.Games.Title,
+        //     Ratio = game.Games.SiteRatio
+        //   });
+        // }
 
         // Lets converts our object data to Datatable for a simplified logic.
         // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
@@ -351,7 +443,9 @@ public class BcmController : ControllerBase {
         completedGamesReport.Add(new {
           Title = game.Title,
           Ratio = game.ReleaseDate >= firstOfLastMonth ? "TBD" : game.SiteRatio.ToString(),
-          CompletionTime = (game.Gamerscore == 200 || game.Gamerscore == 400 || game.Gamerscore == 1000) ? game.FullCompletionEstimate : null
+          CompletionTime = (game.Gamerscore == 200 || game.Gamerscore == 400 || game.Gamerscore == 1000)
+                              && game.ReleaseDate < firstOfLastMonth
+                              ? game.FullCompletionEstimate : null
         });
       }
     }
