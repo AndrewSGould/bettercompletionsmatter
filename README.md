@@ -4,6 +4,19 @@ A TrueAchievement companion application for enhanced stat analysis and community
 
 [![build and test](https://github.com/AndrewSGould/tavis/actions/workflows/main.yml/badge.svg)](https://github.com/AndrewSGould/tavis/actions/workflows/main.yml)
 
+
+- Running locally:
+- Install VS Code
+- Install Git
+- Clone the repo
+- In VS Code sidebar, click on Run and Debug - then click 'create a launch.json file'. choose .NET 5+ and Core, then TavisApi
+- Get the .NET Core SDK
+- Get the .NET Runtime (https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.14-windows-x64-installer?cid=getdotnetcore)
+- Get the ASP Runtime (https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-6.0.14-windows-x64-installer?cid=getdotnetcore)
+- Download Postgres (i use DBeaver https://dbeaver.io/download/)
+- Download Postman
+- Get invited to Postman workspace?
+
 ## Better Completions Matter (BCM)
 
 Yearly Achievement Hunting Contest Management Solution
