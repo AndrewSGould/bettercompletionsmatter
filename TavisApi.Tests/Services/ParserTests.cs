@@ -169,7 +169,7 @@ public class ParserTests : IDisposable
   [InlineData("EA Play", "EA Play")]
   [InlineData("Unable to play", "Unable to play")]
   [InlineData("Xbox Game Pass", "Xbox Game Pass")]
-  [InlineData("Xbox Game Pass PC", "Xbox Game Pass PC")]
+  [InlineData("PC Game Pass", "PC Game Pass")]
   public void Properly_Parses_Game_Ownership(string unparsedOwnership, string expectedOwnership) 
   {
     var parsedResult = _parse.GameOwnership(unparsedOwnership);
