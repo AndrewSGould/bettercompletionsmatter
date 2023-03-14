@@ -51,9 +51,10 @@ public class BcmController : ControllerBase {
     public BcmStat BcmStats {get; set;}
   }
 
-  [HttpGet]
+  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
   [Route("recalcBcmLeaderboard")]
   public IActionResult RecalcBcmLeaderboard() {
+    //TODO: Changing data. This should be a POST
     var players = _bcmService.GetPlayers();
 
     var leaderboardList = new List<Ranking>();
@@ -112,7 +113,7 @@ public class BcmController : ControllerBase {
       var newRanking = leaderboardList.FindIndex(x => x.PlayerId == player.Id) + 1;
 
       playerBcmStats.Rank = newRanking;
-      playerBcmStats.RankMovement = newRanking - previousRanking;
+      playerBcmStats.RankMovement = previousRanking - newRanking;
     }
 
     _context.SaveChanges();
@@ -211,9 +212,12 @@ public class BcmController : ControllerBase {
     foreach(var player in bcmPlayers) {
       var playerGames = _context.PlayerGames.Where(x => x.PlayerId == player.Id);
 
-      var gamerscoreTotal = playerGames.Sum(x => x.Gamerscore);
-      var trueachievementTotal = playerGames.Sum(x => x.TrueAchievement);
-      var completions = playerGames.Count(x => x.CompletionDate != null);
+      var gamerscoreTotal = playerGames.Where(x => x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
+                                        .Sum(x => x.Gamerscore);
+      var trueachievementTotal = playerGames.Where(x => x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
+                                            .Sum(x => x.TrueAchievement);
+      var completions = playerGames.Where(x => x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
+                                    .Count(x => x.CompletionDate != null);
 
       var stats = new {
         Player = player.Name,
@@ -226,7 +230,6 @@ public class BcmController : ControllerBase {
 
       statSpread.Add(stats);
     }
-    
 
     return Ok(statSpread);
   }
