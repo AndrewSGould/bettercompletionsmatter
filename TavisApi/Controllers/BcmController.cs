@@ -135,19 +135,36 @@ public class BcmController : ControllerBase {
 
     var bcmPlayerSummary = new Object();
 
-    var playerGames = _context.PlayerGames
+    var playersGames = _context.PlayerGames
                         .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new {PlayersGames = pg, Games = g})
                         .Where(x => x.PlayersGames.PlayerId == bcmPlayer.Id
                           && x.PlayersGames.CompletionDate != null
-                          && x.PlayersGames.CompletionDate >= _bcmService.GetContestStartDate());
+                          && x.PlayersGames.CompletionDate >= _bcmService.GetContestStartDate())
+                        .OrderByDescending(x => x.PlayersGames.CompletionDate)
+                        .Select(x => new BcmPlayerSummary {
+                          Title = x.Games.Title,
+                          Ratio = x.Games.SiteRatio,
+                          Estimate = x.Games.FullCompletionEstimate,
+                          CompletionDate = x.PlayersGames.CompletionDate,
+                          Points = _bcmService.CalcBcmValue(x.Games.SiteRatio, x.Games.FullCompletionEstimate)
+                        }).ToList();
 
     bcmPlayerSummary = new {
       Player = bcmPlayer,
-      Games = playerGames,
-      Ranking = _context.BcmStats.First(x => x.PlayerId == playerId)
+      Games = playersGames,
+      Ranking = _context.BcmStats.First(x => x.PlayerId == playerId),
+      Score = playersGames.Sum(x => x.Points)
     };
 
     return Ok(bcmPlayerSummary);
+  }
+
+  public class BcmPlayerSummary {
+    public string Title {get; set;}
+    public double? Ratio {get; set;}
+    public double? Estimate {get; set;}
+    public DateTime? CompletionDate {get; set;}
+    public int? Points {get; set;}
   }
 
   // Get random games, sorted by eligibility, then alphabetically by player
@@ -184,13 +201,22 @@ public class BcmController : ControllerBase {
       }
 
       var random = rand.Next(0, randomGameOptions.Count());
+      var randomGame = randomGameOptions?[random].Games;
 
       allPlayers.Add(new RgscResult {
         Player = player.Name,
-        RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGameOptions?[random].Games.Title,
+        RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGame.Title,
         EligibleCount = randomGameOptions.Count(),
         GameList = randomGameOptions.Select(x => x.Games.Title).OrderBy(x => x).ToList()
       });
+
+      _context.BcmRgsc.Add(new BcmRgsc{
+        PlayerId = player.Id,
+        GameId = randomGame.Id,
+        Issued = DateTime.Now
+      });
+
+      _context.SaveChanges();
     }
 
     var results = new {
@@ -248,6 +274,44 @@ public class BcmController : ControllerBase {
     WriteCompletedGamesExcelFile();
 
     return Ok();
+  }
+
+  [HttpGet]
+  [Route("rgscStats")]
+  public IActionResult RgscStats(int playerId) {
+    var rgsc = _context.BcmRgsc.Where(x => x.PlayerId == playerId)
+                                .OrderByDescending(x => x.Issued)
+                                .ToList();
+
+    var playersCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == playerId 
+                                                      && x.CompletionDate != null
+                                                      && x.CompletionDate.Value.Year == DateTime.Now.Year);
+
+    var rgscCompletions = rgsc.Join(playersCompletedGames, rgsc => rgsc.GameId,
+                                pg => pg.GameId, (rgsc, pg) => new {Rgsc = rgsc, PlayerGames = pg});
+
+    var rgscCompletedGameCount = 0;
+
+    // if the game was completed in the following month it was issued, it scores
+    foreach (var game in rgscCompletions) {
+      if (game.PlayerGames.CompletionDate.Value.Month == game.Rgsc.Issued.Value.Month + 1)
+        rgscCompletedGameCount++;
+      else if (game.Rgsc.Issued.Value.Year == DateTime.Now.Year - 1 && game.Rgsc.Issued.Value.Month == 12) {
+        if (game.PlayerGames.CompletionDate.Value.Month == 1)
+          rgscCompletedGameCount++;
+      }
+    }
+
+    var rerollsUsed = rgsc.Count(x => x.Rerolled);
+
+    var nonrerolledRgsc = rgsc.FirstOrDefault(x => !x.Rerolled).GameId;
+    var currentRgsc = _context.Games.FirstOrDefault(x => x.Id == nonrerolledRgsc);
+
+    return Ok(new {
+      CurrentRandom = currentRgsc,
+      RerollsRemaining = BcmRule.BcmRgscStartingRerolls + rgscCompletedGameCount - rerollsUsed,
+      RgscsCompleted = rgscCompletedGameCount
+    });
   }
 
   public class UserDetails {

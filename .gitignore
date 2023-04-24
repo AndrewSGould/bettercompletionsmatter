@@ -48,5 +48,3 @@ node_modules/
 Thumbs.db
 .vscode/launch.json
 .vscode/settings.json
-TavisApi/bcmreport.xlsx
-TavisApi/rgsc.xlsx

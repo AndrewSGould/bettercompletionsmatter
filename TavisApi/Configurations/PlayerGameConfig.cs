@@ -27,10 +27,5 @@ public class PlayerGameConfiguration : IEntityTypeConfiguration<PlayerGame>
       .HasOne<Player>(x => x.Player)
       .WithMany(x => x.PlayerGames)
       .HasForeignKey(x => x.PlayerId);
-
-    builder
-      .HasOne<Game>(x => x.Game)
-      .WithMany(x => x.PlayerGames)
-      .HasForeignKey(x => x.GameId);
   }
 }

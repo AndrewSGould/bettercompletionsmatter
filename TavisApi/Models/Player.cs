@@ -12,5 +12,6 @@ namespace Tavis.Models {
     public ICollection<PlayerContest>? PlayerContests {get; set;}
     public ICollection<PlayerCompletionHistory>? PlayerCompletionHistories {get; set;}
     public BcmStat BcmStats {get; set;}
+    public ICollection<BcmRgsc>? BcmRgsc {get; set;}
   }
 }

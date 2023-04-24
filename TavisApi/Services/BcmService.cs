@@ -22,9 +22,9 @@ public class BcmService : IBcmService
     return _context.Contests.Where(x => x.Id == _bcmContestId).Select(x => x.StartDate).FirstOrDefault();
   }
 
-  public double? CalcBcmValue(double? ratio, double? estimate) {
+  public int? CalcBcmValue(double? ratio, double? estimate) {
     var rawPoints = Math.Pow((double)ratio, 1.5) * estimate;
-    return rawPoints >= 1500 ? 1500 : rawPoints;
+    return rawPoints >= 1500 ? 1500 : Convert.ToInt32(rawPoints);
   }
 
   private int GetContestId() {

@@ -7,6 +7,7 @@ public class BcmRule {
   public const double MinimumRatio = 1.5;
   public const int RandomMaxEstimate = 100;
   public const int RandomMinimumEligibilityCount = 50;
+  public const int BcmRgscStartingRerolls = 5;
   public static readonly ReadOnlyCollection<Platform> RandomValidPlatforms = 
       new ReadOnlyCollection<Platform>(
         new List<Platform> {
