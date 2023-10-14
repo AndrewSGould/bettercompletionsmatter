@@ -18,6 +18,7 @@ public sealed class Ownership : SmartEnum<Ownership>
   public static readonly Ownership UnableToPlay = new Ownership(11, "Unable to play");
   public static readonly Ownership GamePass = new Ownership(12, "Xbox Game Pass");
   public static readonly Ownership PcGamePass = new Ownership(13, "PC Game Pass");
+  public static readonly Ownership UbisoftPlus = new Ownership(14, "Ubisoft+");
 
   private Ownership(int id, string name) : base(name, id)
   {

@@ -12,4 +12,5 @@ public class Login
     public string? Password { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpiryTime { get; set; }
+    public List<UserRole> UserRoles { get; } = new();
 }

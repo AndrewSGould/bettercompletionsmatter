@@ -1,36 +1,37 @@
 using Tavis.Models;
-using Microsoft.EntityFrameworkCore;  
-using System;  
-using System.Collections.Generic;  
-using System.Linq;  
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace TavisApi.Context  
-{ 
-  public class TavisContext : DbContext  
-  {  
+namespace TavisApi.Context
+{
+  public class TavisContext : DbContext
+  {
     protected readonly IConfiguration Configuration;
 
-    public TavisContext(DbContextOptions<TavisContext> options, IConfiguration configuration) : base(options)  
-    {   
+    public TavisContext(DbContextOptions<TavisContext> options, IConfiguration configuration) : base(options)
+    {
       Configuration = configuration;
-    }  
+    }
 
-    public DbSet<Game>? Games {get; set;}
-    public DbSet<FeatureList>? FeatureLists {get; set;}
-    public DbSet<Player>? Players {get;set;}
-    public DbSet<PlayerGame>? PlayerGames {get;set;}
-    public DbSet<Genre>? Genres {get;set;}
-    public DbSet<GameGenre>? GameGenres {get;set;}
-    public DbSet<Contest>? Contests {get;set;}
-    public DbSet<PlayerContest>? PlayerContests {get;set;}
-    public DbSet<Login>? Logins {get; set;}
-    public DbSet<SyncHistory>? SyncHistory {get; set;}
-    public DbSet<PlayerCompletionHistory>? PlayerCompletionHistory {get; set;}
-    public DbSet<BcmCompletionHistory>? BcmCompletionHistory {get; set;}
-    public DbSet<BcmStat>? BcmStats {get;set;}
-    public DbSet<BcmRgsc>? BcmRgsc {get; set;}
+    public DbSet<Game>? Games { get; set; }
+    public DbSet<FeatureList>? FeatureLists { get; set; }
+    public DbSet<Player>? Players { get; set; }
+    public DbSet<PlayerGame>? PlayerGames { get; set; }
+    public DbSet<Genre>? Genres { get; set; }
+    public DbSet<GameGenre>? GameGenres { get; set; }
+    public DbSet<Contest>? Contests { get; set; }
+    public DbSet<PlayerContest>? PlayerContests { get; set; }
+    public DbSet<Login>? Logins { get; set; }
+    public DbSet<SyncHistory>? SyncHistory { get; set; }
+    public DbSet<PlayerCompletionHistory>? PlayerCompletionHistory { get; set; }
+    public DbSet<BcmCompletionHistory>? BcmCompletionHistory { get; set; }
+    public DbSet<BcmStat>? BcmStats { get; set; }
+    public DbSet<BcmRgsc>? BcmRgsc { get; set; }
+    public DbSet<UserRole>? UserRoles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -56,6 +57,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new PlayerContestConfiguration());
       modelBuilder.ApplyConfiguration(new UserConfiguration());
       modelBuilder.ApplyConfiguration(new SyncHistoryConfiguration());
+      modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),
@@ -67,22 +69,22 @@ namespace TavisApi.Context
 
       foreach (var entityType in modelBuilder.Model.GetEntityTypes())
       {
-          if (entityType.IsKeyless)
-          {
-              continue;
-          }
+        if (entityType.IsKeyless)
+        {
+          continue;
+        }
 
-          foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetProperties())
+        {
+          if (property.ClrType == typeof(DateTime))
           {
-              if (property.ClrType == typeof(DateTime))
-              {
-                  property.SetValueConverter(dateTimeConverter);
-              }
-              else if (property.ClrType == typeof(DateTime?))
-              {
-                  property.SetValueConverter(nullableDateTimeConverter);
-              }
+            property.SetValueConverter(dateTimeConverter);
           }
+          else if (property.ClrType == typeof(DateTime?))
+          {
+            property.SetValueConverter(nullableDateTimeConverter);
+          }
+        }
       }
     }
   }
