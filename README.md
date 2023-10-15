@@ -9,13 +9,16 @@ A TrueAchievement companion application for enhanced stat analysis and community
 - Install VS Code
 - Install Git
 - Clone the repo
-- In VS Code sidebar, click on Run and Debug - then click 'create a launch.json file'. choose .NET 5+ and Core, then TavisApi
 - Get the .NET Core SDK
-- Get the .NET Runtime (https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-6.0.14-windows-x64-installer?cid=getdotnetcore)
-- Get the ASP Runtime (https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-6.0.14-windows-x64-installer?cid=getdotnetcore)
-- Download Postgres (i use DBeaver https://dbeaver.io/download/)
+- Get the .NET Runtime
+- Get the ASP Runtime
+- Download Postgres (I use [dbForge](https://www.devart.com/dbforge/postgresql/))
 - Download Postman
 - Get invited to Postman workspace?
+- Update your `appsettings.Development.json` file to point to your local Postgres instance
+- Path to `~/TavisApi/` and run `dotnet build`
+- Path to `~/TavisApi.Tests` and run `dotnet test`
+- Path back to `~/TavisApi/` and run `dotnet run`!
 
 ## Better Completions Matter (BCM)
 
