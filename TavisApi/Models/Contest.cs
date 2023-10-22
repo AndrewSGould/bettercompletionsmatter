@@ -1,4 +1,5 @@
 namespace Tavis.Models;
+
 public class Contest
 {
   public int Id { get; set; }

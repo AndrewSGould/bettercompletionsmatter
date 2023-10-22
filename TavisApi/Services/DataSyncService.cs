@@ -4,35 +4,37 @@ using Tavis.Models;
 using TavisApi.Context;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
-using static TavisApi.Services.DataSync;
 using static TavisApi.Services.TA_GameCollection;
 using Microsoft.AspNetCore.SignalR;
-using System.Linq;
 
 namespace TavisApi.Services;
 
-public class DataSync : IDataSync {
+public class DataSync : IDataSync
+{
   private TavisContext _context;
   private readonly IParser _parser;
   private readonly ITA_GameCollection _taGameCollection;
 
-  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection) {
+  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection)
+  {
     _context = context;
     _parser = parser;
     _taGameCollection = taGameCollection;
   }
 
-  public object DynamicSync(List<Player> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub) {
+  public object DynamicSync(List<Player> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub)
+  {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 
     var results = new List<TaParseResult>();
 
-    foreach(var player in players) {
+    foreach (var player in players)
+    {
       hub.Clients.All.SendAsync("SyncSignal", $"Parsing {player.Name}...");
 
       var parseStart = DateTime.UtcNow;
-      
+
       var parsedPlayer = ParseTa(player.Id, syncOptions);
       results.Add(parsedPlayer);
       player.LastSync = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
@@ -46,7 +48,8 @@ public class DataSync : IDataSync {
 
     var totalHits = 0;
     TimeSpan totalTimeHittingTa = new TimeSpan();
-    foreach (var result in results) {
+    foreach (var result in results)
+    {
       totalHits = totalHits + result.TaHits;
       totalTimeHittingTa = totalTimeHittingTa.Add(result.TimeHittingTa);
     }
@@ -65,7 +68,8 @@ public class DataSync : IDataSync {
 
     syncLog.TaHits = totalHits;
 
-    return new {
+    return new
+    {
       OverallTime = elapsedTime,
       TotalTaHits = totalHits,
       TotalTimeHittingTa = totalTaHitTime,
@@ -73,7 +77,9 @@ public class DataSync : IDataSync {
     };
   }
 
-  public TaParseResult ParseTa(int playerId, SyncOptions gcOptions) {
+  // we can maybe skip parsing game info until the last person in the queue to improve perf?
+  public TaParseResult ParseTa(int playerId, SyncOptions gcOptions)
+  {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
     var player = _context.Players!.Where(x => x.Id == playerId).First();
@@ -81,7 +87,7 @@ public class DataSync : IDataSync {
     List<List<CollectionSplit>> entireGameList = new List<List<CollectionSplit>>();
     var page = 1;
     var timeHittingTa = ParseCollectionPage(player.TrueAchievementId, entireGameList, gcOptions, ref page);
-    
+
     var incomingData = new List<TA_CollectionEntry>();
     var taGameIdList = _context.Games!.Select(x => x.TrueAchievementId).ToList();
 
@@ -102,7 +108,7 @@ public class DataSync : IDataSync {
     UpdateCollectionInformation(incomingData, taGameIdList, player);
 
     _context.SaveChanges();
-    
+
     stopWatch.Stop();
 
     TimeSpan ts = stopWatch.Elapsed;
@@ -112,23 +118,25 @@ public class DataSync : IDataSync {
         ts.Hours, ts.Minutes, ts.Seconds,
         ts.Milliseconds / 10);
 
-    return new TaParseResult {
+    return new TaParseResult
+    {
       Performance = elapsedTime,
       TaHits = page,
       TimeHittingTa = timeHittingTa
     };
   }
 
-  private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, Player player, SyncOptions gcOptions) {
+  private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, Player player, SyncOptions gcOptions)
+  {
     // Only remove Games from collection if we are doing a full sync
-    if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value || 
-      gcOptions.ContestStatus.Value != SyncOption_ContestStatus.All.Value || 
+    if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value ||
+      gcOptions.ContestStatus.Value != SyncOption_ContestStatus.All.Value ||
       gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null)
-        return;    
+      return;
 
     // Get all the TA ID's Tavis has for the player
     var gamesInCollection = _context.PlayerGames.Where(x => x.PlayerId == player.Id)
-                              .Join(_context.Games, pg => pg.GameId, g => g.Id, (pg, g) => new {pg, g})
+                              .Join(_context.Games, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
                               .Select(x => (int)x.g.TrueAchievementId).ToList();
 
     // Get all the TA ID's for the newly scanned games
@@ -142,7 +150,8 @@ public class DataSync : IDataSync {
     var tavisGameIds = _context.Games.Where(x => removedGames.Contains(x.TrueAchievementId)).Select(x => x.Id).ToList();
 
     // Have the DB forget about the removed games
-    foreach (var gameId in tavisGameIds) {
+    foreach (var gameId in tavisGameIds)
+    {
       var removedGame = _context.PlayerGames.Where(x => x.GameId == gameId && x.PlayerId == player.Id).First();
       _context.PlayerGames.Remove(removedGame);
     }
@@ -150,23 +159,27 @@ public class DataSync : IDataSync {
     _context.SaveChanges();
   }
 
-  private void SaveRecompletionHistory(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player) {
+  private void SaveRecompletionHistory(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player)
+  {
     // Get all scanned games that are completed
     var incomingCompletedGames = incomingData.Where(x => x.CompletionDate != null);
     var completedIncomingGames = incomingCompletedGames
-                                  .Join(_context.Games, cig => cig.GameId, g => g.TrueAchievementId, (cig, g) => new {cig, g});
+                                  .Join(_context.Games, cig => cig.GameId, g => g.TrueAchievementId, (cig, g) => new { cig, g });
 
     // Get the current completion status of the player's games
     var playersCurrentCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == player.Id && x.CompletionDate != null)
                                                             .OrderByDescending(x => x.CompletionDate);
 
     // Compare the incoming completions with the completions on the PlayerGames table. If it's different it's a re-completion
-    foreach(var incomingCompletion in completedIncomingGames) {
+    foreach (var incomingCompletion in completedIncomingGames)
+    {
       var previouslyCompletedGame = playersCurrentCompletedGames.Where(x => x.Game.TrueAchievementId == incomingCompletion.g.TrueAchievementId).FirstOrDefault();
 
-      if (previouslyCompletedGame != null && 
-          incomingCompletion.cig.CompletionDate != previouslyCompletedGame.CompletionDate) {
-        _context.PlayerCompletionHistory.Add(new PlayerCompletionHistory {
+      if (previouslyCompletedGame != null &&
+          incomingCompletion.cig.CompletionDate != previouslyCompletedGame.CompletionDate)
+      {
+        _context.PlayerCompletionHistory.Add(new PlayerCompletionHistory
+        {
           PlayerId = player.Id,
           GameId = incomingCompletion.g.Id,
           CompletionDate = previouslyCompletedGame.CompletionDate ?? DateTime.MinValue
@@ -177,7 +190,8 @@ public class DataSync : IDataSync {
     _context.SaveChanges();
   }
 
-  private TimeSpan ParseCollectionPage(int playerTrueAchId, List<List<CollectionSplit>> entireCollection, SyncOptions gcOptions, ref int page) {
+  private TimeSpan ParseCollectionPage(int playerTrueAchId, List<List<CollectionSplit>> entireCollection, SyncOptions gcOptions, ref int page)
+  {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 
@@ -191,36 +205,43 @@ public class DataSync : IDataSync {
 
     HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
     doc.LoadHtml(responseBody);
-    
+
     var collectionPage = doc.DocumentNode.SelectSingleNode("//table")
       ?.Descendants("tr")
       ?.Skip(1)
       ?.SkipLast(1)
-      ?.Where(tr=>tr.Elements("td").Count()>1)
+      ?.Where(tr => tr.Elements("td").Count() > 1)
       ?.Select(tr => tr.Elements("td")
-      ?.Select(td => new CollectionSplit { 
-        CollectionValuesHtml = td.InnerText, 
-        CollectionImagesHtml = td.InnerHtml, 
-        GameIdHtml = td.OuterHtml })
+      ?.Select(td => new CollectionSplit
+      {
+        CollectionValuesHtml = td.InnerText,
+        CollectionImagesHtml = td.InnerHtml,
+        GameIdHtml = td.OuterHtml
+      })
       ?.ToList());
 
-    if (collectionPage != null) {
+    if (collectionPage != null)
+    {
       entireCollection.AddRange(collectionPage!);
 
-      if (collectionPage.Count() == 100) {
+      if (collectionPage.Count() == 100)
+      {
 
         // if we have a cutoff, lets try to quit parsing early
-        if (gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null) {
+        if (gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null)
+        {
           var lastEntry = collectionPage.Last();
           var lastEntryCompletionDate = _parser.TaDate(lastEntry![6].CollectionValuesHtml!);
           var lastUnlockDate = _parser.TaDate(lastEntry![7].CollectionValuesHtml);
 
-          if (lastUnlockDate < gcOptions.LastUnlockCutoff) {
+          if (lastUnlockDate < gcOptions.LastUnlockCutoff)
+          {
             stopWatch.Stop();
             return stopWatch.Elapsed;
           }
 
-          if (lastEntryCompletionDate < gcOptions.DateCutoff) {
+          if (lastEntryCompletionDate < gcOptions.DateCutoff)
+          {
             stopWatch.Stop();
             return stopWatch.Elapsed;
           }
@@ -236,15 +257,19 @@ public class DataSync : IDataSync {
     return stopWatch.Elapsed;
   }
 
-  private void StructureCollectionPage(List<List<CollectionSplit>> entireGameList, List<TA_CollectionEntry> incomingData, Player player) {
+  private void StructureCollectionPage(List<List<CollectionSplit>> entireGameList, List<TA_CollectionEntry> incomingData, Player player)
+  {
     // we're going to hardcode the array position here to avoid even more parsing
     //TODO: this deserves an integration test
     //TODO: consider breaking out what we parse if we already have the game on file?
-      // maybe we shouldn't parse things that never change, like Dev, Publisher etc
-      // if we do that, have a way to force an update
-    foreach(var game in entireGameList) {
-      try {
-        incomingData.Add(new TA_CollectionEntry {
+    // maybe we shouldn't parse things that never change, like Dev, Publisher etc
+    // if we do that, have a way to force an update
+    foreach (var game in entireGameList)
+    {
+      try
+      {
+        incomingData.Add(new TA_CollectionEntry
+        {
           GameId = _parser.GameId(game[1].GameIdHtml!),
           Title = Extensions.NullIfWhiteSpace(game[0].CollectionValuesHtml!),
           GameUrl = _parser.GameUrl(game[0].CollectionImagesHtml!),
@@ -274,17 +299,21 @@ public class DataSync : IDataSync {
           FullCompletionEstimate = _parser.FullCompletionEstimate(game[21].CollectionValuesHtml!)
         });
       }
-      catch(Exception ex) {
+      catch (Exception ex)
+      {
         Console.Error.Write($"Error encountered trying to parse {game[1].GameIdHtml} for Player {player.Name} - ", ex);
       }
     }
   }
 
-  private void SaveNewlyDetectedGames(List<TA_CollectionEntry> incomingData, List<int> taGameIdList) {
+  private void SaveNewlyDetectedGames(List<TA_CollectionEntry> incomingData, List<int> taGameIdList)
+  {
     var unknownGames = incomingData.Where(incData => !taGameIdList.Contains(incData.GameId)).ToList();
 
-    foreach(var game in unknownGames) {
-      var newGame = new Game {
+    foreach (var game in unknownGames)
+    {
+      var newGame = new Game
+      {
         TrueAchievementId = game.GameId,
         Title = game.Title,
         Url = game.GameUrl,
@@ -312,16 +341,19 @@ public class DataSync : IDataSync {
     _context.SaveChanges();
   }
 
-  private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, Player player) {
+  private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, Player player)
+  {
     // lets figure out and update it if its the first time we see it in the players collection
     var newCollectionEntries = incomingData
                                     .Where(incData => !_context.PlayerGames!.Where(x => x.PlayerId == player.Id)
-                                    .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new {pg, g})
+                                    .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
                                     .Select(x => x.g.TrueAchievementId).Contains(incData.GameId));
 
     var gameIds = _context.Games!.Where(x => newCollectionEntries.Select(y => y.GameId).Contains(x.TrueAchievementId)).ToList();
-    foreach(var entry in newCollectionEntries) {
-      var newGame = new PlayerGame {
+    foreach (var entry in newCollectionEntries)
+    {
+      var newGame = new PlayerGame
+      {
         GameId = gameIds.First(x => x.TrueAchievementId == entry.GameId).Id,
         PlayerId = player.Id,
         Platform = entry.Platform,
@@ -339,11 +371,13 @@ public class DataSync : IDataSync {
     }
   }
 
-  private void UpdateGameInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList) {
+  private void UpdateGameInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList)
+  {
     var knownGames = incomingData.Where(incData => taGameIdList.Contains(incData.GameId)).ToList();
     var gamesToUpdate = _context.Games!.Where(x => knownGames.Select(y => y.GameId).Contains(x.TrueAchievementId));
 
-    foreach(var gameToUpdate in gamesToUpdate) {
+    foreach (var gameToUpdate in gamesToUpdate)
+    {
       var knownGame = knownGames.First(x => x.GameId == gameToUpdate.TrueAchievementId);
 
       gameToUpdate.Publisher = knownGame.Publisher;
@@ -366,13 +400,15 @@ public class DataSync : IDataSync {
     }
   }
 
-  private void UpdateCollectionInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player) {
+  private void UpdateCollectionInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player)
+  {
     var knownEntries = incomingData.Where(incData => taGameIdList.Contains(incData.GameId));
     var entriesToUpdate = _context.PlayerGames!.Where(x => x.PlayerId == player.Id)
-                              .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new {pg, g})
+                              .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
                               .Where(x => knownEntries.Select(y => y.GameId).Contains(x.g.TrueAchievementId));
 
-    foreach(var entryToUpdate in entriesToUpdate) {
+    foreach (var entryToUpdate in entriesToUpdate)
+    {
       var knownEntry = knownEntries.First(x => x.GameId == entryToUpdate.g.TrueAchievementId);
 
       entryToUpdate.pg.Platform = knownEntry.Platform;
@@ -387,7 +423,8 @@ public class DataSync : IDataSync {
     }
   }
 
-  public void ParseGamePages(List<int> gamesToUpdateIds) {
+  public void ParseGamePages(List<int> gamesToUpdateIds)
+  {
     var fls = _context.FeatureLists!.Select(x => x.FeatureListOfGameId);
     var parseList = _context.Games!.Where(x => !fls.Contains(x.Id)).Select(x => x.Id);
 
@@ -395,17 +432,20 @@ public class DataSync : IDataSync {
     Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.Now}");
 
     var i = 0;
-    foreach(var game in gamesToUpdate) {
+    foreach (var game in gamesToUpdate)
+    {
       var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id).ToList();
       _context.GameGenres!.RemoveRange(genresToRemove);
 
-      try {
-        ParseGamePage(game);  
+      try
+      {
+        ParseGamePage(game);
       }
-      catch(Exception ex) {
+      catch (Exception ex)
+      {
         Console.WriteLine($"COULD NOT PARSE {game.Title} - {ex}");
       }
-      
+
       Thread.Sleep(2000);
       Console.WriteLine($"Finished parsing {game.Title}, {i++} out of {gamesToUpdate.Count()}");
     }
@@ -413,7 +453,8 @@ public class DataSync : IDataSync {
     _context.SaveChanges();
   }
 
-  private TimeSpan ParseGamePage(Game game) {
+  private TimeSpan ParseGamePage(Game game)
+  {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 
@@ -425,29 +466,32 @@ public class DataSync : IDataSync {
 
     HtmlDocument doc = new HtmlDocument();
     doc.LoadHtml(responseBody);
-    
+
     var gameInfoTable = doc.DocumentNode.SelectSingleNode("//dl[@class='game-info']");
     var labels = gameInfoTable?.Descendants("dt").Select(x => x.InnerHtml).ToList();
     var values = gameInfoTable?.Descendants("dd").Select(x => x.InnerText).ToList();
 
     var genres = GetDataFromDLTable("Genre", doc, labels!, values, game);
-    var splitGenre = genres!.Split(new string[]{", "}, StringSplitOptions.None);
+    var splitGenre = genres!.Split(new string[] { ", " }, StringSplitOptions.None);
 
-    foreach(var genre in splitGenre) {
+    foreach (var genre in splitGenre)
+    {
       var typedGenre = GenreList.FromName(genre.Trim());
-      
-      _context.GameGenres!.Add(new GameGenre {
+
+      _context.GameGenres!.Add(new GameGenre
+      {
         GameId = game.Id,
         GenreId = typedGenre
       });
     }
 
     var features = GetDataFromDLTable("Feature", doc, labels!, values, game);
-    var splitFeatures = features?.Split(new string[]{", "}, StringSplitOptions.None);
+    var splitFeatures = features?.Split(new string[] { ", " }, StringSplitOptions.None);
 
-    
+
     var featureListToUpdate = _context.FeatureLists!.FirstOrDefault(x => x.Game.Id == game.Id);
-    if (featureListToUpdate != null) {
+    if (featureListToUpdate != null)
+    {
       featureListToUpdate.BackwardsCompat = false;
       featureListToUpdate.CloudGaming = false;
       featureListToUpdate.Crossplay = false;
@@ -465,16 +509,22 @@ public class DataSync : IDataSync {
       featureListToUpdate.PlayAnywhere = false;
       featureListToUpdate.SmartDelivery = false;
       featureListToUpdate.xCloudTouch = false;
-    } else {
-      featureListToUpdate = new FeatureList {
+    }
+    else
+    {
+      featureListToUpdate = new FeatureList
+      {
         Game = game
       };
     }
 
-    if (splitFeatures != null) {
-      foreach(var feature in splitFeatures) {
-        switch(feature) {
-          case "Xbox One X Enhanced": 
+    if (splitFeatures != null)
+    {
+      foreach (var feature in splitFeatures)
+      {
+        switch (feature)
+        {
+          case "Xbox One X Enhanced":
             featureListToUpdate!.OneXEnhanced = true;
             break;
           case "Backwards Compatible":
@@ -509,12 +559,15 @@ public class DataSync : IDataSync {
     }
 
     var notes = GetDataFromDLTable("Note", doc, labels!, values, game);
-    var splitNotes = notes?.Split(new string[]{", "}, StringSplitOptions.None);
+    var splitNotes = notes?.Split(new string[] { ", " }, StringSplitOptions.None);
 
-    if (splitNotes != null) {
-      foreach(var note in splitNotes) {
-        switch(note) {
-          case "Xbox Game Pass": 
+    if (splitNotes != null)
+    {
+      foreach (var note in splitNotes)
+      {
+        switch (note)
+        {
+          case "Xbox Game Pass":
             featureListToUpdate!.GamePass = true;
             break;
           case "Xbox Cloud Gaming":
@@ -552,10 +605,12 @@ public class DataSync : IDataSync {
     return stopWatch.Elapsed;
   }
 
-  private string? GetDataFromDLTable(string column, HtmlDocument doc, List<string> columns, List<string>? values, Game game) {
+  private string? GetDataFromDLTable(string column, HtmlDocument doc, List<string> columns, List<string>? values, Game game)
+  {
     var columnIndex = columns!.FindIndex(x => x.StartsWith(column));
 
-    if (columnIndex == -1) {
+    if (columnIndex == -1)
+    {
       Console.WriteLine($"{game.Title} did not have \"{column}\" to parse");
       return null;
     }
@@ -563,7 +618,8 @@ public class DataSync : IDataSync {
     return values?[columnIndex];
   }
 
-  public void ParseGamesWithGold(ref int page) {
+  public void ParseGamesWithGold(ref int page)
+  {
     using var httpClient = new HttpClient();
     var request = new HttpRequestMessage(HttpMethod.Get, $"https://www.trueachievements.com/games-with-gold/games?page={page}");
     var response = httpClient.Send(request);
@@ -578,34 +634,40 @@ public class DataSync : IDataSync {
                             ?.Where(e => e.HasClass("game"))
                             ?.Select(x => x.InnerText);
 
-    foreach(var goldGame in gamesWithGold!) {
+    foreach (var goldGame in gamesWithGold!)
+    {
       var game = _context.Games!.FirstOrDefault(x => x.Title == goldGame);
 
-      if (game != null) {
+      if (game != null)
+      {
         var featurelist = _context.FeatureLists!.FirstOrDefault(x => x.Game == game);
         if (featurelist != null)
           featurelist.GamesWithGold = true;
-        else {
-          featurelist = new FeatureList { Game = game, GamesWithGold = true};
+        else
+        {
+          featurelist = new FeatureList { Game = game, GamesWithGold = true };
         }
       }
     }
-    
-    if (gamesWithGold?.Count() == 100) {
+
+    if (gamesWithGold?.Count() == 100)
+    {
       page = page + 1;
       ParseGamesWithGold(ref page);
     }
   }
-  
-  public class CollectionSplit {
-    public string? CollectionValuesHtml {get; set;}
-    public string? CollectionImagesHtml {get;set;}
-    public string? GameIdHtml {get;set;}
+
+  public class CollectionSplit
+  {
+    public string? CollectionValuesHtml { get; set; }
+    public string? CollectionImagesHtml { get; set; }
+    public string? GameIdHtml { get; set; }
   }
 
-  public class TaParseResult {
-    public string? Performance {get;set;}
-    public int TaHits {get;set;}
-    public TimeSpan TimeHittingTa {get;set;}
+  public class TaParseResult
+  {
+    public string? Performance { get; set; }
+    public int TaHits { get; set; }
+    public TimeSpan TimeHittingTa { get; set; }
   }
 }

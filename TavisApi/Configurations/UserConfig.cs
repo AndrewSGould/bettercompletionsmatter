@@ -4,18 +4,12 @@ using Tavis.Models;
 
 namespace TavisApi.Context;
 
-public class UserConfiguration : IEntityTypeConfiguration<Login>
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-  public void Configure(EntityTypeBuilder<Login> builder)
+  public void Configure(EntityTypeBuilder<User> builder)
   {
-    //TODO: change this to smart enum
-    builder.HasData
-    (
-      new Login {
-        Id = 1,
-        Username = "johndoe",
-        Password = "def@123"
-      }
-    );
+    builder.HasOne(x => x.Login)
+      .WithOne(x => x.User)
+      .HasForeignKey<Login>(x => x.UserId);
   }
 }

@@ -1,20 +1,21 @@
 using Tavis.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using EntityFrameworkCore.EncryptColumn.Interfaces;
+using EntityFrameworkCore.EncryptColumn.Extension;
+using EntityFrameworkCore.EncryptColumn.Util;
 
 namespace TavisApi.Context
 {
   public class TavisContext : DbContext
   {
     protected readonly IConfiguration Configuration;
+    private readonly IEncryptionProvider _encryptProvider;
 
     public TavisContext(DbContextOptions<TavisContext> options, IConfiguration configuration) : base(options)
     {
       Configuration = configuration;
+      _encryptProvider = new GenerateEncryptionProvider("+68TIPxJWUxxhjLMR9FGkQ==");
     }
 
     public DbSet<Game>? Games { get; set; }
@@ -26,6 +27,8 @@ namespace TavisApi.Context
     public DbSet<Contest>? Contests { get; set; }
     public DbSet<PlayerContest>? PlayerContests { get; set; }
     public DbSet<Login>? Logins { get; set; }
+    public DbSet<DiscordLogin>? DiscordLogins { get; set; }
+    public DbSet<User>? Users { get; set; }
     public DbSet<SyncHistory>? SyncHistory { get; set; }
     public DbSet<PlayerCompletionHistory>? PlayerCompletionHistory { get; set; }
     public DbSet<BcmCompletionHistory>? BcmCompletionHistory { get; set; }
@@ -35,11 +38,6 @@ namespace TavisApi.Context
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      // var configuration = new ConfigurationBuilder()
-      //   .SetBasePath(Directory.GetCurrentDirectory())
-      //   .AddJsonFile("appsettings.json")
-      //   .Build();
-
       var connectionString = Configuration.GetConnectionString("DefaultConnection");
       optionsBuilder.UseNpgsql(connectionString);
     }
@@ -47,6 +45,7 @@ namespace TavisApi.Context
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+      modelBuilder.UseEncryption(_encryptProvider);
 
       modelBuilder.ApplyConfiguration(new PlayerConfiguration());
       modelBuilder.ApplyConfiguration(new GenreConfiguration());

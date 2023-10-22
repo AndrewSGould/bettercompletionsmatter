@@ -1,12 +1,13 @@
-namespace Tavis.Models {
-  public class PlayerCompletionHistory {
-    public int Id {get; set;} = 0;
-    public DateTime CompletionDate {get;set;} = DateTime.MinValue;
+namespace Tavis.Models;
 
-    public int? PlayerId {get;set;}
-    public Player? Player {get;set;}
+public class PlayerCompletionHistory
+{
+  public int Id { get; set; } = 0;
+  public DateTime CompletionDate { get; set; } = DateTime.MinValue;
 
-    public int? GameId {get;set;}
-    public Game? Game {get;set;}
-  }
+  public int? PlayerId { get; set; }
+  public Player? Player { get; set; }
+
+  public int? GameId { get; set; }
+  public Game? Game { get; set; }
 }

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
 
-public class SyncSignal : Hub {
-  
+namespace Tavis.Models;
+
+public class SyncSignal : Hub
+{
+
 }

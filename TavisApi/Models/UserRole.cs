@@ -8,7 +8,7 @@ public class UserRole
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
-    public Guid RoleId {get; set;} = Guid.NewGuid();
-    public string RoleName {get; set;}
+    public Guid RoleId { get; set; } = Guid.NewGuid();
+    public string RoleName { get; set; }
     public List<Login> Logins { get; } = new();
 }

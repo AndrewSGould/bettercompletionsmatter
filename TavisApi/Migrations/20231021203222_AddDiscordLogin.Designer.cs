@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20231021203222_AddDiscordLogin")]
+    partial class AddDiscordLogin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,8 +167,8 @@ namespace TavisApi.Migrations
                     b.Property<string>("AccessToken")
                         .HasColumnType("text");
 
-                    b.Property<string>("DiscordId")
-                        .HasColumnType("text");
+                    b.Property<int>("DiscordId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TokenType")
                         .HasColumnType("text");
@@ -3542,19 +3545,19 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 1L,
-                            RoleId = new Guid("9bcaa509-1096-4b80-9177-2e723f08a674"),
+                            RoleId = new Guid("cbeaba8f-e778-44b5-8e52-6c0a20008bed"),
                             RoleName = "Super Admin"
                         },
                         new
                         {
                             Id = 2L,
-                            RoleId = new Guid("741f8f18-c98d-4908-b5b9-2a0b1ba7643d"),
+                            RoleId = new Guid("4f3617bb-654d-4b39-873f-ed1d5d404019"),
                             RoleName = "Bcm Admin"
                         },
                         new
                         {
                             Id = 3L,
-                            RoleId = new Guid("759d0d53-32b1-4313-9467-2c5614c62ba0"),
+                            RoleId = new Guid("eb8ea9db-2b4e-4909-b394-0450d7ae5dd2"),
                             RoleName = "User"
                         });
                 });

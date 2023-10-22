@@ -21,10 +21,10 @@ public class PlayerGameConfiguration : IEntityTypeConfiguration<PlayerGame>
         p => Platform.FromValue(p));
 
     builder
-      .HasKey(c => new {c.GameId, c.PlayerId});
+      .HasKey(c => new { c.GameId, c.PlayerId });
 
     builder
-      .HasOne<Player>(x => x.Player)
+      .HasOne(x => x.Player)
       .WithMany(x => x.PlayerGames)
       .HasForeignKey(x => x.PlayerId);
   }

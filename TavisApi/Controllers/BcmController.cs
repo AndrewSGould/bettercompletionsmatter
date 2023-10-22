@@ -39,22 +39,18 @@ public class BcmController : ControllerBase
 
     var leaderboard = new List<Leaderboard>();
 
+    if (players.Count() == 0) return BadRequest("No players found!");
+
     foreach (var player in players)
     {
       leaderboard.Add(new Leaderboard
       {
         Player = player,
-        BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
+        BcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id)
       });
     }
-
+    return Ok();
     return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
-  }
-
-  public class Leaderboard
-  {
-    public Player Player { get; set; }
-    public BcmStat BcmStats { get; set; }
   }
 
   [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
@@ -133,12 +129,6 @@ public class BcmController : ControllerBase
     return Ok();
   }
 
-  public class Ranking
-  {
-    public int PlayerId { get; set; }
-    public double? BcmPoints { get; set; }
-  }
-
   [HttpGet]
   [Route("getBcmPlayer")]
   public IActionResult BcmPlayer(int playerId)
@@ -173,15 +163,6 @@ public class BcmController : ControllerBase
     };
 
     return Ok(bcmPlayerSummary);
-  }
-
-  public class BcmPlayerSummary
-  {
-    public string Title { get; set; }
-    public double? Ratio { get; set; }
-    public double? Estimate { get; set; }
-    public DateTime? CompletionDate { get; set; }
-    public int? Points { get; set; }
   }
 
   // Get random games, sorted by eligibility, then alphabetically by player
@@ -350,21 +331,6 @@ public class BcmController : ControllerBase
       RerollsRemaining = BcmRule.BcmRgscStartingRerolls + rgscCompletedGameCount - rerollsUsed,
       RgscsCompleted = rgscCompletedGameCount
     });
-  }
-
-  public class UserDetails
-  {
-    public string DateCompleted { get; set; }
-    public string GameTitle { get; set; }
-    public double? Ratio { get; set; }
-  }
-
-  public class RgscResult
-  {
-    public string Player { get; set; }
-    public string RandomGame { get; set; }
-    public int EligibleCount { get; set; }
-    public List<string> GameList { get; set; }
   }
 
   private void WriteRgscExcelFile(List<RgscResult> rgscResults)
