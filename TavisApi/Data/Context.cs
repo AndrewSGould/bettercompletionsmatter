@@ -56,7 +56,6 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new PlayerContestConfiguration());
       modelBuilder.ApplyConfiguration(new UserConfiguration());
       modelBuilder.ApplyConfiguration(new SyncHistoryConfiguration());
-      modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

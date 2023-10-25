@@ -8,8 +8,8 @@ public class DiscordLogin
 {
   [Key]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public long Id { get; set; }
-  public string DiscordId { get; set; }
+  public long Id { get; set; } // TODO: change my longs to ulongs
+  public ulong DiscordId { get; set; }
   public string TokenType { get; set; }
   [EncryptColumn]
   public string AccessToken { get; set; }

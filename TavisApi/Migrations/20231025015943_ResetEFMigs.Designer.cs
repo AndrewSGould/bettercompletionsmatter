@@ -12,17 +12,118 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    [Migration("20230102014550_1.1-BcmPlayersUpdate")]
-    partial class _11BcmPlayersUpdate
+    [Migration("20231025015943_ResetEFMigs")]
+    partial class ResetEFMigs
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.7")
+                .HasAnnotation("ProductVersion", "7.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Tavis.Models.BcmCompletionHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("SiteRatio")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("BcmCompletionHistory");
+                });
+
+            modelBuilder.Entity("Tavis.Models.BcmRgsc", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("Issued")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Rerolled")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.ToTable("BcmRgsc");
+                });
+
+            modelBuilder.Entity("Tavis.Models.BcmStat", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<double?>("AveragePoints")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("AverageRatio")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("AverageTimeEstimate")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("BasePoints")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("BonusPoints")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("Completions")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("HighestRatio")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("HighestTimeEstimate")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Rank")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RankMovement")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("TotalPoints")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("BcmStats");
+                });
 
             modelBuilder.Entity("Tavis.Models.Contest", b =>
                 {
@@ -52,14 +153,35 @@ namespace TavisApi.Migrations
                             EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "Better Completions Matter",
                             StartDate = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EndDate = new DateTime(2022, 8, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "Raid Boss",
-                            StartDate = new DateTime(2022, 7, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
+                });
+
+            modelBuilder.Entity("Tavis.Models.DiscordLogin", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AccessToken")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("DiscordId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<string>("TokenType")
+                        .HasColumnType("text");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("DiscordLogins");
                 });
 
             modelBuilder.Entity("Tavis.Models.FeatureList", b =>
@@ -694,21 +816,15 @@ namespace TavisApi.Migrations
                     b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Username")
-                        .HasColumnType("text");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logins");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Password = "def@123",
-                            RefreshTokenExpiryTime = new DateTime(1, 1, 1, 5, 0, 0, 0, DateTimeKind.Utc),
-                            Username = "johndoe"
-                        });
+                    b.ToTable("Logins");
                 });
 
             modelBuilder.Entity("Tavis.Models.Player", b =>
@@ -2134,8 +2250,8 @@ namespace TavisApi.Migrations
                         new
                         {
                             Id = 160,
-                            IsActive = false,
-                            Name = "N龱T廾 T廾A G龱D",
+                            IsActive = true,
+                            Name = "N0TH THA G0D",
                             TrueAchievementId = 1725
                         },
                         new
@@ -3290,6 +3406,21 @@ namespace TavisApi.Migrations
                         {
                             ContestId = 1,
                             PlayerId = 213
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 204
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 205
+                        },
+                        new
+                        {
+                            ContestId = 1,
+                            PlayerId = 160
                         });
                 });
 
@@ -3363,6 +3494,95 @@ namespace TavisApi.Migrations
                     b.ToTable("SyncHistory");
                 });
 
+            modelBuilder.Entity("Tavis.Models.User", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Gamertag")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Xuid")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Tavis.Models.UserRole", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("DiscordId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<string>("RoleName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("UserUserRole", b =>
+                {
+                    b.Property<long>("UserRolesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserRolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("UserUserRole");
+                });
+
+            modelBuilder.Entity("Tavis.Models.BcmCompletionHistory", b =>
+                {
+                    b.HasOne("Tavis.Models.Game", "Game")
+                        .WithMany("BcmCompletionHistories")
+                        .HasForeignKey("GameId");
+
+                    b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("Tavis.Models.BcmRgsc", b =>
+                {
+                    b.HasOne("Tavis.Models.Player", null)
+                        .WithMany("BcmRgsc")
+                        .HasForeignKey("PlayerId");
+                });
+
+            modelBuilder.Entity("Tavis.Models.BcmStat", b =>
+                {
+                    b.HasOne("Tavis.Models.Player", "Player")
+                        .WithOne("BcmStats")
+                        .HasForeignKey("Tavis.Models.BcmStat", "PlayerId");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("Tavis.Models.DiscordLogin", b =>
+                {
+                    b.HasOne("Tavis.Models.User", "User")
+                        .WithOne("DiscordLogin")
+                        .HasForeignKey("Tavis.Models.DiscordLogin", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Tavis.Models.FeatureList", b =>
                 {
                     b.HasOne("Tavis.Models.Game", "Game")
@@ -3389,6 +3609,17 @@ namespace TavisApi.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("Tavis.Models.Login", b =>
+                {
+                    b.HasOne("Tavis.Models.User", "User")
+                        .WithOne("Login")
+                        .HasForeignKey("Tavis.Models.Login", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Tavis.Models.PlayerCompletionHistory", b =>
@@ -3428,7 +3659,7 @@ namespace TavisApi.Migrations
             modelBuilder.Entity("Tavis.Models.PlayerGame", b =>
                 {
                     b.HasOne("Tavis.Models.Game", "Game")
-                        .WithMany("PlayerGames")
+                        .WithMany()
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3444,6 +3675,21 @@ namespace TavisApi.Migrations
                     b.Navigation("Player");
                 });
 
+            modelBuilder.Entity("UserUserRole", b =>
+                {
+                    b.HasOne("Tavis.Models.UserRole", null)
+                        .WithMany()
+                        .HasForeignKey("UserRolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tavis.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Tavis.Models.Contest", b =>
                 {
                     b.Navigation("PlayerContests");
@@ -3451,13 +3697,13 @@ namespace TavisApi.Migrations
 
             modelBuilder.Entity("Tavis.Models.Game", b =>
                 {
+                    b.Navigation("BcmCompletionHistories");
+
                     b.Navigation("FeatureList");
 
                     b.Navigation("GameGenres");
 
                     b.Navigation("PlayerCompletionHistories");
-
-                    b.Navigation("PlayerGames");
                 });
 
             modelBuilder.Entity("Tavis.Models.Genre", b =>
@@ -3467,11 +3713,22 @@ namespace TavisApi.Migrations
 
             modelBuilder.Entity("Tavis.Models.Player", b =>
                 {
+                    b.Navigation("BcmRgsc");
+
+                    b.Navigation("BcmStats");
+
                     b.Navigation("PlayerCompletionHistories");
 
                     b.Navigation("PlayerContests");
 
                     b.Navigation("PlayerGames");
+                });
+
+            modelBuilder.Entity("Tavis.Models.User", b =>
+                {
+                    b.Navigation("DiscordLogin");
+
+                    b.Navigation("Login");
                 });
 #pragma warning restore 612, 618
         }

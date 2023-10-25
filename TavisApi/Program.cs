@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Tavis.Models;
+using dotenv.net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ var configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
+
+DotEnv.Load(options: new DotEnvOptions(probeForEnv: true, ignoreExceptions: false));
 
 if (builder.Environment.EnvironmentName.Trim() == string.Empty)
   configurationBuilder.AddJsonFile("appsettings.Production.json", optional: false, reloadOnChange: true);

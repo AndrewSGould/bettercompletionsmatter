@@ -164,8 +164,8 @@ namespace TavisApi.Migrations
                     b.Property<string>("AccessToken")
                         .HasColumnType("text");
 
-                    b.Property<string>("DiscordId")
-                        .HasColumnType("text");
+                    b.Property<decimal>("DiscordId")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("TokenType")
                         .HasColumnType("text");
@@ -816,15 +816,10 @@ namespace TavisApi.Migrations
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("UserRoleId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
                         .IsUnique();
-
-                    b.HasIndex("UserRoleId");
 
                     b.ToTable("Logins");
                 });
@@ -3523,40 +3518,30 @@ namespace TavisApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal>("DiscordId")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("RoleName")
                         .HasColumnType("text");
 
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("UserRoles");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            RoleId = new Guid("9bcaa509-1096-4b80-9177-2e723f08a674"),
-                            RoleName = "Super Admin"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            RoleId = new Guid("741f8f18-c98d-4908-b5b9-2a0b1ba7643d"),
-                            RoleName = "Bcm Admin"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            RoleId = new Guid("759d0d53-32b1-4313-9467-2c5614c62ba0"),
-                            RoleName = "User"
-                        });
+            modelBuilder.Entity("UserUserRole", b =>
+                {
+                    b.Property<long>("UserRolesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserRolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("UserUserRole");
                 });
 
             modelBuilder.Entity("Tavis.Models.BcmCompletionHistory", b =>
@@ -3631,10 +3616,6 @@ namespace TavisApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Tavis.Models.UserRole", null)
-                        .WithMany("Logins")
-                        .HasForeignKey("UserRoleId");
-
                     b.Navigation("User");
                 });
 
@@ -3691,11 +3672,19 @@ namespace TavisApi.Migrations
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("Tavis.Models.UserRole", b =>
+            modelBuilder.Entity("UserUserRole", b =>
                 {
+                    b.HasOne("Tavis.Models.UserRole", null)
+                        .WithMany()
+                        .HasForeignKey("UserRolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Tavis.Models.User", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId");
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Tavis.Models.Contest", b =>
@@ -3737,13 +3726,6 @@ namespace TavisApi.Migrations
                     b.Navigation("DiscordLogin");
 
                     b.Navigation("Login");
-
-                    b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Tavis.Models.UserRole", b =>
-                {
-                    b.Navigation("Logins");
                 });
 #pragma warning restore 612, 618
         }

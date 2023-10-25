@@ -6,6 +6,7 @@ using TavisApi.Services;
 using System.Linq;
 using Tavis.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -81,7 +82,7 @@ public class AuthController : ControllerBase
           new Claim(ClaimTypes.Name, oxblProfile.Gamertag),
           // TODO: here, we should only issue basic access. later when we connect to discord we'll
           // scan the roles and issue a new JWT
-          new Claim(ClaimTypes.Role, "Super Admin") // TODO: roles need to be enums
+          new Claim(ClaimTypes.Role, "NoRole")
       };
 
     var accessToken = _tokenService.GenerateAccessToken(claims);
@@ -104,14 +105,15 @@ public class AuthController : ControllerBase
   }
 
   [HttpPost, Route("integrate-discord")]
-  [Authorize(Roles = "Super Admin")]
+  // [Authorize(Roles = "Super Admin")]
   public async Task<IActionResult> IntegrateDiscord([FromBody] DiscordLogin dLogin)
   {
     if (dLogin is null || dLogin.AccessToken is null || dLogin.TokenType is null) return BadRequest("Invalid client request");
 
-    var discordProfile = await _discordService.Connect(dLogin);
     var currentUsername = _userService.GetCurrentUserName();
-    var user = _context.Users.FirstOrDefault(x => x.Gamertag == currentUsername);
+    var user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == currentUsername);
+
+    var discordProfile = await _discordService.Connect(dLogin, user);
 
     var newLogin = _context.DiscordLogins.FirstOrDefault(x => x.DiscordId == discordProfile.Id);
 
@@ -133,6 +135,29 @@ public class AuthController : ControllerBase
 
     await _context.SaveChangesAsync();
 
-    return Ok();
+    var claims = new List<Claim>
+      {
+          new Claim(ClaimTypes.Name, user.Gamertag),
+      };
+
+    foreach (var role in user.UserRoles)
+    {
+      claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+    }
+
+    var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
+
+    var accessToken = _tokenService.GenerateAccessToken(claims);
+    var refreshToken = _tokenService.GenerateRefreshToken();
+    login.RefreshToken = refreshToken;
+    login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+    await _context.SaveChangesAsync();
+
+    return Ok(new AuthenticatedResponse
+    {
+      Token = accessToken,
+      RefreshToken = refreshToken
+    });
   }
 }
