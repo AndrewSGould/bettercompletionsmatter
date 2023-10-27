@@ -13,12 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up SSH password
-        run: echo ${{ secrets.SSH_PASSWORD }} > password.txt
-
-      - name: Copy password file to VPS
-        run: scp password.txt root@170.249.237.92:~/password.txt
-
       - name: SSH into VPS and pull code
         run: |
-          sshpass -f password.txt ssh root@170.249.237.92 "cd tavis  && git pull"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh root@170.249.237.92 "cd tavis && git pull"
+
