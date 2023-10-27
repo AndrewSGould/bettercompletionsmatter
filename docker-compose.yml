@@ -3,6 +3,8 @@ version: '3.8'
 services:
   tavis-frontend:
     image: tavis:latest
+    context: /root/tavis-web
+    dockerfile: Dockerfile
     ports:
       - "4200:4200"
     depends_on:
@@ -10,6 +12,8 @@ services:
 
   tavis-backend:
     image: tavis-backend:latest
+    context: /root/tavis
+    dockerfile: Dockerfile
     ports:
       - "4300:80"
     environment:
