@@ -1,4 +1,4 @@
-name: Deploy code to VPS
+name: Connect to VPS Server and Create Folder
 
 on:
   push:
@@ -6,14 +6,24 @@ on:
       - deploy
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu:latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Install SSH client
+      run: sudo yum install openssh-client -y
 
-      - name: SSH into VPS and pull code
-        run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh root@170.249.237.92 "cd tavis && git pull"
+    - name: Set up SSH key
+      run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: Connect to VPS server and create folder
+      run: |
+        ssh -i ~/.ssh/id_rsa root@${{ secrets.VPS_SERVER_IP }} << EOF
+        cd /root/
+        mkdir -p pipeline_working
+       
+        EOF
+      env:
+        VPS_SERVER_IP: ${{ secrets.VPS_SERVER_IP }}
