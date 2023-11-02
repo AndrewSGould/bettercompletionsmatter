@@ -4,7 +4,7 @@ A TrueAchievement companion application for enhanced stat analysis and community
 
 [![build and test](https://github.com/AndrewSGould/tavis/actions/workflows/main.yml/badge.svg)](https://github.com/AndrewSGould/tavis/actions/workflows/main.yml)
 
-
+   
 - Running locally:
 - Install VS Code
 - Install Git
