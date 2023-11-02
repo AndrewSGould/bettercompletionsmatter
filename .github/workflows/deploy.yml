@@ -25,7 +25,6 @@ jobs:
 
     - name: Connect to server 
       run: |
-         ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_SERVER_IP }} << EOF
-          mkdir workflow_testing
-
-         EOF
+        ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_SERVER_IP }} << EOF
+        mkdir workflow_testing
+        EOF
