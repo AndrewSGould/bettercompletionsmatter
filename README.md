@@ -116,4 +116,4 @@ Each requirement will be tagged with [v(x)] to denote at which point the feature
 
 - Show how many Players will be sync'd
 - Estimate how long the Sync will take (estimated)
-  - Calculate this based off of Sync history. Average of sync time / average of players synced
+- Calculate this based off of Sync history. Average of sync time / average of players synced
