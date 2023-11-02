@@ -20,7 +20,7 @@ A TrueAchievement companion application for enhanced stat analysis and community
 - Path to `~/TavisApi.Tests` and run `dotnet test`
 - Path back to `~/TavisApi/` and run `dotnet run`!
 
-## Better Completions Matter (BCM)
+## Better Completions Matter (BCM) 
 
 Yearly Achievement Hunting Contest Management Solution
 
