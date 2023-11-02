@@ -3,29 +3,27 @@ name: Connect to Server and Create Folder
 on:
   push:
     branches:
-      - deploy
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-      env:
-        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Add SSH key to known_hosts
-      run: ssh-keyscan -H ${{ secrets.VPS_SERVER_IP }} >> ~/.ssh/known_hosts
-      env:
-        HOST: ${{ secrets.VPS_SERVER_IP }}
+      - name: Add SSH key to known_hosts
+        run: ssh-keyscan -H ${{ secrets.VPS_SERVER_IP }} >> ~/.ssh/known_hosts
+        env:
+          VPS_SERVER_IP: ${{ secrets.VPS_SERVER_IP }}
 
-    - name: Connect to server 
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_SERVER_IP }} << EOF
-        mkdir workflow_testing
-        EOF
+      - name: Connect to server and create folder
+        run: |
+          ssh -i ~/.ssh/id_rsa root@${{ secrets.VPS_SERVER_IP }} "mkdir -p workflow_testing"
