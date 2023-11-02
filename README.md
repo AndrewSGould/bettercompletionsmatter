@@ -14,7 +14,7 @@ A TrueAchievement companion application for enhanced stat analysis and community
 - Get the ASP Runtime
 - Download Postgres (I use [dbForge](https://www.devart.com/dbforge/postgresql/))
 - Download Postman
-- Get invited to Postman workspace?
+- Get invited to Postman workspace?  
 - Update your `appsettings.Development.json` file to point to your local Postgres instance
 - Path to `~/TavisApi/` and run `dotnet build`
 - Path to `~/TavisApi.Tests` and run `dotnet test`
