@@ -15,6 +15,6 @@ jobs:
 
       - name: Create folder on VPS
         run: |
-          sshpass -p ${{secrets.SSH_PASSWORD}} ssh root@170.249.237.92 "mkdir -p /path/to/your/folder"
+          sshpass -p ${{secrets.SSH_PASSWORD}} ssh root@170.249.237.92 "mkdir workflow_working"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
