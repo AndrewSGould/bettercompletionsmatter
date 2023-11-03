@@ -43,7 +43,7 @@ public class AuthController : ControllerBase
     var oxblProfile = await _oxblService.Connect(oxblAuth);
     if (oxblProfile.App_Key is null) return BadRequest("Invalid client request");
 
-    var user = _context.Users.FirstOrDefault(u => u.Gamertag == oxblProfile.Gamertag);
+    var user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == oxblProfile.Gamertag);
 
     if (user is null)
     {
@@ -75,15 +75,18 @@ public class AuthController : ControllerBase
       newLogin = login;
     }
 
-    // we'll create another auth'd only method that connects your discord
-    // the roles discord returns will create a new accesstoken - model it after refresh token
     var claims = new List<Claim>
       {
-          new Claim(ClaimTypes.Name, oxblProfile.Gamertag),
-          // TODO: here, we should only issue basic access. later when we connect to discord we'll
-          // scan the roles and issue a new JWT
-          new Claim(ClaimTypes.Role, "NoRole")
+        new Claim(ClaimTypes.Name, oxblProfile.Gamertag),
       };
+
+    if (user.UserRoles.Count() == 0)
+      claims.Add(new Claim(ClaimTypes.Role, "NoRole"));
+    else
+      foreach (var role in user.UserRoles)
+      {
+        claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+      }
 
     var accessToken = _tokenService.GenerateAccessToken(claims);
 
@@ -100,7 +103,8 @@ public class AuthController : ControllerBase
       Token = accessToken,
       RefreshToken = refreshToken,
       Gamertag = oxblProfile.Gamertag,
-      Avatar = oxblProfile.Avatar
+      Avatar = oxblProfile.Avatar,
+      Roles = user.UserRoles.Select(x => x.RoleName).ToList()
     });
   }
 
@@ -157,7 +161,8 @@ public class AuthController : ControllerBase
     return Ok(new AuthenticatedResponse
     {
       Token = accessToken,
-      RefreshToken = refreshToken
+      RefreshToken = refreshToken,
+      Roles = user.UserRoles.Select(x => x.RoleName).ToList()
     });
   }
 }
