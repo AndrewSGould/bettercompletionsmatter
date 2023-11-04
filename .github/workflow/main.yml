@@ -23,7 +23,11 @@ jobs:
       run: ssh-keyscan -H ${{ secrets.VPS_SERVER_IP }} >> ~/.ssh/known_hosts
       env:
         HOST: ${{ secrets.VPS_SERVER_IP }}
-
+    - name: Connect to server 1
+      run: |
+          ssh -i ~/.ssh/id_rsa root@${{secrets.VPS_SERVER_IP}} << EOF
+          mkdir folder
+          EOF
     - name: Connect to server 
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_SERVER_IP }} << EOF
