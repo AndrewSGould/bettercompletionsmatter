@@ -3,7 +3,7 @@ name: Connect to Server and Create Folder
 on:
   push:
     branches:
-      - deploy
+      - main
 
 jobs:
   build:
