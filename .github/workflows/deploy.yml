@@ -24,4 +24,4 @@ jobs:
           HOST: ${{ secrets.VPS_SERVER_IP }}
 
       - name: Connect to server and create folder
-        run: ssh -i ~/.ssh/id_rsa root@${{ secrets.VPS_SERVER_IP }} "mkdir -p workflow_testing"
+        run: ssh -i ~/.ssh/id_rsa -v root@${{ secrets.VPS_SERVER_IP }} "mkdir -p workflow_testing"
