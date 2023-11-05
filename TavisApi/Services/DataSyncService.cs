@@ -6,6 +6,7 @@ using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 using static TavisApi.Services.TA_GameCollection;
 using Microsoft.AspNetCore.SignalR;
+using DeepEqual.Syntax;
 
 namespace TavisApi.Services;
 

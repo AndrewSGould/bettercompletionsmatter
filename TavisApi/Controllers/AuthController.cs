@@ -109,7 +109,6 @@ public class AuthController : ControllerBase
   }
 
   [HttpPost, Route("integrate-discord")]
-  // [Authorize(Roles = "Super Admin")]
   public async Task<IActionResult> IntegrateDiscord([FromBody] DiscordLogin dLogin)
   {
     if (dLogin is null || dLogin.AccessToken is null || dLogin.TokenType is null) return BadRequest("Invalid client request");

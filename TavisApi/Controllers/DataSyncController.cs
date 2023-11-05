@@ -9,6 +9,7 @@ using static TavisApi.Services.TA_GameCollection;
 using Microsoft.AspNetCore.Authorization;
 using Tavis.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -30,7 +31,7 @@ public class DataSyncController : ControllerBase
   }
 
   // Gets the stats of the scan, runtime, players scanned, etc
-  [HttpGet, Authorize(Roles = "Super Admin")]
+  [HttpGet, Authorize(Roles = "Admin")]
   [Route("syncInfo")]
   public IActionResult SyncInfo()
   {
@@ -51,11 +52,11 @@ public class DataSyncController : ControllerBase
   // Does a full scan of, currently, BCM players
   // parameters can be customized to limit game collection size
   // to reduce the amount of hits on TA
-  [HttpGet, Authorize(Roles = "Super Admin")]
+  [HttpGet, Authorize(Roles = "Admin")]
   [Route("full")]
   public IActionResult Sync()
   {
-    var playersToScan = _bcmService.GetPlayers();
+    var playersToScan = _bcmService.GetPlayers().Where(x => x.Name.Contains("kT"));
 
     var syncLog = new SyncHistory
     {
@@ -79,7 +80,7 @@ public class DataSyncController : ControllerBase
   }
 
   // does a scan of completed games within the past month only
-  [HttpGet, Authorize(Roles = "Super Admin")]
+  [HttpGet, Authorize(Roles = "Admin")]
   [Route("lastmonthscompletions")]
   public IActionResult SyncLastMonthsCompletions()
   {
@@ -129,7 +130,17 @@ public class DataSyncController : ControllerBase
     //loop over the game ids and get the URL from DB
     //parse out the game information
     //save to DB
-    _dataSync.ParseGamePages(new List<int>());
+
+    var games = _context.Games.Include(x => x.GameGenres);
+    var gamepagesToSync = new List<int>();
+
+    foreach (var game in games)
+    {
+      if (game.GameGenres == null)
+        gamepagesToSync.Add(game.Id);
+    }
+
+    _dataSync.ParseGamePages(gamepagesToSync);
     Console.WriteLine($"Games have been sync'd, finished at {DateTime.Now}");
     stopWatch.Stop();
 
