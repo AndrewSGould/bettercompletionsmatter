@@ -1,28 +1,29 @@
-name: Deploy
+name: SSH Deployment
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ main ]
+    branches:
+      - main
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  deploy:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:       
-    - name: Deploy using ssh
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_PASSWORD }}
-        port: 22
-        script: |
-          cd  tavis
-          git pull 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Plink
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y putty-tools
+        shell: bash
+
+      - name: SSH into Server
+        run: |
+          plink -ssh -l ${{ secrets.SSH_USERNAME }} -pw ${{ secrets.SSH_PASSWORD }} ${{ secrets.SSH_SERVER_IP }} "echo 'Hello, server!'"
+        env:
+          SSH_USERNAME: root
+          SSH_SERVER_IP: 170.249.237.92
+        shell: bash
           
