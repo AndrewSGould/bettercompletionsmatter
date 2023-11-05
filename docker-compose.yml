@@ -2,14 +2,16 @@ version: '3.8'
 
 services:
   tavis-frontend:
-    image: tavis:latest
+    build:
+      context: ./tavis 
     ports:
       - "4200:4200"
     depends_on:
       - tavis-backend
 
   tavis-backend:
-    image: tavis-backend:latest
+    build:
+      context: ./tavis-web
     ports:
       - "4300:80"
     environment:
