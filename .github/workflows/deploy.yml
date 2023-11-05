@@ -15,10 +15,12 @@ jobs:
 
       - name: Install SSHPASS
         run: |
-          sudo apt-get install sshpass
-          sshpass -p ${{secrets.SSH_PASSWORD}} ssh ${{secrets.USERNAME}}@${{secrets.HOST}} "echo echo'Hello, server!'"          
-          #sudo apt-get update
-          #sudo apt-get install -y putty-tools
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: SSH into the Server
+        run: |
+          sshpass -p ${{secrets.SSH_PASSWORD}} ssh ${{secrets.USERNAME}}@${{secrets.HOST}} "echo 'Hello, server!'"
   
 
    
