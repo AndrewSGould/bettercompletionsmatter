@@ -24,5 +24,4 @@ jobs:
         port: 22
         script: |
           cd  tavis
-          git checkout deploy
           git pull 
