@@ -13,19 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Plink
+      - name: Install SSHPASS
         run: |
           sudo apt-get install sshpass
+          sshpass -p ${{secrets.SSH_PASSWORD}} ssh ${{secrets.USERNAME}}@${{secrets.HOST}} "echo echo'Hello, server!'"          
           #sudo apt-get update
           #sudo apt-get install -y putty-tools
-        shell: bash
+  
 
-      - name: SSH into Server
-        run: |
-          sshpass -p ${{secrets.SSH_PASSWORD}} ssh ${{secrets.SSH_USERNAME}}@${{secrets.SSH_SERVER_IP}} "echo echo'Hello, server!'"
-          #plink -ssh -l ${{ secrets.SSH_USERNAME }} -pw ${{ secrets.SSH_PASSWORD }} ${{ secrets.SSH_SERVER_IP }} "echo 'Hello, server!'"
-        env:
-          SSH_USERNAME: root
-          SSH_SERVER_IP: 170.249.237.92
-        shell: bash
+   
           
