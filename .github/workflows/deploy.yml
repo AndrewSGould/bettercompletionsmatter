@@ -21,7 +21,7 @@ jobs:
       - name: SSH into the Server
         run: |
           sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "echo 'Hello, server!'"
-          #sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis && git pull && docker-compose up -d "
+          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis && git pull"
           
         
           
