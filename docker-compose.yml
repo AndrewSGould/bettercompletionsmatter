@@ -1,15 +1,9 @@
 version: '3.8'
 
 services:
-  tavis-frontend:
-    image: tavis:latest
-    ports:
-      - "4200:4200"
-    depends_on:
-      - tavis-backend
-
   tavis-backend:
-    image: tavis-backend:latest
+    build:
+      dockerfile: Dockerfile
     ports:
       - "4300:80"
     environment:
@@ -17,6 +11,13 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp01
     depends_on:
       - db
+
+  tavis-frontend:
+    build:
+      context: ../tavis-web
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
 
   db:
     image: postgres:12.16
