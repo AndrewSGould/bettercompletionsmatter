@@ -48,6 +48,7 @@ public class BcmController : ControllerBase
       });
     }
 
+    return Ok("Test");
     return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
   }
 
