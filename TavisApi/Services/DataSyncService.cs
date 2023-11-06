@@ -390,13 +390,13 @@ public class DataSync : IDataSync
       gameToUpdate.AchievementCount = knownGame.TotalAchievementCount;
       gameToUpdate.GamersWithGame = knownGame.GamersWithGame;
       gameToUpdate.GamersCompleted = knownGame.GamersCompleted;
-      gameToUpdate.BaseCompletionEstimate = knownGame.BaseCompletionEstimate;
+      gameToUpdate.BaseCompletionEstimate = knownGame.BaseCompletionEstimate ?? gameToUpdate.BaseCompletionEstimate;
       gameToUpdate.SiteRatio = knownGame.SiteRatio;
       gameToUpdate.SiteRating = knownGame.SiteRating;
       gameToUpdate.Unobtainables = knownGame.Unobtainables;
       gameToUpdate.ServerClosure = knownGame.ServerClosure;
       gameToUpdate.InstallSize = knownGame.InstallSize;
-      gameToUpdate.FullCompletionEstimate = knownGame.FullCompletionEstimate;
+      gameToUpdate.FullCompletionEstimate = knownGame.FullCompletionEstimate ?? gameToUpdate.FullCompletionEstimate;
       gameToUpdate.Url = knownGame.GameUrl;
     }
   }
