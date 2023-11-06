@@ -35,6 +35,8 @@ public class BcmController : ControllerBase
   [Route("getBcmLeaderboardList")]
   public IActionResult BcmLeaderboardList()
   {
+    return Ok("Test");
+
     var players = _bcmService.GetPlayers();
 
     var leaderboard = new List<Leaderboard>();
@@ -48,7 +50,6 @@ public class BcmController : ControllerBase
       });
     }
 
-    return Ok("Test");
     return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
   }
 
