@@ -35,22 +35,22 @@ public class BcmController : ControllerBase
   [Route("getBcmLeaderboardList")]
   public IActionResult BcmLeaderboardList()
   {
-    return Ok("Test");
+    return Ok("Test123");
 
-    var players = _bcmService.GetPlayers();
+    // var players = _bcmService.GetPlayers();
 
-    var leaderboard = new List<Leaderboard>();
+    // var leaderboard = new List<Leaderboard>();
 
-    foreach (var player in players)
-    {
-      leaderboard.Add(new Leaderboard
-      {
-        Player = player,
-        BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
-      });
-    }
+    // foreach (var player in players)
+    // {
+    //   leaderboard.Add(new Leaderboard
+    //   {
+    //     Player = player,
+    //     BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
+    //   });
+    // }
 
-    return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
+    // return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
   }
 
   public class Leaderboard
