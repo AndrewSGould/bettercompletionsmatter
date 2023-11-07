@@ -35,7 +35,7 @@ public class BcmController : ControllerBase
   [Route("getBcmLeaderboardList")]
   public IActionResult BcmLeaderboardList()
   {
-    return Ok("Test123");
+    return Ok("Test456");
 
     // var players = _bcmService.GetPlayers();
 
