@@ -37,7 +37,7 @@ public class BcmController : ControllerBase
   {
     return Ok("Test123");
 
-    /// var players = _bcmService.GetPlayers();
+    // var players = _bcmService.GetPlayers();
 
     // var leaderboard = new List<Leaderboard>();
 
