@@ -23,6 +23,7 @@ jobs:
           sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "echo 'Hello, server!'"
           sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis && git pull"
           sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis && docker-compose down"
+          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis &&  docker-compose build"
           sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis &&  docker-compose up -d"
           
         
