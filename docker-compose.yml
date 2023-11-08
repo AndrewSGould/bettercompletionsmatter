@@ -5,9 +5,9 @@ services:
     build:
       dockerfile: Dockerfile
     ports:
-      - "4300:80"
+      - '4300:80'
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp01
     depends_on:
       - db
@@ -17,7 +17,7 @@ services:
       context: ../tavis-web
       dockerfile: Dockerfile
     ports:
-      - "4200:4200"
+      - '4200:4200'
 
   db:
     image: postgres:12.16

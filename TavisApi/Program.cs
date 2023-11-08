@@ -52,7 +52,7 @@ builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
   options.AddPolicy("CorsPolicy", build => build
-      .WithOrigins("http://bcmx.org", "https://bcmx.org")
+      .WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"])
       .AllowAnyMethod()
       .AllowAnyHeader()
       .AllowCredentials());
