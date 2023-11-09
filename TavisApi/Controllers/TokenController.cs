@@ -25,12 +25,12 @@ public class TokenController : ControllerBase
   {
     if (tokenApiModel is null)
       return BadRequest("Invalid client request");
-      
+
     string accessToken = tokenApiModel.AccessToken;
     string refreshToken = tokenApiModel.RefreshToken;
     var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
-    var username = principal.Identity.Name; //this is mapped to the Name claim by default
-    var user = _context.Logins.SingleOrDefault(u => u.Username == username);
+    var gamertag = principal.Identity.Name; //this is mapped to the Name claim by default
+    var user = _context.Logins.SingleOrDefault(u => u.User.Gamertag == gamertag);
 
     if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
       return BadRequest("Invalid client request");
@@ -52,11 +52,11 @@ public class TokenController : ControllerBase
   [Route("revoke")]
   public IActionResult Revoke()
   {
-    var username = User.Identity.Name;
-    var user = _context.Logins.SingleOrDefault(u => u.Username == username);
-    
+    var gamertag = User.Identity.Name;
+    var user = _context.Logins.SingleOrDefault(u => u.User.Gamertag == gamertag);
+
     if (user == null) return BadRequest();
-      user.RefreshToken = null;
+    user.RefreshToken = null;
 
     _context.SaveChanges();
 

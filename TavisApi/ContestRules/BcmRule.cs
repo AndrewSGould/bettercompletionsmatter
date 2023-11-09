@@ -1,14 +1,17 @@
 using System.Collections.ObjectModel;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Tavis.Models;
 
 namespace TavisApi.ContestRules;
 
-public class BcmRule {
+public class BcmRule
+{
   public const double MinimumRatio = 1.5;
-  public const int RandomMaxEstimate = 100;
+  public const int YearlyMinEstimate = 6;
+  public const int RandomMaxEstimate = 200;
   public const int RandomMinimumEligibilityCount = 50;
-  public const int BcmRgscStartingRerolls = 5;
-  public static readonly ReadOnlyCollection<Platform> RandomValidPlatforms = 
+  public const int RgscStartingRerolls = 5;
+  public static readonly ReadOnlyCollection<Platform> RandomValidPlatforms =
       new ReadOnlyCollection<Platform>(
         new List<Platform> {
           Platform.Xbox360,
@@ -17,99 +20,12 @@ public class BcmRule {
           Platform.Windows
         });
 
-  public static readonly List<string> ExemptGames = new List<string> {
-    "2 Synchro Hedgehogs",
-    "2 Synchro Hedgehogs (Windows)",
-    "50 Years",
-    "50 Years (Windows)",
-    "Aborigenus",
-    "Ballotron",
-    "Ballotron (Windows)",
-    "Blind Postman",
-    "Blind Postman (Windows)",
-    "Brain Storm: Tower Bombarde",
-    "Brain Storm: Tower Bombarde (Windows)",
-    "Bullet Beat",
-    "Bullet Beat (Windows)",
-    "Bunny Factory",
-    "Bunny Parking",
-    "Bunny Parking (Windows)",
-    "Butterfly",
-    "Butterfly (Windows)",
-    "Butterfly 2",
-    "Butterfly 2 (Windows)",
-    "Castle of no Escape",
-    "Castle of no Escape (Windows)",
-    "Castle of no Escape 2",
-    "Castle of no Escape 2 (Windows)",
-    "Colorful Colore",
-    "Colorful Colore (Windows)",
-    "Cruz Brothers",
-    "Danger!Energy",
-    "Danger!Energy (Windows)",
-    "Dark Grim Mariupolis",
-    "Dark Grim Mariupolis (Windows)",
-    "Dead by Daylight",
-    "Dead by Daylight (Windows)",
-    "Dead Cells",
-    "Dead Cells (Windows)",
-    "Dr. Atominus",
-    "Dr. Atominus (Windows)",
-    "Drawngeon: Dungeons of Ink and Paper",
-    "Drone Gladiator (Windows)",
-    "Escape Sequence",
-    "Escape Sequence (Windows)",
-    "Eternal Card Game",
-    "Flaskoman",
-    "Forza Horizon 5",
-    "Gems of War",
-    "Human Fall Flat",
-    "Kick it, Bunny!",
-    "Killing Floor 2",
-    "Lab Crisis",
-    "Lab Crisis (Windows)",
-    "Limb Hunter",
-    "Lonely Mountains",
-    "Minecraft",
-    "Minecraft (Android)",
-    "Minecraft (iOS)",
-    "Minecraft (Kindle Fire)",
-    "Minecraft (Nintendo Switch)",
-    "Minecraft (Windows)",
-    "Minecraft Dungeons",
-    "Mushroom Quest",	
-    "Mushroom Savior",
-    "Mushroom Savior (Windows)",
-    "MyMaitê",
-    "MyMaitê (Windows)",
-    "Neverwinter",
-    "Nexoria: Dungeon Rogue Heroes",
-    "Obsurity",
-    "Obsurity (Windows)",
-    "Overwatch: Origins Edition",
-    "Pixel Gladiator",
-    "ReactorX",
-    "ReactorX (Windows)",
-    "Roundguard",
-    "Sea of Thieves",
-    "Shiro",
-    "Shiro (Windows)",
-    "Sig.NULL",
-    "Sig.NULL (Windows)",
-    "Smart Moves",
-    "Smart Moves (Windows)",
-    "Smart Moves 2",
-    "Smart Moves 2 (Windows)",
-    "SMITE",
-    "SokoBunny",
-    "Synchro Hedgehogs",
-    "Synchro Hedgehogs (Windows)",
-    "The Explorer of Night",
-    "The Explorer Of Night (Windows)",
-    "Tony and Clyde",
-    "Vzerthos: The Heir of Thunder",
-    "Vzerthos: The Heir of Thunder (Windows)",
-    "Warframe",
-    "Who's Your Daddy?!"
+  public static readonly List<List<GenreList>> OddJobs = new List<List<GenreList>>
+  {
+    new List<GenreList> { GenreList.Collection },
+    new List<GenreList> { GenreList.DungeonCrawler },
+    new List<GenreList> { GenreList.Management },
+    new List<GenreList> { GenreList.Motocross },
+    new List<GenreList> { GenreList.RunAndGun },
   };
 }

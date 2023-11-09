@@ -5,7 +5,8 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
+using Tavis.Models;
+using dotenv.net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ var configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
+DotEnv.Load(options: new DotEnvOptions(probeForEnv: true, ignoreExceptions: false));
+
 if (builder.Environment.EnvironmentName.Trim() == string.Empty)
   configurationBuilder.AddJsonFile("appsettings.Production.json", optional: false, reloadOnChange: true);
 
@@ -22,7 +25,7 @@ builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<TavisContext>(x => x.UseNpgsql(connectionString));
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(opt =>
 {
   opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,6 +51,11 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+  options.IdleTimeout = TimeSpan.FromMinutes(10000);
+});
 
 builder.Services.AddCors(options =>
 {
@@ -66,8 +74,13 @@ builder.Services.AddScoped<IDataSync, DataSync>();
 builder.Services.AddScoped<ITA_GameCollection, TA_GameCollection>();
 builder.Services.AddScoped<IBcmService, BcmService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IOpenXblService, OpenXblService>();
+builder.Services.AddScoped<IDiscordService, DiscordService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
+
+app.UseSession();
 
 // var port = "4300";// Environment.GetEnvironmentVariable("PORT");
 // if (!string.IsNullOrWhiteSpace(port))

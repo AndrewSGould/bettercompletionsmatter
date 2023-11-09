@@ -12,6 +12,8 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Tavis.Extensions;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -21,45 +23,40 @@ public class BcmController : ControllerBase
   private readonly IParser _parser;
   private readonly IDataSync _dataSync;
   private readonly IBcmService _bcmService;
+  private readonly IUserService _userService;
   private static readonly Random rand = new Random();
 
-  public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService)
+  public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService, IUserService userService)
   {
     _context = context;
     _parser = parser;
     _dataSync = dataSync;
     _bcmService = bcmService;
+    _userService = userService;
   }
 
   [HttpGet]
   [Route("getBcmLeaderboardList")]
   public IActionResult BcmLeaderboardList()
   {
-    return Ok("Test456");
+    var players = _bcmService.GetPlayers();
+    var leaderboard = new List<Leaderboard>();
 
-    // var players = _bcmService.GetPlayers();
+    if (players.Count() == 0) return BadRequest("No players found!");
 
-    // var leaderboard = new List<Leaderboard>();
+    foreach (var player in players)
+    {
+      leaderboard.Add(new Leaderboard
+      {
+        Player = player,
+        BcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id)
+      });
+    }
 
-    // foreach (var player in players)
-    // {
-    //   leaderboard.Add(new Leaderboard
-    //   {
-    //     Player = player,
-    //     BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
-    //   });
-    // }
-
-    // return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
+    return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
   }
 
-  public class Leaderboard
-  {
-    public Player Player { get; set; }
-    public BcmStat BcmStats { get; set; }
-  }
-
-  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("recalcBcmLeaderboard")]
   public IActionResult RecalcBcmLeaderboard()
   {
@@ -135,16 +132,13 @@ public class BcmController : ControllerBase
     return Ok();
   }
 
-  public class Ranking
-  {
-    public int PlayerId { get; set; }
-    public double? BcmPoints { get; set; }
-  }
-
   [HttpGet]
   [Route("getBcmPlayer")]
-  public IActionResult BcmPlayer(int playerId)
+  public IActionResult BcmPlayer(string player)
   {
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+    var playerId = localuser.Id;
+
     var bcmPlayer = _context.Players.First(x => x.Id == playerId);
 
     if (bcmPlayer == null) return BadRequest("Player not found");
@@ -177,17 +171,23 @@ public class BcmController : ControllerBase
     return Ok(bcmPlayerSummary);
   }
 
-  public class BcmPlayerSummary
+  [HttpGet]
+  [Route("yearly-summary")]
+  public async Task<IActionResult> GetYearlySummary(string player)
   {
-    public string Title { get; set; }
-    public double? Ratio { get; set; }
-    public double? Estimate { get; set; }
-    public DateTime? CompletionDate { get; set; }
-    public int? Points { get; set; }
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+    var playerId = localuser.Id;
+
+    return await Task.FromResult(Ok(new
+    {
+      completionLetters = _bcmService.GetAlphabetChallengeProgress(playerId),
+      OddJobCompletions = _bcmService.GetOddJobChallengeProgress(playerId),
+      YearlyCompletions = 0
+    }));
   }
 
   // Get random games, sorted by eligibility, then alphabetically by player
-  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("verifyRandomGameEligibility")]
   public IActionResult VerifyRandomGameEligibility()
   {
@@ -201,16 +201,14 @@ public class BcmController : ControllerBase
             .Join(_context.Games!, pg => pg.GameId,
               g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
             .Where(x => x.PlayersGames.PlayerId == player.Id
-              && x.Games.SiteRatio > BcmRule.MinimumRatio
-              && (x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
-                || x.Games.FullCompletionEstimate == null)
               && x.Games.GamersCompleted > 0
               && !x.Games.Unobtainables
               && !x.PlayersGames.NotForContests
               && x.PlayersGames.CompletionDate == null
-              && x.PlayersGames.Ownership != Tavis.Models.Ownership.NoLongerHave
-              && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!)
-              && !BcmRule.ExemptGames.Any(y => y == x.Games.Title))
+              && x.PlayersGames.Ownership != Ownership.NoLongerHave
+              && BcmRule.RandomValidPlatforms.Contains(x.PlayersGames.Platform!))
+            .AsEnumerable() // TODO: rewrite so this stays as a query?
+            .Where(x => Queries.FilterGamesForYearlies(x.Games))
             .ToList();
 
       if (randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount)
@@ -260,7 +258,7 @@ public class BcmController : ControllerBase
     return Ok(results);
   }
 
-  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("produceStatReport")]
   public IActionResult StatReport()
   {
@@ -294,7 +292,7 @@ public class BcmController : ControllerBase
     return Ok(statSpread);
   }
 
-  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("produceBcmReport")]
   public IActionResult BcmReport()
   {
@@ -303,70 +301,13 @@ public class BcmController : ControllerBase
     return Ok();
   }
 
-  [HttpGet, Authorize(Roles = "Super Admin, Bcm Admin")]
+  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("produceCompletedGamesReport")]
   public IActionResult CompletedGamesReport()
   {
     WriteCompletedGamesExcelFile();
 
     return Ok();
-  }
-
-  [HttpGet]
-  [Route("rgscStats")]
-  public IActionResult RgscStats(int playerId)
-  {
-    var rgsc = _context.BcmRgsc.Where(x => x.PlayerId == playerId)
-                                .OrderByDescending(x => x.Issued)
-                                .ToList();
-
-    var playersCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == playerId
-                                                      && x.CompletionDate != null
-                                                      && x.CompletionDate.Value.Year == DateTime.Now.Year);
-
-    var rgscCompletions = rgsc.Join(playersCompletedGames, rgsc => rgsc.GameId,
-                                pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg });
-
-    var rgscCompletedGameCount = 0;
-
-    // if the game was completed in the following month it was issued, it scores
-    foreach (var game in rgscCompletions)
-    {
-      if (game.PlayerGames.CompletionDate.Value.Month == game.Rgsc.Issued.Value.Month + 1)
-        rgscCompletedGameCount++;
-      else if (game.Rgsc.Issued.Value.Year == DateTime.Now.Year - 1 && game.Rgsc.Issued.Value.Month == 12)
-      {
-        if (game.PlayerGames.CompletionDate.Value.Month == 1)
-          rgscCompletedGameCount++;
-      }
-    }
-
-    var rerollsUsed = rgsc.Count(x => x.Rerolled);
-
-    var nonrerolledRgsc = rgsc.FirstOrDefault(x => !x.Rerolled).GameId;
-    var currentRgsc = _context.Games.FirstOrDefault(x => x.Id == nonrerolledRgsc);
-
-    return Ok(new
-    {
-      CurrentRandom = currentRgsc,
-      RerollsRemaining = BcmRule.BcmRgscStartingRerolls + rgscCompletedGameCount - rerollsUsed,
-      RgscsCompleted = rgscCompletedGameCount
-    });
-  }
-
-  public class UserDetails
-  {
-    public string DateCompleted { get; set; }
-    public string GameTitle { get; set; }
-    public double? Ratio { get; set; }
-  }
-
-  public class RgscResult
-  {
-    public string Player { get; set; }
-    public string RandomGame { get; set; }
-    public int EligibleCount { get; set; }
-    public List<string> GameList { get; set; }
   }
 
   private void WriteRgscExcelFile(List<RgscResult> rgscResults)
