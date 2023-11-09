@@ -40,7 +40,6 @@ public class BcmController : ControllerBase
   public IActionResult BcmLeaderboardList()
   {
     var players = _bcmService.GetPlayers();
-
     var leaderboard = new List<Leaderboard>();
 
     if (players.Count() == 0) return BadRequest("No players found!");

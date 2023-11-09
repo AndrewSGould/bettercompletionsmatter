@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  tavis-backend:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - '4300:80'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=tavis_dev;User ID=postgres;Password=pomFp01
+    depends_on:
+      - db
+
+  tavis-frontend:
+    build:
+      context: ../tavis-web
+      dockerfile: Dockerfile
+    ports:
+      - '4200:4200'
+
+  db:
+    image: postgres:12.16
+    environment:
+      POSTGRES_DB: tavis_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pomFp01
