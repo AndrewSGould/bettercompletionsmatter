@@ -60,6 +60,8 @@ public class DiscordService : IDiscordService
       });
     }
 
+    await _context.SaveChangesAsync();
+
     // find any potentially updated roles and update them
     var updatedRoles = guild.Roles
         .Where(role => _context.UserRoles.Any(userRole => userRole.DiscordId == role.Id))
@@ -79,11 +81,28 @@ public class DiscordService : IDiscordService
     user.UserRoles.Clear();
     foreach (var roleId in member.RoleIds)
     {
-      user.UserRoles.Add(new UserRole
+      // Check if the UserRole with DiscordId already exists
+      var existingUserRole = _context.UserRoles.FirstOrDefault(ur => ur.DiscordId == roleId);
+
+      if (existingUserRole == null)
       {
-        DiscordId = roleId,
-        RoleName = guild.Roles.First(x => x.Id == roleId).Name
-      });
+        // If it doesn't exist, create a new UserRole
+        existingUserRole = new UserRole
+        {
+          DiscordId = roleId,
+          RoleName = guild.Roles.First(x => x.Id == roleId).Name
+        };
+
+        // Add the new UserRole to the UserRoles collection
+        _context.UserRoles.Add(existingUserRole);
+      }
+
+      // Check if the relationship already exists in UserUserRole table
+      if (!user.UserRoles.Any(ur => ur.DiscordId == roleId))
+      {
+        // Create the relationship in the UserUserRole table
+        user.UserRoles.Add(existingUserRole);
+      }
     }
 
     await _context.SaveChangesAsync();

@@ -62,18 +62,19 @@ public class AuthController : ControllerBase
       });
 
       await _context.SaveChangesAsync();
-      // ensure the password / app_key is encrypted
+
+      user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == oxblProfile.Gamertag);
     }
     else user.Login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
 
-    var newLogin = _context.Logins.FirstOrDefault(u => u.Password == oxblProfile.App_Key);
+    // var newLogin = _context.Logins.FirstOrDefault(u => u.Password == oxblProfile.App_Key);
 
-    if (newLogin is null)
-    {
-      var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
-      login.Password = oxblProfile.App_Key;
-      newLogin = login;
-    }
+    // if (newLogin is null)
+    // {
+    //   var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
+    //   login.Password = oxblProfile.App_Key;
+    //   newLogin = login;
+    // }
 
     var claims = new List<Claim>
       {
@@ -93,8 +94,8 @@ public class AuthController : ControllerBase
     // TODO: what do we do with the user avatar url? caching? localstorage? download ourselves and rehost?
 
     var refreshToken = _tokenService.GenerateRefreshToken();
-    newLogin.RefreshToken = refreshToken;
-    newLogin.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+    user.Login.RefreshToken = refreshToken;
+    user.Login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
 
     await _context.SaveChangesAsync();
 

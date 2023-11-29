@@ -27,6 +27,8 @@ public class DiscordController : ControllerBase
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == currentUsername);
     var discordLogin = _context.DiscordLogins.FirstOrDefault(x => x.UserId == localuser.Id);
 
+    if (discordLogin is null) return NoContent();
+
     using var client = new DiscordRestClient();
     await client.LoginAsync(TokenType.Bearer, discordLogin.AccessToken);
 
