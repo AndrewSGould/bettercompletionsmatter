@@ -10,7 +10,8 @@ public class TokenService : ITokenService
   private readonly string _apiServer;
   private readonly string _clientServer;
 
-  public TokenService(IConfiguration config) {
+  public TokenService(IConfiguration config)
+  {
     var serverConfigs = config.GetSection("ServerConfigs");
 
     _apiServer = serverConfigs["IssuerServer"];
@@ -21,12 +22,12 @@ public class TokenService : ITokenService
   {
     var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
     var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-    
+
     var tokeOptions = new JwtSecurityToken(
       issuer: _apiServer,
       audience: _clientServer,
       claims: claims,
-      expires: DateTime.Now.AddMinutes(5),
+      expires: DateTime.Now.AddMinutes(10000),
       signingCredentials: signinCredentials
     );
     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
