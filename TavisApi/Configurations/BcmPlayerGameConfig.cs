@@ -4,9 +4,9 @@ using Tavis.Models;
 
 namespace TavisApi.Context;
 
-public class PlayerGameConfiguration : IEntityTypeConfiguration<PlayerGame>
+public class BcmPlayerGameConfiguration : IEntityTypeConfiguration<BcmPlayerGame>
 {
-  public void Configure(EntityTypeBuilder<PlayerGame> builder)
+  public void Configure(EntityTypeBuilder<BcmPlayerGame> builder)
   {
     builder
       .Property(p => p.Ownership)
@@ -24,8 +24,8 @@ public class PlayerGameConfiguration : IEntityTypeConfiguration<PlayerGame>
       .HasKey(c => new { c.GameId, c.PlayerId });
 
     builder
-      .HasOne(x => x.Player)
-      .WithMany(x => x.PlayerGames)
+      .HasOne(x => x.BcmPlayer)
+      .WithMany(x => x.BcmPlayerGames)
       .HasForeignKey(x => x.PlayerId);
   }
 }

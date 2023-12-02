@@ -1,25 +1,34 @@
+using Microsoft.EntityFrameworkCore;
+using Tavis.Models;
+using TavisApi.Context;
+
 namespace TavisApi.Services;
 
 public class UserService : IUserService
 {
   private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly TavisContext _context;
 
-  public UserService(IHttpContextAccessor httpContextAccessor)
+  public UserService(IHttpContextAccessor httpContextAccessor, TavisContext context)
   {
     _httpContextAccessor = httpContextAccessor;
+    _context = context;
   }
 
-  public string GetCurrentUserName()
+  public string? GetCurrentUserName()
   {
-    // Get the current user's identity
-    var identity = _httpContextAccessor.HttpContext.User.Identity;
+    var identity = _httpContextAccessor.HttpContext?.User.Identity;
+    if (identity is null) return null;
 
     if (identity.IsAuthenticated)
-    {
-      // Get the user's ID claim (you may need to adjust this based on your claim setup)
       return identity.Name;
-    }
 
-    return null; // User is not authenticated or claim not found
+    // User is not authenticated or claim not found
+    return null;
+  }
+
+  public User? GetCurrentUser()
+  {
+    return _context.Users.FirstOrDefault(x => x.Gamertag == GetCurrentUserName());
   }
 }

@@ -2,6 +2,6 @@ namespace Tavis.Models;
 
 public class Leaderboard
 {
-  public Player Player { get; set; }
-  public BcmStat BcmStats { get; set; }
+  public BcmPlayer BcmPlayer { get; set; } = new();
+  public BcmStat BcmStats { get; set; } = new();
 }

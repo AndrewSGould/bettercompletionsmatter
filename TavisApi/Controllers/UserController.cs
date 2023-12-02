@@ -20,18 +20,6 @@ public class UserController : ControllerBase
     _userService = userService ?? throw new ArgumentNullException(nameof(userService));
   }
 
-  [HttpGet, Route("availableRegions")]
-  public IActionResult AvailableRegions()
-  {
-    return Ok(_context.Players.Select(x => x.Region).Where(x => x != null).Distinct().OrderBy(x => x));
-  }
-
-  [HttpGet, Route("availableAreas")]
-  public IActionResult AvailableAreas(string selectedRegion)
-  {
-    return Ok(_context.Players.Where(x => x.Region.Contains(selectedRegion)).Select(x => x.Area).Where(x => x != null).Distinct().OrderBy(x => x));
-  }
-
   [HttpGet, Route("getRoles")]
   public IActionResult GetRoles()
   {
@@ -40,6 +28,8 @@ public class UserController : ControllerBase
 
     if (user is null) return BadRequest("no user");
 
-    return Ok(user.UserRoles.Select(x => x.RoleName));
+    var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
+
+    return Ok(userRolesWithDetails.Select(x => x.Roles.RoleName));
   }
 }

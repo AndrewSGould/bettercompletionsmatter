@@ -16,3 +16,9 @@ public class DiscordLogin
   public long UserId { get; set; }
   public User User { get; set; }
 }
+
+public class DiscordConnect
+{
+  public string TokenType { get; set; } = "";
+  public string AccessToken { get; set; } = "";
+}

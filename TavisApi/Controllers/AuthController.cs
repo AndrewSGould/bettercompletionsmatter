@@ -43,7 +43,7 @@ public class AuthController : ControllerBase
     var oxblProfile = await _oxblService.Connect(oxblAuth);
     if (oxblProfile.App_Key is null) return BadRequest("Invalid client request");
 
-    var user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == oxblProfile.Gamertag);
+    var user = _context.Users.Include(u => u.UserRoles).Include(l => l.Login).FirstOrDefault(x => x.Gamertag == oxblProfile.Gamertag);
 
     if (user is null)
     {
@@ -55,46 +55,36 @@ public class AuthController : ControllerBase
 
       await _context.SaveChangesAsync();
 
-      _context.Logins.Add(new Login
+      user = _context.Users.FirstOrDefault(x => x.Xuid == oxblProfile.Xuid);
+
+      user!.Login = new Login
       {
-        UserId = _context.Users.FirstOrDefault(x => x.Xuid == oxblProfile.Xuid).Id,
+        UserId = user.Id,
         Password = oxblProfile.App_Key
-      });
+      };
 
       await _context.SaveChangesAsync();
-
-      user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == oxblProfile.Gamertag);
     }
-    else user.Login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
 
-    // var newLogin = _context.Logins.FirstOrDefault(u => u.Password == oxblProfile.App_Key);
-
-    // if (newLogin is null)
-    // {
-    //   var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
-    //   login.Password = oxblProfile.App_Key;
-    //   newLogin = login;
-    // }
-
-    var claims = new List<Claim>
+    List<Claim> claims = new()
       {
         new Claim(ClaimTypes.Name, oxblProfile.Gamertag),
       };
 
-    if (user.UserRoles.Count() == 0)
+    var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
+
+    if (user!.UserRoles.Count() == 0)
       claims.Add(new Claim(ClaimTypes.Role, "NoRole"));
     else
-      foreach (var role in user.UserRoles)
+      foreach (var role in userRolesWithDetails)
       {
-        claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+        claims.Add(new Claim(ClaimTypes.Role, role.Roles.RoleName));
       }
 
     var accessToken = _tokenService.GenerateAccessToken(claims);
 
-    // TODO: what do we do with the user avatar url? caching? localstorage? download ourselves and rehost?
-
     var refreshToken = _tokenService.GenerateRefreshToken();
-    user.Login.RefreshToken = refreshToken;
+    user.Login!.RefreshToken = refreshToken;
     user.Login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
 
     await _context.SaveChangesAsync();
@@ -105,19 +95,21 @@ public class AuthController : ControllerBase
       RefreshToken = refreshToken,
       Gamertag = oxblProfile.Gamertag,
       Avatar = oxblProfile.Avatar,
-      Roles = user.UserRoles.Select(x => x.RoleName).ToList()
+      Roles = userRolesWithDetails.Select(x => x.Roles.RoleName).ToList()
     });
   }
 
   [HttpPost, Route("integrate-discord")]
-  public async Task<IActionResult> IntegrateDiscord([FromBody] DiscordLogin dLogin)
+  public async Task<IActionResult> IntegrateDiscord([FromBody] DiscordConnect dConnect)
   {
-    if (dLogin is null || dLogin.AccessToken is null || dLogin.TokenType is null) return BadRequest("Invalid client request");
+    if (dConnect is null || dConnect.AccessToken is null || dConnect.TokenType is null) return BadRequest("Invalid client request");
 
     var currentUsername = _userService.GetCurrentUserName();
     var user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == currentUsername);
 
-    var discordProfile = await _discordService.Connect(dLogin, user);
+    if (user is null) return BadRequest("No gamertag matches current user");
+
+    var discordProfile = await _discordService.Connect(dConnect, user);
 
     var newLogin = _context.DiscordLogins.FirstOrDefault(x => x.DiscordId == discordProfile.Id);
 
@@ -127,29 +119,33 @@ public class AuthController : ControllerBase
       {
         DiscordId = discordProfile.Id,
         UserId = user.Id,
-        TokenType = dLogin.TokenType,
-        AccessToken = dLogin.AccessToken,
+        TokenType = dConnect.TokenType,
+        AccessToken = dConnect.AccessToken,
       });
     }
     else
     {
-      newLogin.AccessToken = dLogin.AccessToken;
-      newLogin.TokenType = dLogin.TokenType;
+      newLogin.AccessToken = dConnect.AccessToken;
+      newLogin.TokenType = dConnect.TokenType;
     }
 
     await _context.SaveChangesAsync();
 
     var claims = new List<Claim>
       {
-          new Claim(ClaimTypes.Name, user.Gamertag),
+          new Claim(ClaimTypes.Name, user.Gamertag!),
       };
 
-    foreach (var role in user.UserRoles)
+    var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
+
+    foreach (var role in userRolesWithDetails)
     {
-      claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+      claims.Add(new Claim(ClaimTypes.Role, role.Roles.RoleName));
     }
 
     var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
+
+    if (login is null) return BadRequest("No login found for provided user");
 
     var accessToken = _tokenService.GenerateAccessToken(claims);
     var refreshToken = _tokenService.GenerateRefreshToken();
@@ -162,7 +158,7 @@ public class AuthController : ControllerBase
     {
       Token = accessToken,
       RefreshToken = refreshToken,
-      Roles = user.UserRoles.Select(x => x.RoleName).ToList()
+      Roles = userRolesWithDetails.Select(x => x.Roles.RoleName).ToList()
     });
   }
 }

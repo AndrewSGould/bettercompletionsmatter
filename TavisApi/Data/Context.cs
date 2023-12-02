@@ -18,23 +18,22 @@ namespace TavisApi.Context
       _encryptProvider = new GenerateEncryptionProvider("+68TIPxJWUxxhjLMR9FGkQ==");
     }
 
-    public DbSet<Game>? Games { get; set; }
-    public DbSet<FeatureList>? FeatureLists { get; set; }
-    public DbSet<Player>? Players { get; set; }
-    public DbSet<PlayerGame>? PlayerGames { get; set; }
-    public DbSet<Genre>? Genres { get; set; }
-    public DbSet<GameGenre>? GameGenres { get; set; }
-    public DbSet<Contest>? Contests { get; set; }
-    public DbSet<PlayerContest>? PlayerContests { get; set; }
-    public DbSet<Login>? Logins { get; set; }
-    public DbSet<DiscordLogin>? DiscordLogins { get; set; }
-    public DbSet<User>? Users { get; set; }
-    public DbSet<SyncHistory>? SyncHistory { get; set; }
-    public DbSet<PlayerCompletionHistory>? PlayerCompletionHistory { get; set; }
-    public DbSet<BcmCompletionHistory>? BcmCompletionHistory { get; set; }
-    public DbSet<BcmStat>? BcmStats { get; set; }
-    public DbSet<BcmRgsc>? BcmRgsc { get; set; }
-    public DbSet<UserRole>? UserRoles { get; set; }
+    public DbSet<Game> Games { get; set; }
+    public DbSet<FeatureList> FeatureLists { get; set; }
+    public DbSet<BcmPlayer> BcmPlayers { get; set; }
+    public DbSet<BcmPlayerGame> BcmPlayerGames { get; set; }
+    public DbSet<Genre> Genres { get; set; }
+    public DbSet<GameGenre> GameGenres { get; set; }
+    public DbSet<Registration> Registrations { get; set; }
+    public DbSet<Login> Logins { get; set; }
+    public DbSet<DiscordLogin> DiscordLogins { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<SyncHistory> SyncHistory { get; set; }
+    public DbSet<BcmPlayerCompletionHistory> BcmPlayerCompletionHistory { get; set; }
+    public DbSet<BcmCompletionHistory> BcmCompletionHistory { get; set; }
+    public DbSet<BcmStat> BcmStats { get; set; }
+    public DbSet<BcmRgsc> BcmRgsc { get; set; }
+    public DbSet<Role> Roles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -47,15 +46,16 @@ namespace TavisApi.Context
       base.OnModelCreating(modelBuilder);
       modelBuilder.UseEncryption(_encryptProvider);
 
-      modelBuilder.ApplyConfiguration(new PlayerConfiguration());
       modelBuilder.ApplyConfiguration(new GenreConfiguration());
       modelBuilder.ApplyConfiguration(new GameConfiguration());
-      modelBuilder.ApplyConfiguration(new PlayerGameConfiguration());
+      modelBuilder.ApplyConfiguration(new BcmPlayerGameConfiguration());
       modelBuilder.ApplyConfiguration(new GameGenreConfiguration());
       modelBuilder.ApplyConfiguration(new ContestConfiguration());
-      modelBuilder.ApplyConfiguration(new PlayerContestConfiguration());
       modelBuilder.ApplyConfiguration(new UserConfiguration());
       modelBuilder.ApplyConfiguration(new SyncHistoryConfiguration());
+      modelBuilder.ApplyConfiguration(new BcmStatConfiguration());
+      modelBuilder.ApplyConfiguration(new UserRegistrationConfiguration());
+      modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

@@ -9,23 +9,22 @@ namespace TavisApi.Services;
 public class BcmService : IBcmService
 {
   private TavisContext _context;
-  private int _bcmContestId;
+  private long? _bcmContestId;
 
   public BcmService(TavisContext context)
   {
     _context = context;
-    _bcmContestId = GetContestId();
+    _bcmContestId = GetRegistrationId();
   }
 
-  public List<Player> GetPlayers()
+  public List<BcmPlayer> GetPlayers()
   {
-    var bcmPlayers = _context.PlayerContests!.Where(x => x.ContestId == _bcmContestId).Select(x => x.PlayerId);
-    return _context.Players!.Where(x => x.IsActive && bcmPlayers.Contains(x.Id)).OrderBy(x => x.Name).ToList();
+    return _context.BcmPlayers!.Include(u => u.User).ToList();
   }
 
   public DateTime? GetContestStartDate()
   {
-    return _context.Contests.Where(x => x.Id == _bcmContestId).Select(x => x.StartDate).FirstOrDefault();
+    return _context.Registrations.Where(x => x.Id == _bcmContestId).Select(x => x.StartDate).FirstOrDefault();
   }
 
   public int? CalcBcmValue(double? ratio, double? estimate)
@@ -36,7 +35,7 @@ public class BcmService : IBcmService
 
   public List<string> GetAlphabetChallengeProgress(long playerId)
   {
-    var playersCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == playerId
+    var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
                                                       && x.CompletionDate != null
                                                       && x.CompletionDate.Value.Year == DateTime.Now.Year);
 
@@ -46,7 +45,7 @@ public class BcmService : IBcmService
 
   public List<Game> GetOddJobChallengeProgress(long playerId)
   {
-    var playersCompletedGames = _context.PlayerGames.Include(x => x.Game)
+    var playersCompletedGames = _context.BcmPlayerGames.Include(x => x.Game)
                             .Join(_context.GameGenres, pcg => pcg.GameId, genre => genre.GameId, (pcg, genre) => new { pcg, genre })
                             .AsEnumerable() // TODO: rewrite so this stays as a query?
                             .Where(x => x.pcg.PlayerId == playerId
@@ -69,8 +68,8 @@ public class BcmService : IBcmService
     return completedJobs.Distinct().ToList();
   }
 
-  private int GetContestId()
+  public long? GetRegistrationId()
   {
-    return _context.Contests.Where(x => x.Name.Contains("Better Completions Matter")).First().Id;
+    return _context.Registrations.Where(x => x.Name != null && x.Name.Contains("Better Completions Matter")).First().Id;
   }
 }

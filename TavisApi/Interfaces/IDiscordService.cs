@@ -5,5 +5,6 @@ namespace TavisApi.Services;
 
 public interface IDiscordService
 {
-  public Task<RestSelfUser> Connect(DiscordLogin discordAuth, User user);
+  Task<RestSelfUser> Connect(DiscordConnect discordAuth, User user);
+  Task AddBcmParticipantRole(User user);
 }

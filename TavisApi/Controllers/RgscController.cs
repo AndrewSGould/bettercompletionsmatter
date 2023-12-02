@@ -33,7 +33,7 @@ public class RgscController : ControllerBase
                                 .OrderByDescending(x => x.Issued)
                                 .ToList();
 
-    var playersCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == playerId
+    var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
                                                       && x.CompletionDate != null
                                                       && x.CompletionDate.Value.Year == DateTime.Now.Year);
 

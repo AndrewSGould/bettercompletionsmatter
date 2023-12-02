@@ -12,7 +12,7 @@ public class BcmStatConfiguration : IEntityTypeConfiguration<BcmStat>
       .HasKey(c => c.Id);
 
     builder
-      .HasOne<Player>(x => x.Player)
+      .HasOne(x => x.BcmPlayer)
       .WithOne(x => x.BcmStats)
       .HasForeignKey<BcmStat>(x => x.PlayerId);
   }

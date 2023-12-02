@@ -12,7 +12,7 @@ public static class Queries
               || game.FullCompletionEstimate >= 20;
   }
 
-  public static bool FilterCompletedPlayerGames(PlayerGame playerGame)
+  public static bool FilterCompletedPlayerGames(BcmPlayerGame playerGame)
   {
     return playerGame.CompletionDate != null && playerGame.CompletionDate.Value.Year == DateTime.Now.Year;
   }

@@ -11,5 +11,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     builder.HasOne(x => x.Login)
       .WithOne(x => x.User)
       .HasForeignKey<Login>(x => x.UserId);
+
+    builder.HasOne(x => x.BcmPlayer)
+      .WithOne(x => x.User)
+      .HasForeignKey<BcmPlayer>(x => x.UserId);
+
+    builder.HasOne(x => x.DiscordLogin)
+      .WithOne(x => x.User)
+      .HasForeignKey<DiscordLogin>(x => x.UserId);
   }
 }

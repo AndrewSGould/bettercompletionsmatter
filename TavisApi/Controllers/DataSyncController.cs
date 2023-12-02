@@ -56,7 +56,7 @@ public class DataSyncController : ControllerBase
   [Route("full")]
   public IActionResult Sync()
   {
-    var playersToScan = _bcmService.GetPlayers().Where(x => x.Name.Contains("kT"));
+    var playersToScan = _bcmService.GetPlayers();
 
     var syncLog = new SyncHistory
     {
@@ -70,7 +70,7 @@ public class DataSyncController : ControllerBase
     {
     };
 
-    var results = _dataSync.DynamicSync(playersToScan.OrderBy(x => x.Name).ToList(), gcOptions, syncLog, _hub);
+    var results = _dataSync.DynamicSync(playersToScan, gcOptions, syncLog, _hub);
 
     syncLog.End = DateTime.UtcNow;
     _context.SyncHistory!.Add(syncLog);
@@ -105,7 +105,7 @@ public class DataSyncController : ControllerBase
       TimeZone = SyncOption_Timezone.EST
     };
 
-    var results = _dataSync.DynamicSync(playersToScan.OrderBy(x => x.Name).ToList(), gcOptions, syncLog, _hub);
+    var results = _dataSync.DynamicSync(playersToScan, gcOptions, syncLog, _hub);
 
     syncLog.End = DateTime.UtcNow;
     _context.SyncHistory!.Add(syncLog);

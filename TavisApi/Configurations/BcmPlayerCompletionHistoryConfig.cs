@@ -4,20 +4,20 @@ using Tavis.Models;
 
 namespace TavisApi.Context;
 
-public class PlayerCompletionHistoryConfiguration : IEntityTypeConfiguration<PlayerCompletionHistory>
+public class BcmPlayerCompletionHistoryConfiguration : IEntityTypeConfiguration<BcmPlayerCompletionHistory>
 {
-  public void Configure(EntityTypeBuilder<PlayerCompletionHistory> builder)
+  public void Configure(EntityTypeBuilder<BcmPlayerCompletionHistory> builder)
   {
     builder
       .HasKey(c => c.Id);
 
     builder
-      .HasOne<Player>(x => x.Player)
-      .WithMany(x => x.PlayerCompletionHistories)
+      .HasOne(x => x.BcmPlayer)
+      .WithMany(x => x.BcmPlayerCompletionHistories)
       .HasForeignKey(x => x.PlayerId);
 
     builder
-      .HasOne<Game>(x => x.Game)
+      .HasOne(x => x.Game)
       .WithMany(x => x.PlayerCompletionHistories)
       .HasForeignKey(x => x.GameId);
   }

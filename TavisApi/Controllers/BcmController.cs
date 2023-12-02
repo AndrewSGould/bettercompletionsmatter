@@ -14,6 +14,7 @@ using DocumentFormat.OpenXml;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Tavis.Extensions;
+using Microsoft.Owin.Security.Provider;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -24,15 +25,17 @@ public class BcmController : ControllerBase
   private readonly IDataSync _dataSync;
   private readonly IBcmService _bcmService;
   private readonly IUserService _userService;
+  private readonly IDiscordService _discordService;
   private static readonly Random rand = new Random();
 
-  public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService, IUserService userService)
+  public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService, IUserService userService, IDiscordService discordService)
   {
     _context = context;
     _parser = parser;
     _dataSync = dataSync;
     _bcmService = bcmService;
     _userService = userService;
+    _discordService = discordService;
   }
 
   [HttpGet]
@@ -48,8 +51,8 @@ public class BcmController : ControllerBase
     {
       leaderboard.Add(new Leaderboard
       {
-        Player = player,
-        BcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id)
+        BcmPlayer = player,
+        BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
       });
     }
 
@@ -77,7 +80,7 @@ public class BcmController : ControllerBase
 
       playerBcmStats.PlayerId = player.Id;
 
-      var playerCompletions = _context.PlayerGames
+      var playerCompletions = _context.BcmPlayerGames
                                       .Where(x => x.PlayerId == player.Id &&
                                         x.CompletionDate != null &&
                                         x.CompletionDate >= _bcmService.GetContestStartDate());
@@ -137,15 +140,18 @@ public class BcmController : ControllerBase
   public IActionResult BcmPlayer(string player)
   {
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+
+    if (localuser is null) return BadRequest("No gamertag found with provided player");
+
     var playerId = localuser.Id;
 
-    var bcmPlayer = _context.Players.First(x => x.Id == playerId);
+    var bcmPlayer = _context.BcmPlayers.First(x => x.Id == playerId);
 
     if (bcmPlayer == null) return BadRequest("Player not found");
 
     var bcmPlayerSummary = new Object();
 
-    var playersGames = _context.PlayerGames
+    var playersGames = _context.BcmPlayerGames
                         .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
                         .Where(x => x.PlayersGames.PlayerId == bcmPlayer.Id
                           && x.PlayersGames.CompletionDate != null
@@ -153,7 +159,7 @@ public class BcmController : ControllerBase
                         .OrderByDescending(x => x.PlayersGames.CompletionDate)
                         .Select(x => new BcmPlayerSummary
                         {
-                          Title = x.Games.Title,
+                          Title = x.Games.Title ?? "",
                           Ratio = x.Games.SiteRatio,
                           Estimate = x.Games.FullCompletionEstimate,
                           CompletionDate = x.PlayersGames.CompletionDate,
@@ -176,6 +182,9 @@ public class BcmController : ControllerBase
   public async Task<IActionResult> GetYearlySummary(string player)
   {
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+
+    if (localuser is null) return BadRequest("Player not found with provided gamertag");
+
     var playerId = localuser.Id;
 
     return await Task.FromResult(Ok(new
@@ -193,11 +202,13 @@ public class BcmController : ControllerBase
   {
     var playersIneligible = new List<object>();
     var allPlayers = new List<RgscResult>();
-    var players = _bcmService.GetPlayers().OrderBy(x => x.Name);
+    var players = _bcmService.GetPlayers();
 
     foreach (var player in players)
     {
-      var randomGameOptions = _context.PlayerGames?
+      var gamertag = _context.Users.FirstOrDefault(x => x.Id == player.UserId)?.Gamertag ?? "";
+
+      var randomGameOptions = _context.BcmPlayerGames?
             .Join(_context.Games!, pg => pg.GameId,
               g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
             .Where(x => x.PlayersGames.PlayerId == player.Id
@@ -215,25 +226,25 @@ public class BcmController : ControllerBase
       {
         playersIneligible.Add(new
         {
-          Player = player.Name,
+          Player = gamertag,
           EligibleCount = randomGameOptions.Count(),
           GameList = randomGameOptions.Select(x => x.Games.Title).ToList()
         });
       }
 
-      Game randomGame = null;
+      Game randomGame = new();
 
       if (randomGameOptions?.Count() != 0)
       {
-        var random = rand.Next(0, randomGameOptions.Count());
-        randomGame = randomGameOptions?[random].Games;
+        var random = rand.Next(0, randomGameOptions!.Count());
+        randomGame = randomGameOptions![random].Games;
 
         allPlayers.Add(new RgscResult
         {
-          Player = player.Name,
-          RandomGame = randomGameOptions?.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGame.Title,
+          Player = gamertag,
+          RandomGame = randomGameOptions!.Count() < BcmRule.RandomMinimumEligibilityCount ? "" : randomGame.Title ?? "",
           EligibleCount = randomGameOptions.Count(),
-          GameList = randomGameOptions.Select(x => x.Games.Title).OrderBy(x => x).ToList()
+          GameList = randomGameOptions.Select(x => x.Games.Title ?? "").OrderBy(x => x).ToList()
         });
       }
 
@@ -267,21 +278,23 @@ public class BcmController : ControllerBase
 
     foreach (var player in bcmPlayers)
     {
-      var playerGames = _context.PlayerGames.Where(x => x.PlayerId == player.Id);
+      var gamertag = _context.Users.FirstOrDefault(x => x.Id == player.UserId);
 
-      var gamerscoreTotal = playerGames.Where(x => x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
+      var playerGames = _context.BcmPlayerGames.Where(x => x.PlayerId == player.Id);
+
+      var gamerscoreTotal = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
                                         .Sum(x => x.Gamerscore);
-      var trueachievementTotal = playerGames.Where(x => x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
+      var trueachievementTotal = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
                                             .Sum(x => x.TrueAchievement);
-      var completions = playerGames.Where(x => x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
+      var completions = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
                                     .Count(x => x.CompletionDate != null);
 
       var stats = new
       {
-        Player = player.Name,
+        Player = gamertag,
         Gamerscore = gamerscoreTotal,
         TrueAchievement = trueachievementTotal,
-        Ratio = trueachievementTotal == 0 ? 0 : Math.Round((decimal)((decimal)trueachievementTotal / gamerscoreTotal), 4),
+        Ratio = trueachievementTotal == 0 ? 0 : Math.Round((decimal)((decimal)trueachievementTotal! / gamerscoreTotal!), 4),
         TAD = trueachievementTotal == 0 ? 0 : trueachievementTotal - gamerscoreTotal,
         Completions = completions
       };
@@ -310,6 +323,37 @@ public class BcmController : ControllerBase
     return Ok();
   }
 
+  [HttpPost]
+  [Route("registerUser")]
+  public async Task<IActionResult> RegisterUser()
+  {
+    User? user = _userService.GetCurrentUser();
+    if (user is null) return BadRequest("Could not determine user");
+
+    var bcmReg = _context.Registrations.Find(_bcmService.GetRegistrationId()) ?? throw new Exception("Unable to get Registration ID for BCM");
+
+    user.UserRegistrations.Add(new UserRegistration { Registration = bcmReg });
+
+    _context.BcmPlayers.Add(new BcmPlayer
+    {
+      UserId = user.Id,
+      Registration = DateTime.UtcNow
+    });
+
+    _context.SaveChanges();
+
+    try
+    {
+      await _discordService.AddBcmParticipantRole(user);
+      var registrationDate = _context.BcmPlayers.First(x => x.UserId == user.Id).Registration;
+      return Ok(registrationDate);
+    }
+    catch
+    {
+      return BadRequest("Something went wrong trying to register for BCM");
+    }
+  }
+
   private void WriteRgscExcelFile(List<RgscResult> rgscResults)
   {
     using (SpreadsheetDocument document = SpreadsheetDocument.Create("rgsc.xlsx", SpreadsheetDocumentType.Workbook))
@@ -318,41 +362,47 @@ public class BcmController : ControllerBase
       workbookPart.Workbook = new Workbook();
 
       Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
-      DocumentFormat.OpenXml.UInt32Value sheetNumber = 1;
+      UInt32Value sheetNumber = 1;
 
       // Lets converts our object data to Datatable for a simplified logic.
       // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
-      DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(rgscResults), (typeof(DataTable)));
+      if (rgscResults is null) return;
+
+      DataTable table = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(rgscResults)) as DataTable;
 
       WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
       var sheetData = new SheetData();
       worksheetPart.Worksheet = new Worksheet(sheetData);
 
-      Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "RGSC" };
+      Sheet sheet = new() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "RGSC" };
 
       sheets.Append(sheet);
 
-      Row headerRow = new Row();
+      Row headerRow = new();
 
-      List<String> columns = new List<string>();
-      foreach (System.Data.DataColumn column in table.Columns)
+      List<string> columns = new();
+      foreach (DataColumn column in table.Columns)
       {
         columns.Add(column.ColumnName);
 
-        Cell cell = new Cell();
-        cell.DataType = CellValues.String;
-        cell.CellValue = new CellValue(column.ColumnName);
+        Cell cell = new()
+        {
+          DataType = CellValues.String,
+          CellValue = new CellValue(column.ColumnName)
+        };
         headerRow.AppendChild(cell);
       }
 
       foreach (DataRow dsrow in table.Rows)
       {
         Row newRow = new Row();
-        foreach (String col in columns)
+        foreach (string col in columns)
         {
-          Cell cell = new Cell();
-          cell.DataType = CellValues.String;
-          cell.CellValue = new CellValue(dsrow[col].ToString());
+          Cell cell = new()
+          {
+            DataType = CellValues.String,
+            CellValue = new CellValue(dsrow[col].ToString())
+          };
           newRow.AppendChild(cell);
         }
 
@@ -365,7 +415,7 @@ public class BcmController : ControllerBase
 
   private void WriteExcelFile()
   {
-    var players = _bcmService.GetPlayers().OrderBy(x => x.Name);
+    var players = _bcmService.GetPlayers();
     var bcmStart = _bcmService.GetContestStartDate();
 
     using (SpreadsheetDocument document = SpreadsheetDocument.Create("bcmreport.xlsx", SpreadsheetDocumentType.Workbook))
@@ -374,13 +424,13 @@ public class BcmController : ControllerBase
       workbookPart.Workbook = new Workbook();
 
       Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
-      DocumentFormat.OpenXml.UInt32Value sheetNumber = 1;
+      UInt32Value sheetNumber = 1;
 
       foreach (var player in players)
       {
         sheetNumber++;
 
-        var playersCompletedGames = _context.PlayerGames
+        var playersCompletedGames = _context.BcmPlayerGames
           .Join(_context.Games, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayerGames = pg, Games = g })
           .Where(x => x.PlayerGames.PlayerId == player.Id
             && x.PlayerGames.CompletionDate != null
@@ -395,23 +445,6 @@ public class BcmController : ControllerBase
           })
           .ToList();
 
-        // var playerCompletionHistory = _context.PlayerCompletionHistory.Where(x => x.PlayerId == player.Id).ToList();
-
-
-        // foreach(var completedGame in playerCompletionHistory.Where(x => x.CompletionDate > bcmStart)) {
-        //   var game = _context.Games
-        //               .Join(_context.PlayerGames, g => g.Id, pg => pg.GameId, (g, pg) => new {Games = g, PlayerGames = pg})
-        //               .Where(x => x.Games.Id == completedGame.GameId)
-        //               .OrderBy(x => x.PlayerGames.CompletionDate)
-        //               .FirstOrDefault();
-
-        //   playersCompletedGames.Add(new UserDetails {
-        //     DateCompleted = completedGame.CompletionDate.ToString("MMM dd"),
-        //     GameTitle = game.Games.Title,
-        //     Ratio = game.Games.SiteRatio
-        //   });
-        // }
-
         // Lets converts our object data to Datatable for a simplified logic.
         // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
         DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(playersCompletedGames), (typeof(DataTable)));
@@ -420,7 +453,7 @@ public class BcmController : ControllerBase
         var sheetData = new SheetData();
         worksheetPart.Worksheet = new Worksheet(sheetData);
 
-        Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = sheetNumber, Name = player.Name };
+        Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = sheetNumber, Name = player.User.Gamertag };
 
         sheets.Append(sheet);
 
@@ -440,11 +473,13 @@ public class BcmController : ControllerBase
         foreach (DataRow dsrow in table.Rows)
         {
           Row newRow = new Row();
-          foreach (String col in columns)
+          foreach (string col in columns)
           {
-            Cell cell = new Cell();
-            cell.DataType = CellValues.String;
-            cell.CellValue = new CellValue(dsrow[col].ToString());
+            Cell cell = new()
+            {
+              DataType = CellValues.String,
+              CellValue = new CellValue(dsrow[col].ToString())
+            };
             newRow.AppendChild(cell);
           }
 
@@ -462,7 +497,7 @@ public class BcmController : ControllerBase
     var historicallyCompletedGames = _context.BcmCompletionHistory.Select(x => x.GameId);
 
     // get the GameId of every completion Tavis knows of
-    var completedGames = _context.PlayerGames
+    var completedGames = _context.BcmPlayerGames
                   .Where(x => x.CompletionDate != null && x.CompletionDate >= _bcmService.GetContestStartDate())
                   .GroupBy(x => x.GameId)
                   .Select(x => x.First())

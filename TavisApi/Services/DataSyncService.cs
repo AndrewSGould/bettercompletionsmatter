@@ -23,7 +23,7 @@ public class DataSync : IDataSync
     _taGameCollection = taGameCollection;
   }
 
-  public object DynamicSync(List<Player> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub)
+  public object DynamicSync(List<BcmPlayer> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub)
   {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
@@ -32,7 +32,9 @@ public class DataSync : IDataSync
 
     foreach (var player in players)
     {
-      hub.Clients.All.SendAsync("SyncSignal", $"Parsing {player.Name}...");
+      var gamertag = _context.Users.FirstOrDefault(x => x.Id == player.UserId);
+
+      hub.Clients.All.SendAsync("SyncSignal", $"Parsing {gamertag}...");
 
       var parseStart = DateTime.UtcNow;
 
@@ -42,7 +44,7 @@ public class DataSync : IDataSync
 
       var parseEnd = DateTime.UtcNow;
 
-      Console.WriteLine($"{player.Name} has been parsed at {DateTime.Now}");
+      Console.WriteLine($"{gamertag} has been parsed at {DateTime.Now}");
     }
 
     _context.SaveChanges();
@@ -79,11 +81,11 @@ public class DataSync : IDataSync
   }
 
   // we can maybe skip parsing game info until the last person in the queue to improve perf?
-  public TaParseResult ParseTa(int playerId, SyncOptions gcOptions)
+  public TaParseResult ParseTa(long playerId, SyncOptions gcOptions)
   {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
-    var player = _context.Players!.Where(x => x.Id == playerId).First();
+    var player = _context.BcmPlayers!.Where(x => x.Id == playerId).First();
 
     List<List<CollectionSplit>> entireGameList = new List<List<CollectionSplit>>();
     var page = 1;
@@ -127,7 +129,7 @@ public class DataSync : IDataSync
     };
   }
 
-  private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, Player player, SyncOptions gcOptions)
+  private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, BcmPlayer player, SyncOptions gcOptions)
   {
     // Only remove Games from collection if we are doing a full sync
     if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value ||
@@ -136,7 +138,7 @@ public class DataSync : IDataSync
       return;
 
     // Get all the TA ID's Tavis has for the player
-    var gamesInCollection = _context.PlayerGames.Where(x => x.PlayerId == player.Id)
+    var gamesInCollection = _context.BcmPlayerGames.Where(x => x.PlayerId == player.Id)
                               .Join(_context.Games, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
                               .Select(x => (int)x.g.TrueAchievementId).ToList();
 
@@ -153,14 +155,14 @@ public class DataSync : IDataSync
     // Have the DB forget about the removed games
     foreach (var gameId in tavisGameIds)
     {
-      var removedGame = _context.PlayerGames.Where(x => x.GameId == gameId && x.PlayerId == player.Id).First();
-      _context.PlayerGames.Remove(removedGame);
+      var removedGame = _context.BcmPlayerGames.Where(x => x.GameId == gameId && x.PlayerId == player.Id).First();
+      _context.BcmPlayerGames.Remove(removedGame);
     }
 
     _context.SaveChanges();
   }
 
-  private void SaveRecompletionHistory(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player)
+  private void SaveRecompletionHistory(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, BcmPlayer player)
   {
     // Get all scanned games that are completed
     var incomingCompletedGames = incomingData.Where(x => x.CompletionDate != null);
@@ -168,7 +170,7 @@ public class DataSync : IDataSync
                                   .Join(_context.Games, cig => cig.GameId, g => g.TrueAchievementId, (cig, g) => new { cig, g });
 
     // Get the current completion status of the player's games
-    var playersCurrentCompletedGames = _context.PlayerGames.Where(x => x.PlayerId == player.Id && x.CompletionDate != null)
+    var playersCurrentCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == player.Id && x.CompletionDate != null)
                                                             .OrderByDescending(x => x.CompletionDate);
 
     // Compare the incoming completions with the completions on the PlayerGames table. If it's different it's a re-completion
@@ -179,7 +181,7 @@ public class DataSync : IDataSync
       if (previouslyCompletedGame != null &&
           incomingCompletion.cig.CompletionDate != previouslyCompletedGame.CompletionDate)
       {
-        _context.PlayerCompletionHistory.Add(new PlayerCompletionHistory
+        _context.BcmPlayerCompletionHistory.Add(new BcmPlayerCompletionHistory
         {
           PlayerId = player.Id,
           GameId = incomingCompletion.g.Id,
@@ -193,18 +195,18 @@ public class DataSync : IDataSync
 
   private TimeSpan ParseCollectionPage(int playerTrueAchId, List<List<CollectionSplit>> entireCollection, SyncOptions gcOptions, ref int page)
   {
-    Stopwatch stopWatch = new Stopwatch();
+    Stopwatch stopWatch = new();
     stopWatch.Start();
 
-    using var httpClient = new HttpClient();
+    using HttpClient httpClient = new();
     var gameCollectionUrl = _taGameCollection.ParseManager(playerTrueAchId, page, gcOptions);
-    var request = new HttpRequestMessage(HttpMethod.Get, gameCollectionUrl);
+    HttpRequestMessage request = new(HttpMethod.Get, gameCollectionUrl);
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
     var response = httpClient.Send(request);
-    using var reader = new StreamReader(response.Content.ReadAsStream());
+    using StreamReader reader = new(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();
 
-    HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+    HtmlDocument doc = new();
     doc.LoadHtml(responseBody);
 
     var collectionPage = doc.DocumentNode.SelectSingleNode("//table")
@@ -258,7 +260,7 @@ public class DataSync : IDataSync
     return stopWatch.Elapsed;
   }
 
-  private void StructureCollectionPage(List<List<CollectionSplit>> entireGameList, List<TA_CollectionEntry> incomingData, Player player)
+  private void StructureCollectionPage(List<List<CollectionSplit>> entireGameList, List<TA_CollectionEntry> incomingData, BcmPlayer player)
   {
     // we're going to hardcode the array position here to avoid even more parsing
     //TODO: this deserves an integration test
@@ -302,7 +304,7 @@ public class DataSync : IDataSync
       }
       catch (Exception ex)
       {
-        Console.Error.Write($"Error encountered trying to parse {game[1].GameIdHtml} for Player {player.Name} - ", ex);
+        Console.Error.Write($"Error encountered trying to parse {game[1].GameIdHtml} for Player {player.Id} - ", ex);
       }
     }
   }
@@ -342,18 +344,18 @@ public class DataSync : IDataSync
     _context.SaveChanges();
   }
 
-  private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, Player player)
+  private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, BcmPlayer player)
   {
     // lets figure out and update it if its the first time we see it in the players collection
     var newCollectionEntries = incomingData
-                                    .Where(incData => !_context.PlayerGames!.Where(x => x.PlayerId == player.Id)
+                                    .Where(incData => !_context.BcmPlayerGames!.Where(x => x.PlayerId == player.Id)
                                     .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
                                     .Select(x => x.g.TrueAchievementId).Contains(incData.GameId));
 
     var gameIds = _context.Games!.Where(x => newCollectionEntries.Select(y => y.GameId).Contains(x.TrueAchievementId)).ToList();
     foreach (var entry in newCollectionEntries)
     {
-      var newGame = new PlayerGame
+      var newGame = new BcmPlayerGame
       {
         GameId = gameIds.First(x => x.TrueAchievementId == entry.GameId).Id,
         PlayerId = player.Id,
@@ -368,7 +370,7 @@ public class DataSync : IDataSync
         NotForContests = entry.NotForContests
       };
 
-      _context.PlayerGames!.Add(newGame);
+      _context.BcmPlayerGames!.Add(newGame);
     }
   }
 
@@ -401,10 +403,10 @@ public class DataSync : IDataSync
     }
   }
 
-  private void UpdateCollectionInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player)
+  private void UpdateCollectionInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, BcmPlayer player)
   {
     var knownEntries = incomingData.Where(incData => taGameIdList.Contains(incData.GameId));
-    var entriesToUpdate = _context.PlayerGames!.Where(x => x.PlayerId == player.Id)
+    var entriesToUpdate = _context.BcmPlayerGames!.Where(x => x.PlayerId == player.Id)
                               .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
                               .Where(x => knownEntries.Select(y => y.GameId).Contains(x.g.TrueAchievementId));
 

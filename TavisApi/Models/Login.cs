@@ -14,5 +14,5 @@ public class Login
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpiryTime { get; set; }
     public long UserId { get; set; }
-    public User User { get; set; }
+    public User User { get; set; } = new();
 }

@@ -25,6 +25,9 @@ public class DiscordController : ControllerBase
     // pull this out into discord service
     var currentUsername = _userService.GetCurrentUserName();
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == currentUsername);
+
+    if (localuser is null) return BadRequest("Could not find user with supplied gamertag");
+
     var discordLogin = _context.DiscordLogins.FirstOrDefault(x => x.UserId == localuser.Id);
 
     if (discordLogin is null) return NoContent();
