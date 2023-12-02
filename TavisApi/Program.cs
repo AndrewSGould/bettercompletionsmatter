@@ -45,6 +45,14 @@ builder.Services.AddAuthentication(opt =>
   };
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+  options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+                             | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+  options.KnownNetworks.Clear();
+  options.KnownProxies.Clear();
+});
+
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -108,6 +116,7 @@ else
   app.UseHttpsRedirection();
 }
 
+app.UseForwardedHeaders();
 app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
