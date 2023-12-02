@@ -8,7 +8,7 @@ using Discord;
 using Newtonsoft.Json;
 using Tavis.Models;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class OpenXblController : ControllerBase
 {

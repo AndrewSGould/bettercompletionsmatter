@@ -9,6 +9,10 @@ bin/
 obj/
 dist
 
+.vs
+
+dockerout/
+
 # Node
 /node_modules
 npm-debug.log

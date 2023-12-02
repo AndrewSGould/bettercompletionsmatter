@@ -17,7 +17,7 @@ using Tavis.Extensions;
 using Microsoft.Owin.Security.Provider;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class BcmController : ControllerBase
 {
   private TavisContext _context;
@@ -365,7 +365,7 @@ public class BcmController : ControllerBase
       UInt32Value sheetNumber = 1;
 
       // Lets converts our object data to Datatable for a simplified logic.
-      // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
+      // Datatable is most easy way to deal with complex datatypes for easy reading and formatting.
       if (rgscResults is null) return;
 
       DataTable table = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(rgscResults)) as DataTable;
@@ -446,7 +446,7 @@ public class BcmController : ControllerBase
           .ToList();
 
         // Lets converts our object data to Datatable for a simplified logic.
-        // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
+        // Datatable is most easy way to deal with complex datatypes for easy reading and formatting.
         DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(playersCompletedGames), (typeof(DataTable)));
 
         WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
@@ -554,7 +554,7 @@ public class BcmController : ControllerBase
       DocumentFormat.OpenXml.UInt32Value sheetNumber = 1;
 
       // Lets converts our object data to Datatable for a simplified logic.
-      // Datatable is most easy way to deal with complex datatypes for easy reading and formatting. 
+      // Datatable is most easy way to deal with complex datatypes for easy reading and formatting.
       DataTable table = (DataTable)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(completedGamesReport), (typeof(DataTable)));
 
       WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();

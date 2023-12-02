@@ -6,7 +6,7 @@ using TavisApi.Services;
 using Discord.Rest;
 using Discord;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class DiscordController : ControllerBase
 {

@@ -7,7 +7,7 @@ using System.Linq;
 using Tavis.Models;
 using Microsoft.EntityFrameworkCore;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {

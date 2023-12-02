@@ -7,7 +7,7 @@ using System.Data;
 using System.Collections.Generic;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class PlayerController : ControllerBase
 {
   private TavisContext _context;

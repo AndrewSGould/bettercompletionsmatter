@@ -7,7 +7,7 @@ using System.Linq;
 using Tavis.Models;
 using Microsoft.AspNetCore.Authorization;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class TokenController : ControllerBase
 {

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class DataSyncController : ControllerBase
 {
   private TavisContext _context;
