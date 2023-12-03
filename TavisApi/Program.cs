@@ -16,7 +16,7 @@ var configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
-DotEnv.Load(options: new DotEnvOptions(probeForEnv: true, ignoreExceptions: false));
+// DotEnv.Load(options: new DotEnvOptions(probeForEnv: true, ignoreExceptions: false));
 
 if (builder.Environment.EnvironmentName.Trim() == string.Empty)
   configurationBuilder.AddJsonFile("appsettings.Production.json", optional: false, reloadOnChange: true);
@@ -123,5 +123,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<SyncSignal>("/datasync");
+
+app.MapGet("/", () => "Healthy");
 
 app.Run();
