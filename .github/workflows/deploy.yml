@@ -33,7 +33,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
       - name: Echo SSH
         run: |
