@@ -51,5 +51,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << EOF
             sudo docker stop tavisapi 2>/dev/null || true
             sudo docker rm tavisapi 2>/dev/null || true
-            sudo docker run --network host -e "ConnectionStrings__DefaultConnection=Host=${{ vars.POSTGRES_HOST  }};Port=5432;Database=tavis;User ID=postgres;Password=${{ secrets.POSTGRES_PASSWORD }};" --restart always --name tavisapi tavisapi:latest
+            sudo docker run --network host -e "ConnectionStrings__DefaultConnection=Host=${{ vars.POSTGRES_HOST  }};Port=5432;Database=tavis;User ID=postgres;Password=${{ secrets.POSTGRES_PASSWORD }};" --restart always --name tavisapi -d tavisapi:latest
           EOF
