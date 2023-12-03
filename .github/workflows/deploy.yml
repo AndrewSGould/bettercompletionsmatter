@@ -7,6 +7,9 @@ on:
 
 jobs:
   deploy:
+    defaults:
+        run:
+          working-directory: ./TavisApi/
     runs-on: ubuntu-latest
 
     steps:
@@ -14,21 +17,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install SSHPASS
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
-
-      - name: SSH into the Server
-        run: |
-          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "echo 'Hello, server!'"
-          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis && git pull"
-          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis && docker-compose down"
-          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis &&  docker-compose build"
-          sshpass -p "${{secrets.SSH_PASSWORD}}" ssh -o StrictHostKeyChecking=no ${{secrets.USERNAME}}@${{secrets.HOST}} "cd tavis &&  docker-compose up -d"
-          
-        
-          
-  
-
-   
-          
+        run: ls
