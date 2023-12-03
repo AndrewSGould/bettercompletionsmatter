@@ -1,11 +1,6 @@
-using System.Security.Claims;
-using System.Text;
 using Discord;
 using Discord.Rest;
 using dotenv.net;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Newtonsoft.Json;
 using Tavis.Models;
 using TavisApi.Context;
 
@@ -32,7 +27,8 @@ public class DiscordService : IDiscordService
     }
 
     var envVars = DotEnv.Read();
-    var token = envVars["DISCORD_BOT_TOKEN"];
+    var token = envVars.TryGetValue("DISCORD_BOT_TOKEN", out var key) ? key : null;
+    if (token is null || token == "") token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
 
     using var bot = new DiscordRestClient();
     await bot.LoginAsync(TokenType.Bot, token);
@@ -113,7 +109,8 @@ public class DiscordService : IDiscordService
   private async Task AddDiscordRole(string accessToken, string roleName)
   {
     var envVars = DotEnv.Read();
-    var token = envVars["DISCORD_BOT_TOKEN"];
+    var token = envVars.TryGetValue("DISCORD_BOT_TOKEN", out var key) ? key : null;
+    if (token is null || token == "") token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
 
     using var bot = new DiscordRestClient();
     await bot.LoginAsync(TokenType.Bot, token);

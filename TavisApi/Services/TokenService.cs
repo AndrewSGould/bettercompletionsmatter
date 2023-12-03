@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using dotenv.net;
 using Microsoft.IdentityModel.Tokens;
 using TavisApi.Services;
 
@@ -20,7 +21,11 @@ public class TokenService : ITokenService
 
   public string GenerateAccessToken(IEnumerable<Claim> claims)
   {
-    var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
+    var envVars = DotEnv.Read();
+    var encryptionKey = envVars.TryGetValue("ENCRYPTION_KEY", out var key) ? key : null;
+    if (encryptionKey is null || encryptionKey == "") encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY")!;
+
+    var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(encryptionKey));
     var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
     var tokeOptions = new JwtSecurityToken(
@@ -46,13 +51,17 @@ public class TokenService : ITokenService
 
   public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
   {
+    var envVars = DotEnv.Read();
+    var encryptionKey = envVars.TryGetValue("ENCRYPTION_KEY", out var key) ? key : null;
+    if (encryptionKey is null || encryptionKey == "") encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY")!;
+
     var tokenValidationParameters = new TokenValidationParameters
     {
-      ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
-      ValidateIssuer = false,
+      ValidateAudience = true,
+      ValidateIssuer = true,
       ValidateIssuerSigningKey = true,
-      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345")),
-      ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
+      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(encryptionKey)),
+      ValidateLifetime = false // we don't care about the token's expiration date
     };
 
     var tokenHandler = new JwtSecurityTokenHandler();

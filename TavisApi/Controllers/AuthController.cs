@@ -5,8 +5,8 @@ using TavisApi.Context;
 using TavisApi.Services;
 using System.Linq;
 using Tavis.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using dotenv.net;
 
 [Route("[controller]")]
 [ApiController]
@@ -34,10 +34,14 @@ public class AuthController : ControllerBase
     if (oxblLogin is null || oxblLogin.OpenXblCode is null)
       return BadRequest("Invalid client request");
 
+    var envVars = DotEnv.Read();
+    var oxblAppKey = envVars.TryGetValue("OXBL_APP_KEY", out var key) ? key : null;
+    if (oxblAppKey is null || oxblAppKey == "") oxblAppKey = Environment.GetEnvironmentVariable("OXBL_APP_KEY")!;
+
     var oxblAuth = new ConnectAuth
     {
       Code = oxblLogin.OpenXblCode,
-      App_Key = "eb9ab783-e41f-d428-0319-fb2d4d4a0d71" // TODO: store this elsewhere
+      App_Key = oxblAppKey
     };
 
     var oxblProfile = await _oxblService.Connect(oxblAuth);

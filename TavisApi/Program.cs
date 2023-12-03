@@ -16,10 +16,15 @@ var configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
-// DotEnv.Load(options: new DotEnvOptions(probeForEnv: true, ignoreExceptions: false));
+string encryptionKey;
 
-if (builder.Environment.EnvironmentName.Trim() == string.Empty)
-  configurationBuilder.AddJsonFile("appsettings.Production.json", optional: false, reloadOnChange: true);
+if (builder.Environment.EnvironmentName == "Development")
+{
+  DotEnv.Load(options: new DotEnvOptions(probeForEnv: true, ignoreExceptions: false));
+  var envVars = DotEnv.Read();
+  encryptionKey = envVars["ENCRYPTION_KEY"];
+}
+else encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY")!;
 
 builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
@@ -41,7 +46,7 @@ builder.Services.AddAuthentication(opt =>
     ValidateIssuerSigningKey = true,
     ValidIssuer = builder.Configuration["ServerConfigs:IssuerServer"],
     ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(encryptionKey))
   };
 
   // options.Events = new JwtBearerEvents()
