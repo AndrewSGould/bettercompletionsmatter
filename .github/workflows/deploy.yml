@@ -37,13 +37,13 @@ jobs:
       - name: Docker Login
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << EOF
-            docker login -u "${{ github.repository_owner }}" -p "${{ secrets.GITHUB_TOKEN }}" "ghcr.io"
+            sudo docker login -u "${{ github.repository_owner }}" -p "${{ secrets.GITHUB_TOKEN }}" "ghcr.io"
           EOF
 
       - name: Docker Pull
         run: |
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << EOF
-            docker pull ghcr.io/andrewsgould/tavisapi:latest
+            sudo docker pull ghcr.io/andrewsgould/tavisapi:latest
           EOF
 
       - name: Docker Stop & Start Container
@@ -51,5 +51,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << EOF
             sudo docker stop tavis 2>/dev/null || true
             sudo docker rm tavis 2>/dev/null || true
-            docker run --network host -e "ConnectionStrings__DefaultConnection=Host=$${{ vars.POSTGRES_HOST  }};Port=5432;Database=tavis;User ID=postgres;Password=${{ secrets.POSTGRES_PASSWORD }};" --restart always --name tavisapi tavisapi:latest
+            sudo docker run --network host -e "ConnectionStrings__DefaultConnection=Host=$${{ vars.POSTGRES_HOST  }};Port=5432;Database=tavis;User ID=postgres;Password=${{ secrets.POSTGRES_PASSWORD }};" --restart always --name tavisapi tavisapi:latest
           EOF
