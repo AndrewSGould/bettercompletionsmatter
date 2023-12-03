@@ -6,6 +6,7 @@ using TavisApi.Services;
 using System.Linq;
 using Tavis.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 [Route("[controller]")]
 [ApiController]
@@ -31,5 +32,19 @@ public class UserController : ControllerBase
     var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
 
     return Ok(userRolesWithDetails.Select(x => x.Roles.RoleName));
+  }
+
+  [Authorize(Roles = "Guest")]
+  [HttpGet, Route("getRegistrations")]
+  public IActionResult GetRegistrations()
+  {
+    var user = _userService.GetCurrentUser();
+    if (user is null) return BadRequest("User not found upon request");
+
+    var registrations = _context.Registrations
+                            .Include(x => x.UserRegistrations)
+                            .FirstOrDefault(x => x.UserRegistrations.Any(x => x.User == user));
+
+    return Ok(new { registrations?.Name, Date = registrations?.UserRegistrations.FirstOrDefault()?.RegistrationDate });
   }
 }

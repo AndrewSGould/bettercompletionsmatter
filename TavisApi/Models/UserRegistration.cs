@@ -7,4 +7,6 @@ public class UserRegistration
 
   public long RegistrationId { get; set; }
   public Registration Registration { get; set; } = new();
+
+  public DateTime? RegistrationDate { get; set; }
 }

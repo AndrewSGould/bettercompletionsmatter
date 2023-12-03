@@ -43,6 +43,29 @@ builder.Services.AddAuthentication(opt =>
     ValidAudience = builder.Configuration["ServerConfigs:AudienceServer"],
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
   };
+
+  // options.Events = new JwtBearerEvents()
+  // {
+  //   OnMessageReceived = msg =>
+  //   {
+  //     var token = msg?.Request.Headers.Authorization.ToString();
+  //     string path = msg?.Request.Path ?? "";
+  //     if (!string.IsNullOrEmpty(token))
+
+  //     {
+  //       Console.WriteLine("Access token");
+  //       Console.WriteLine($"URL: {path}");
+  //       Console.WriteLine($"Token: {token}\r\n");
+  //     }
+  //     else
+  //     {
+  //       Console.WriteLine("Access token");
+  //       Console.WriteLine("URL: " + path);
+  //       Console.WriteLine("Token: No access token provided\r\n");
+  //     }
+  //     return Task.CompletedTask;
+  //   }
+  // };
 });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -55,7 +78,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
@@ -89,12 +111,6 @@ builder.Services.AddScoped<IUserService, UserService>();
 var app = builder.Build();
 
 app.UseSession();
-
-// var port = "4300";// Environment.GetEnvironmentVariable("PORT");
-// if (!string.IsNullOrWhiteSpace(port))
-// {
-//   app.Urls.Add("http://*:" + port);
-// }
 
 using (var scope = app.Services.CreateScope())
 {

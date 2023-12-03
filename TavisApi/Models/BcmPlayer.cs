@@ -6,7 +6,6 @@ public class BcmPlayer
   public long UserId { get; set; }
   public User? User { get; set; }
   public int TrueAchievementId { get; set; } = 0;
-  public DateTime? Registration { get; set; }
   public DateTime? LastSync { get; set; }
   public ICollection<BcmPlayerGame>? BcmPlayerGames { get; set; }
   public ICollection<BcmPlayerCompletionHistory>? BcmPlayerCompletionHistories { get; set; }

@@ -323,8 +323,8 @@ public class BcmController : ControllerBase
     return Ok();
   }
 
-  [HttpPost]
-  [Route("registerUser")]
+  [Authorize(Roles = "Guest")]
+  [HttpPost, Route("registerUser")]
   public async Task<IActionResult> RegisterUser()
   {
     User? user = _userService.GetCurrentUser();
@@ -332,12 +332,11 @@ public class BcmController : ControllerBase
 
     var bcmReg = _context.Registrations.Find(_bcmService.GetRegistrationId()) ?? throw new Exception("Unable to get Registration ID for BCM");
 
-    user.UserRegistrations.Add(new UserRegistration { Registration = bcmReg });
+    user.UserRegistrations.Add(new UserRegistration { Registration = bcmReg, RegistrationDate = DateTime.UtcNow });
 
     _context.BcmPlayers.Add(new BcmPlayer
     {
       UserId = user.Id,
-      Registration = DateTime.UtcNow
     });
 
     _context.SaveChanges();
@@ -345,13 +344,22 @@ public class BcmController : ControllerBase
     try
     {
       await _discordService.AddBcmParticipantRole(user);
-      var registrationDate = _context.BcmPlayers.First(x => x.UserId == user.Id).Registration;
-      return Ok(registrationDate);
+      var userInfo = _context.Users.Include(x => x.UserRegistrations)
+                                .FirstOrDefault(x => x.UserRegistrations.Any(x => x.User == user && x.Registration.Name == "Better Completions Matter"));
+
+      return Ok(new { RegDate = userInfo?.UserRegistrations.FirstOrDefault()?.RegistrationDate });
     }
     catch
     {
       return BadRequest("Something went wrong trying to register for BCM");
     }
+  }
+
+  [Authorize(Roles = "Participant")]
+  [HttpPost, Route("unregisterUser")]
+  public async Task<IActionResult> UnregisterUser()
+  {
+    throw new NotImplementedException();
   }
 
   private void WriteRgscExcelFile(List<RgscResult> rgscResults)
