@@ -15,8 +15,8 @@ public class TokenService : ITokenService
   {
     var serverConfigs = config.GetSection("ServerConfigs");
 
-    _apiServer = serverConfigs["IssuerServer"];
-    _clientServer = serverConfigs["AudienceServer"];
+    _apiServer = serverConfigs["IssuerServer"] ?? throw new Exception("No IssuerServer defined");
+    _clientServer = serverConfigs["AudienceServer"] ?? throw new Exception("No AudienceServer defined");
   }
 
   public string GenerateAccessToken(IEnumerable<Claim> claims)
@@ -28,14 +28,14 @@ public class TokenService : ITokenService
     var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(encryptionKey));
     var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-    var tokeOptions = new JwtSecurityToken(
+    var tokenOptions = new JwtSecurityToken(
       issuer: _apiServer,
       audience: _clientServer,
       claims: claims,
-      expires: DateTime.Now.AddMinutes(10000),
+      expires: DateTime.Now.AddMinutes(10000), // TODO: 1 week, let's fix the token refresh at some point to lower this
       signingCredentials: signinCredentials
     );
-    var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+    var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     return tokenString;
   }
 
