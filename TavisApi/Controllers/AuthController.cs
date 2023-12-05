@@ -106,63 +106,71 @@ public class AuthController : ControllerBase
   [HttpPost, Route("integrate-discord")]
   public async Task<IActionResult> IntegrateDiscord([FromBody] DiscordConnect dConnect)
   {
-    if (dConnect is null || dConnect.AccessToken is null || dConnect.TokenType is null) return BadRequest("Invalid client request");
-
-    var currentUsername = _userService.GetCurrentUserName();
-    var user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == currentUsername);
-
-    if (user is null) return BadRequest("No gamertag matches current user");
-
-    var discordProfile = await _discordService.Connect(dConnect, user);
-
-    var newLogin = _context.DiscordLogins.FirstOrDefault(x => x.DiscordId == discordProfile.Id);
-
-    if (newLogin is null)
+    try
     {
-      _context.DiscordLogins.Add(new DiscordLogin
+      if (dConnect is null || dConnect.AccessToken is null || dConnect.TokenType is null) return BadRequest("Invalid client request");
+
+      var currentUsername = _userService.GetCurrentUserName();
+      var user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == currentUsername);
+
+      if (user is null) return BadRequest("No gamertag matches current user");
+
+      var discordProfile = await _discordService.Connect(dConnect, user);
+
+      var newLogin = _context.DiscordLogins.FirstOrDefault(x => x.DiscordId == discordProfile.Id);
+
+      if (newLogin is null)
       {
-        DiscordId = discordProfile.Id,
-        UserId = user.Id,
-        TokenType = dConnect.TokenType,
-        AccessToken = dConnect.AccessToken,
-      });
-    }
-    else
-    {
-      newLogin.AccessToken = dConnect.AccessToken;
-      newLogin.TokenType = dConnect.TokenType;
-    }
+        _context.DiscordLogins.Add(new DiscordLogin
+        {
+          DiscordId = discordProfile.Id,
+          UserId = user.Id,
+          TokenType = dConnect.TokenType,
+          AccessToken = dConnect.AccessToken,
+        });
+      }
+      else
+      {
+        newLogin.AccessToken = dConnect.AccessToken;
+        newLogin.TokenType = dConnect.TokenType;
+      }
 
-    await _context.SaveChangesAsync();
+      await _context.SaveChangesAsync();
 
-    var claims = new List<Claim>
+      var claims = new List<Claim>
       {
           new Claim(ClaimTypes.Name, user.Gamertag!),
       };
 
-    var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
+      var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
 
-    foreach (var role in userRolesWithDetails)
+      foreach (var role in userRolesWithDetails)
+      {
+        claims.Add(new Claim(ClaimTypes.Role, role.Roles.RoleName));
+      }
+
+      var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
+
+      if (login is null) return BadRequest("No login found for provided user");
+
+      var accessToken = _tokenService.GenerateAccessToken(claims);
+      var refreshToken = _tokenService.GenerateRefreshToken();
+      login.RefreshToken = refreshToken;
+      login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+      await _context.SaveChangesAsync();
+
+      return Ok(new AuthenticatedResponse
+      {
+        Token = accessToken,
+        RefreshToken = refreshToken,
+        Roles = userRolesWithDetails.Select(x => x.Roles.RoleName).ToList()
+      });
+    }
+    catch (Exception ex)
     {
-      claims.Add(new Claim(ClaimTypes.Role, role.Roles.RoleName));
+      return BadRequest(ex.Message);
     }
 
-    var login = _context.Logins.FirstOrDefault(x => x.UserId == user.Id);
-
-    if (login is null) return BadRequest("No login found for provided user");
-
-    var accessToken = _tokenService.GenerateAccessToken(claims);
-    var refreshToken = _tokenService.GenerateRefreshToken();
-    login.RefreshToken = refreshToken;
-    login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-
-    await _context.SaveChangesAsync();
-
-    return Ok(new AuthenticatedResponse
-    {
-      Token = accessToken,
-      RefreshToken = refreshToken,
-      Roles = userRolesWithDetails.Select(x => x.Roles.RoleName).ToList()
-    });
   }
 }
