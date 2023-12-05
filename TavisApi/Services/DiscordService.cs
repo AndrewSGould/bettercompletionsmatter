@@ -24,6 +24,8 @@ public class DiscordService : IDiscordService
     RestGuild? guild;
     RestGuildUser? member;
 
+    return await Task.FromException<RestSelfUser>(new Exception("Auth Token: " + discordAuth.AccessToken + " -- Token Type: " + discordAuth.TokenType));
+
     if (user == null)
     {
       // Create an exception or use an existing one
