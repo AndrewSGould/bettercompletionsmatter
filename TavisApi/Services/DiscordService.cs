@@ -71,7 +71,15 @@ public class DiscordService : IDiscordService
 
       // TODO: if they don't have BCMX server aka guildSummary is null, join it for them
 
-      member = await guildSummary!.GetCurrentUserGuildMemberAsync();
+      try
+      {
+        member = await guildSummary!.GetCurrentUserGuildMemberAsync();
+      }
+      catch (Exception ex)
+      {
+        var guildNames = guilds.Select(x => x.Name).ToList();
+        return await Task.FromException<RestSelfUser>(new Exception(string.Join(", ", guildNames) + " -- " + guildSummary?.Name));
+      }
 
       guild = await bot.GetGuildAsync(guildSummary.Id);
     }
