@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using DocumentFormat.OpenXml.Office2016.Excel;
 using Tavis.Models;
 
 namespace TavisApi.ContestRules;
@@ -22,10 +21,10 @@ public class BcmRule
 
   public static readonly List<List<GenreList>> OddJobs = new List<List<GenreList>>
   {
-    new List<GenreList> { GenreList.Collection },
-    new List<GenreList> { GenreList.DungeonCrawler },
-    new List<GenreList> { GenreList.Management },
-    new List<GenreList> { GenreList.Motocross },
-    new List<GenreList> { GenreList.RunAndGun },
+    new List<GenreList> { GenreList.ArcadeRacing },
+    new List<GenreList> { GenreList.CardAndBoard },
+    new List<GenreList> { GenreList.OnRails },
+    new List<GenreList> { GenreList.RealTime },
+    new List<GenreList> { GenreList.Stealth },
   };
 }

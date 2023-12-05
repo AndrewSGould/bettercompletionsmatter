@@ -143,13 +143,11 @@ public class BcmController : ControllerBase
 
     if (localuser is null) return BadRequest("No gamertag found with provided player");
 
-    var playerId = localuser.Id;
-
-    var bcmPlayer = _context.BcmPlayers.First(x => x.Id == playerId);
+    var bcmPlayer = _context.BcmPlayers.First(x => x.UserId == localuser.Id);
 
     if (bcmPlayer == null) return BadRequest("Player not found");
 
-    var bcmPlayerSummary = new Object();
+    var bcmPlayerSummary = new object();
 
     var playersGames = _context.BcmPlayerGames
                         .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
@@ -170,7 +168,7 @@ public class BcmController : ControllerBase
     {
       Player = bcmPlayer,
       Games = playersGames,
-      Ranking = _context.BcmStats.First(x => x.PlayerId == playerId),
+      Ranking = _context.BcmStats.First(x => x.PlayerId == bcmPlayer.Id),
       Score = playersGames.Sum(x => x.Points)
     };
 
@@ -185,12 +183,12 @@ public class BcmController : ControllerBase
 
     if (localuser is null) return BadRequest("Player not found with provided gamertag");
 
-    var playerId = localuser.Id;
+    var bcmPlayer = _context.BcmPlayers.First(x => x.UserId == localuser.Id);
 
     return await Task.FromResult(Ok(new
     {
-      completionLetters = _bcmService.GetAlphabetChallengeProgress(playerId),
-      OddJobCompletions = _bcmService.GetOddJobChallengeProgress(playerId),
+      completionLetters = _bcmService.GetAlphabetChallengeProgress(bcmPlayer.Id),
+      OddJobCompletions = _bcmService.GetOddJobChallengeProgress(bcmPlayer.Id),
       YearlyCompletions = 0
     }));
   }
