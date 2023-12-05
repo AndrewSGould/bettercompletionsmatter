@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Discord;
 using Discord.Rest;
 using dotenv.net;
@@ -17,6 +18,12 @@ public class DiscordService : IDiscordService
 
   public async Task<RestSelfUser> Connect(DiscordConnect discordAuth, User user)
   {
+    string? token;
+    DiscordRestClient? bot;
+    DiscordRestClient? client;
+    RestGuild? guild;
+    RestGuildUser? member;
+
     if (user == null)
     {
       // Create an exception or use an existing one
@@ -26,71 +33,127 @@ public class DiscordService : IDiscordService
       return await Task.FromException<RestSelfUser>(exception);
     }
 
-    var envVars = DotEnv.Read();
-    var token = envVars.TryGetValue("DISCORD_BOT_TOKEN", out var key) ? key : null;
-    if (token is null || token == "") token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
-
-    using var bot = new DiscordRestClient();
-    await bot.LoginAsync(TokenType.Bot, token);
-
-    using var client = new DiscordRestClient();
-    await client.LoginAsync(TokenType.Bearer, discordAuth.AccessToken);
-
-    var guilds = await client.GetGuildSummariesAsync().FlattenAsync();
-    var guildSummary = guilds.FirstOrDefault(x => x.Name.Contains("BCMX"));
-
-    // TODO: if they don't have BCMX server aka guildSummary is null, join it for them
-
-    var member = await guildSummary!.GetCurrentUserGuildMemberAsync();
-
-    var guild = await bot.GetGuildAsync(guildSummary.Id);
-
-    // find any new roles and add them to the DB
-    var newRoles = guild.Roles
-                    .Where(role => !_context.Roles.Any(userRole => userRole.DiscordId == role.Id))
-                    .Select(role => new { role.Id, role.Name });
-
-    foreach (var role in newRoles)
+    try
     {
-      _context.Roles.Add(new Role
+      var envVars = DotEnv.Read();
+      token = envVars.TryGetValue("DISCORD_BOT_TOKEN", out var key) ? key : null;
+      if (token is null || token == "") token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to get the Discord Bot Token" + ex.Message));
+    }
+
+    try
+    {
+      bot = new DiscordRestClient();
+      await bot.LoginAsync(TokenType.Bot, token);
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to login the Discord Bot" + ex.Message));
+    }
+
+    try
+    {
+      client = new DiscordRestClient();
+      await client.LoginAsync(TokenType.Bearer, discordAuth.AccessToken);
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to login the Discord User" + ex.Message));
+    }
+
+    try
+    {
+      var guilds = await client.GetGuildSummariesAsync().FlattenAsync();
+      var guildSummary = guilds.FirstOrDefault(x => x.Name.Contains("BCMX"));
+
+      // TODO: if they don't have BCMX server aka guildSummary is null, join it for them
+
+      member = await guildSummary!.GetCurrentUserGuildMemberAsync();
+
+      guild = await bot.GetGuildAsync(guildSummary.Id);
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to get the BCMX guild" + ex.Message));
+    }
+
+    try
+    {
+      // find any new roles and add them to the DB
+      var newRoles = guild.Roles
+                      .Where(role => !_context.Roles.Any(userRole => userRole.DiscordId == role.Id))
+                      .Select(role => new { role.Id, role.Name });
+
+      foreach (var role in newRoles)
       {
-        DiscordId = role.Id,
-        RoleName = role.Name
-      });
+        _context.Roles.Add(new Role
+        {
+          DiscordId = role.Id,
+          RoleName = role.Name
+        });
+      }
+
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to collect Discord roles" + ex.Message));
     }
 
-    await _context.SaveChangesAsync();
-
-    // find any potentially updated roles and update them
-    var updatedRoles = guild.Roles
-        .Where(role => _context.Roles.Any(userRole => userRole.DiscordId == role.Id))
-        .Select(role => new { role.Id, role.Name });
-
-    var dbRoles = _context.Roles;
-
-    foreach (var updatedRole in updatedRoles)
+    try
     {
-      var dbRole = dbRoles.FirstOrDefault(role => role.DiscordId == updatedRole.Id);
+      // find any potentially updated roles and update them
+      var updatedRoles = guild.Roles
+          .Where(role => _context.Roles.Any(userRole => userRole.DiscordId == role.Id))
+          .Select(role => new { role.Id, role.Name });
 
-      if (dbRole != null && dbRole.RoleName != updatedRole.Name)
-        dbRole.RoleName = updatedRole.Name;
-    }
+      var dbRoles = _context.Roles;
 
-    // delete the users roles and rehydrate
-    user.UserRoles.Clear();
-    foreach (var roleId in member.RoleIds)
-    {
-      var dbRole = _context.Roles.First(x => x.DiscordId == roleId);
-
-      user.UserRoles.Add(new UserRole
+      foreach (var updatedRole in updatedRoles)
       {
-        Role = dbRole
-      });
+        var dbRole = dbRoles.FirstOrDefault(role => role.DiscordId == updatedRole.Id);
+
+        if (dbRole != null && dbRole.RoleName != updatedRole.Name)
+          dbRole.RoleName = updatedRole.Name;
+      }
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to update Tavis' list of Discord roles" + ex.Message));
     }
 
-    await _context.SaveChangesAsync();
+    try
+    {
+      // delete the users roles and rehydrate
+      user.UserRoles.Clear();
+      foreach (var roleId in member.RoleIds)
+      {
+        var dbRole = _context.Roles.First(x => x.DiscordId == roleId);
 
-    return client.CurrentUser;
+        user.UserRoles.Add(new UserRole
+        {
+          Role = dbRole
+        });
+      }
+
+      await _context.SaveChangesAsync();
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Unable to update Tavis' list of Discord roles" + ex.Message));
+    }
+
+    try
+    {
+      return client.CurrentUser;
+    }
+    catch (Exception ex)
+    {
+      return await Task.FromException<RestSelfUser>(new Exception("Failure getting Discord Current User" + ex.Message));
+    }
   }
 
   public async Task AddBcmParticipantRole(User user)
