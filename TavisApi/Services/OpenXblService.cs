@@ -40,20 +40,16 @@ public class OpenXblService : IOpenXblService
     return oxblSignin;
   }
 
-  public async Task<HttpResponseMessage> Get(string oxblPassword, string endpoint, string values)
+  public async Task<HttpResponseMessage> Get(string? oxblPassword, string endpoint, string values)
   {
+    if (oxblPassword is null) throw new Exception("No oxblPassword provided");
+
     string url = $"https://xbl.io/api/v2/{endpoint}/{values}";
 
     using (HttpClient client = new())
     {
       client.DefaultRequestHeaders.Add("X-Contract", "100");
       client.DefaultRequestHeaders.Add("X-Authorization", oxblPassword);
-
-      var requestData = new
-      {
-        code = oxblPassword,
-        app_key = "eb9ab783-e41f-d428-0319-fb2d4d4a0d71" // TODO: store this elsewhere
-      };
 
       return await client.GetAsync(url);
     }

@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using TavisApi.Context;
 using System.Linq;
 using TavisApi.Services;
-using Discord.Rest;
-using Discord;
 using Newtonsoft.Json;
 using Tavis.Models;
 
@@ -24,26 +22,28 @@ public class OpenXblController : ControllerBase
   }
 
   [HttpGet, Route("user")]
-  public async Task<IActionResult> GetXboxUser()
+  public async Task<IActionResult> GetXboxUser(string gamertag)
   {
     var currentUsername = _userService.GetCurrentUserName();
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == currentUsername);
+
+    if (localuser is null) return BadRequest("No user found with supplied Gamertag");
+
     var xboxLogin = _context.Logins.FirstOrDefault(x => x.UserId == localuser.Id);
     XblProfiles oxblProfiles = new();
 
-    var response = await _openXblService.Get(xboxLogin.Password, "account", "2533274853753141");
+    if (xboxLogin is null) return BadRequest("No xbox profile associated with user");
 
-    if (response.IsSuccessStatusCode)
-    {
-      string responseContent = await response.Content.ReadAsStringAsync();
-      oxblProfiles = JsonConvert.DeserializeObject<XblProfiles>(responseContent);
-      Console.WriteLine("Response Content: " + responseContent);
-    }
-    else
-    {
-      Console.WriteLine("Request failed with status code: " + response.StatusCode);
-    }
+    var targetXuid = _context.Users.FirstOrDefault(x => x.Gamertag == gamertag)?.Xuid;
 
-    return Ok(oxblProfiles.ProfileUsers[0]);
+    if (targetXuid is null) return BadRequest("No xbox profile associated with requested user");
+
+    var response = await _openXblService.Get(xboxLogin.Password, "account", targetXuid);
+
+
+    string responseContent = await response.Content.ReadAsStringAsync();
+    oxblProfiles = JsonConvert.DeserializeObject<XblProfiles>(responseContent);
+
+    return Ok(oxblProfiles?.ProfileUsers[0]);
   }
 }
