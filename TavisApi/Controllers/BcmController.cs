@@ -49,14 +49,18 @@ public class BcmController : ControllerBase
 
     foreach (var player in players)
     {
+      var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
+
+      if (bcmStats is null) break;
+
       leaderboard.Add(new Leaderboard
       {
         BcmPlayer = player,
-        BcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id)
+        BcmStats = bcmStats
       });
     }
 
-    return Ok(leaderboard.OrderBy(x => x.BcmStats.Rank));
+    return Ok(leaderboard.OrderBy(x => x.BcmStats?.Rank));
   }
 
   [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
