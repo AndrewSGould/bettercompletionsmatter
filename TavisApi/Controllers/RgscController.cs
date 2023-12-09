@@ -27,6 +27,9 @@ public class RgscController : ControllerBase
   public IActionResult RgscStats(string player)
   {
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+
+    if (localuser is null) return BadRequest("No user found with supplied gamertag");
+
     var playerId = localuser.Id;
 
     var rgsc = _context.BcmRgsc.Where(x => x.PlayerId == playerId)
