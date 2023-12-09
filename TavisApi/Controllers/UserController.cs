@@ -47,4 +47,29 @@ public class UserController : ControllerBase
 
     return Ok(new { registrations?.Name, Date = registrations?.UserRegistrations.FirstOrDefault()?.RegistrationDate });
   }
+
+  [Authorize(Roles = "Guest")]
+  [HttpPut, Route("updateLocation")]
+  public IActionResult UpdateLocation([FromBody] Location location)
+  {
+    var user = _userService.GetCurrentUser();
+    if (user is null) return BadRequest("User not found upon request");
+
+    user.Region = location.Country;
+    user.Area = location.State;
+
+    _context.SaveChanges();
+
+    return Ok();
+  }
+
+  [Authorize(Roles = "Guest")]
+  [HttpGet, Route("getLocation")]
+  public IActionResult GetLocation()
+  {
+    var user = _userService.GetCurrentUser();
+    if (user is null) return BadRequest("User not found upon request");
+
+    return Ok(new Location { Country = user?.Region, State = user?.Area });
+  }
 }
