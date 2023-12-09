@@ -43,24 +43,13 @@ public class BcmController : ControllerBase
   public IActionResult BcmLeaderboardList()
   {
     var players = _bcmService.GetPlayers();
-    var leaderboard = new List<Leaderboard>();
-
-    if (players.Count() == 0) return BadRequest("No players found!");
 
     foreach (var player in players)
     {
       var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
-
-      if (bcmStats is null) break;
-
-      leaderboard.Add(new Leaderboard
-      {
-        BcmPlayer = player,
-        BcmStats = bcmStats
-      });
     }
 
-    return Ok(leaderboard.OrderBy(x => x.BcmStats?.Rank));
+    return Ok(players.OrderBy(x => x.BcmStats?.Rank));
   }
 
   [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
