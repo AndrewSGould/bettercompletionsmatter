@@ -32,7 +32,7 @@ public class TokenController : ControllerBase
     var gamertag = principal.Identity.Name; //this is mapped to the Name claim by default
     var user = _context.Logins.SingleOrDefault(u => u.User.Gamertag == gamertag);
 
-    if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+    if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
       return BadRequest("Invalid client request");
 
     var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);

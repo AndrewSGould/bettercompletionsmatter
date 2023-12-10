@@ -96,7 +96,7 @@ public class DataSyncController : ControllerBase
     };
 
     // TODO: move this to private method and unit test
-    var now = DateTime.Now;
+    var now = DateTime.UtcNow;
     var firstDayCurrentMonth = new DateTime(now.Year, now.Month, 1);
     var lastDayLastMonth = firstDayCurrentMonth.AddMonths(-1).AddDays(-1);
 
@@ -127,7 +127,7 @@ public class DataSyncController : ControllerBase
   {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
-    Console.WriteLine($"Beginning game sync with at {DateTime.Now}");
+    Console.WriteLine($"Beginning game sync with at {DateTime.UtcNow}");
     //accept a list of game ids to update
     //loop over the game ids and get the URL from DB
     //parse out the game information
@@ -143,7 +143,7 @@ public class DataSyncController : ControllerBase
     }
 
     _dataSync.ParseGamePages(gamepagesToSync);
-    Console.WriteLine($"Games have been sync'd, finished at {DateTime.Now}");
+    Console.WriteLine($"Games have been sync'd, finished at {DateTime.UtcNow}");
     stopWatch.Stop();
 
     TimeSpan ts = stopWatch.Elapsed;

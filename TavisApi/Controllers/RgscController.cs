@@ -32,13 +32,13 @@ public class RgscController : ControllerBase
 
     var playerId = localuser.Id;
 
-    var rgsc = _context.BcmRgsc.Where(x => x.PlayerId == playerId)
+    var rgsc = _context.BcmRgsc.Where(x => x.BcmPlayerId == playerId)
                                 .OrderByDescending(x => x.Issued)
                                 .ToList();
 
     var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
                                                       && x.CompletionDate != null
-                                                      && x.CompletionDate.Value.Year == DateTime.Now.Year);
+                                                      && x.CompletionDate.Value.Year == DateTime.UtcNow.Year);
 
     var rgscList = rgsc.Join(_context.Games, rgsc => rgsc.GameId,
                                 g => g.Id, (rgsc, g) => new { Rgsc = rgsc, Game = g });

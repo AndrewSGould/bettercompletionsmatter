@@ -39,6 +39,7 @@ namespace TavisApi.Context
     {
       var connectionString = Configuration.GetConnectionString("DefaultConnection");
       optionsBuilder.UseNpgsql(connectionString);
+      optionsBuilder.LogTo(Console.WriteLine);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,6 +57,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new BcmStatConfiguration());
       modelBuilder.ApplyConfiguration(new UserRegistrationConfiguration());
       modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
+      modelBuilder.ApplyConfiguration(new BcmRgscConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

@@ -40,11 +40,11 @@ public class DataSync : IDataSync
 
       var parsedPlayer = ParseTa(player.Id, syncOptions);
       results.Add(parsedPlayer);
-      player.LastSync = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+      player.LastSync = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
 
       var parseEnd = DateTime.UtcNow;
 
-      Console.WriteLine($"{gamertag} has been parsed at {DateTime.Now}");
+      Console.WriteLine($"{gamertag} has been parsed at {DateTime.UtcNow}");
     }
 
     _context.SaveChanges();
@@ -432,7 +432,7 @@ public class DataSync : IDataSync
     var parseList = _context.Games!.Where(x => !fls.Contains(x.Id)).Select(x => x.Id);
 
     var gamesToUpdate = _context.Games!.Where(x => parseList.Contains(x.Id)).ToList();
-    Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.Now}");
+    Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.UtcNow}");
 
     var i = 0;
     foreach (var game in gamesToUpdate)

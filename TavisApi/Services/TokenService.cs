@@ -32,7 +32,7 @@ public class TokenService : ITokenService
       issuer: _apiServer,
       audience: _clientServer,
       claims: claims,
-      expires: DateTime.Now.AddMinutes(10000), // TODO: 1 week, let's fix the token refresh at some point to lower this
+      expires: DateTime.UtcNow.AddMinutes(10000), // TODO: 1 week, let's fix the token refresh at some point to lower this
       signingCredentials: signinCredentials
     );
     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);

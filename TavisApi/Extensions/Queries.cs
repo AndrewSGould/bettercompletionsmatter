@@ -5,15 +5,20 @@ namespace Tavis.Extensions;
 
 public static class Queries
 {
-  public static bool FilterGamesForYearlies(Game game)
+  public static bool FilterGamesForYearlies(Game game, BcmPlayerGame pGame)
   {
-    return game.SiteRatio > BcmRule.MinimumRatio
-              && (game.FullCompletionEstimate > BcmRule.YearlyMinEstimate || game.FullCompletionEstimate == null)
-              || game.FullCompletionEstimate >= 20;
+    if (pGame.Platform == Platform.Xbox360.Value)
+      return ((game.SiteRatio + 0.5) >= BcmRule.MinimumRatio
+              && game.FullCompletionEstimate > BcmRule.YearlyMinEstimate)
+              || game.FullCompletionEstimate >= 15;
+    else
+      return (game.SiteRatio >= BcmRule.MinimumRatio
+              && game.FullCompletionEstimate > BcmRule.YearlyMinEstimate)
+              || game.FullCompletionEstimate >= 15;
   }
 
   public static bool FilterCompletedPlayerGames(BcmPlayerGame playerGame)
   {
-    return playerGame.CompletionDate != null && playerGame.CompletionDate.Value.Year == DateTime.Now.Year;
+    return playerGame.CompletionDate != null && playerGame.CompletionDate.Value.Year == DateTime.UtcNow.Year;
   }
 }

@@ -27,9 +27,17 @@ public class BcmService : IBcmService
     return _context.Registrations.Where(x => x.Id == _bcmContestId).Select(x => x.StartDate).FirstOrDefault();
   }
 
-  public int? CalcBcmValue(double? ratio, double? estimate)
+  public int? CalcBcmValue(int platformId, double? ratio, double? estimate)
   {
+    var is360 = platformId == Platform.Xbox360.Value;
+
+    ratio = is360 ? ratio + 0.5 : ratio;
+    ratio = ratio ?? 0;
+
     var rawPoints = Math.Pow((double)ratio, 1.5) * estimate;
+
+    rawPoints = is360 ? rawPoints * 1.5 : rawPoints;
+
     return rawPoints >= 1500 ? 1500 : Convert.ToInt32(rawPoints);
   }
 
@@ -37,7 +45,7 @@ public class BcmService : IBcmService
   {
     var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
                                                       && x.CompletionDate != null
-                                                      && x.CompletionDate.Value.Year == DateTime.Now.Year);
+                                                      && x.CompletionDate.Value.Year == DateTime.UtcNow.Year);
 
     var completionCharacters = playersCompletedGames.Select(x => x.Game.Title.Substring(0, 1)).AsEnumerable();
     return completionCharacters.Where(x => char.IsLetter(x[0])).Distinct().OrderBy(x => x).ToList();
@@ -50,7 +58,7 @@ public class BcmService : IBcmService
                             .AsEnumerable() // TODO: rewrite so this stays as a query?
                             .Where(x => x.pcg.PlayerId == playerId
                                       && Queries.FilterCompletedPlayerGames(x.pcg)
-                                      && Queries.FilterGamesForYearlies(x.pcg.Game))
+                                      && Queries.FilterGamesForYearlies(x.pcg.Game, x.pcg))
                             .ToList();
 
     var completedJobs = new List<Game>();
