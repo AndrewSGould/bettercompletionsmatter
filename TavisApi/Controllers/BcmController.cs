@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Tavis.Extensions;
 using System.Diagnostics;
+using System.Collections.Immutable;
 
 [ApiController]
 [Route("[controller]")]
@@ -128,6 +129,13 @@ public class BcmController : ControllerBase
     return Ok();
   }
 
+  [HttpGet, Authorize(Roles = "Guest")]
+  [Route("getPlayerList")]
+  public IActionResult GetPlayerList()
+  {
+    return Ok(_bcmService.GetPlayers().Select(x => x.User!.Gamertag).ToList());
+  }
+
   [HttpGet]
   [Route("getBcmPlayer")]
   public IActionResult BcmPlayer(string player)
@@ -186,17 +194,25 @@ public class BcmController : ControllerBase
     }));
   }
 
+  public class RandomRoll
+  {
+    public string? selectedPlayer { get; set; }
+    public int? selectedGameId { get; set; }
+  }
+
   [HttpPost, Authorize(Roles = "Admin")]
   [Route("rollRandom")]
-  public IActionResult RollRandomGame(string? gamertag)
+  public IActionResult RollRandomGame([FromBody] RandomRoll roll)
   {
     var players = _context.BcmPlayers.Include(u => u.User).Include(x => x.BcmRgscs).ToList();
-    var currentBcmPlayer = players.FirstOrDefault(x => x.User!.Gamertag == gamertag);
+    var currentBcmPlayer = players.FirstOrDefault(x => x.User!.Gamertag == roll.selectedPlayer);
 
     if (currentBcmPlayer is null)
     {
-      players = players.Where(x => x.BcmRgscs!.Count() == 0 ||
-        x.BcmRgscs!.Any(x => x.Issued <= DateTime.UtcNow.AddHours(-4))).ToList();
+      players = players.Where(x => x.BcmRgscs == null || x.BcmRgscs.Count() == 0 || x.BcmRgscs
+                        .OrderByDescending(x => x.Issued)
+                        .First().Issued <= DateTime.UtcNow.AddHours(-4))
+                        .ToList();
 
       if (players.Count() < 1) return BadRequest("no users left to random");
 
@@ -223,7 +239,26 @@ public class BcmController : ControllerBase
 
     var currentRandoms = _context.BcmRgsc.Where(x => !x.Rerolled && x.BcmPlayerId == currentBcmPlayer.Id);
 
-    randomGameOptions?.Select(x => !currentRandoms.Any(y => y.GameId == x.Games.Id));
+    randomGameOptions = randomGameOptions?
+      .Where(x => !currentRandoms.Any(y => y.GameId == x.Games.Id))
+      .ToList();
+
+    // if we get a game, they are rerolling an old game
+    var rolledRandom = currentRandoms.FirstOrDefault(x => x.GameId == roll.selectedGameId);
+
+    if (rolledRandom is not null)
+    {
+      rolledRandom.Rerolled = true;
+      rolledRandom.RerollDate = DateTime.UtcNow;
+    }
+
+    var currentChallenge = currentRandoms.OrderByDescending(x => x.Challenge).Select(x => x.Challenge).FirstOrDefault();
+    var nextChallenge = 1;
+
+    if (currentChallenge.HasValue)
+    {
+      nextChallenge = currentChallenge.Value + 1;
+    }
 
     if (randomGameOptions is null || randomGameOptions?.Count() <= 50)
     {
@@ -231,7 +266,9 @@ public class BcmController : ControllerBase
       {
         Issued = DateTime.UtcNow,
         GameId = null,
-        BcmPlayerId = currentBcmPlayer.Id
+        BcmPlayerId = currentBcmPlayer.Id,
+        PreviousGameId = rolledRandom is not null ? rolledRandom.GameId : null,
+        Challenge = rolledRandom is not null ? rolledRandom.Challenge : nextChallenge
       });
 
       _context.SaveChanges();
@@ -248,6 +285,8 @@ public class BcmController : ControllerBase
       var randomToUpdate = currentRandoms.First();
       randomToUpdate.Issued = DateTime.UtcNow;
       randomToUpdate.GameId = currentRandom.Games.Id;
+      randomToUpdate.Challenge = rolledRandom is not null ? rolledRandom.Challenge : nextChallenge;
+      randomToUpdate.PreviousGameId = rolledRandom is not null ? rolledRandom.GameId : null;
     }
     else
     {
@@ -255,7 +294,9 @@ public class BcmController : ControllerBase
       {
         Issued = DateTime.UtcNow,
         GameId = currentRandom.Games.Id,
-        BcmPlayerId = currentBcmPlayer.Id
+        BcmPlayerId = currentBcmPlayer.Id,
+        Challenge = rolledRandom is not null ? rolledRandom.Challenge : nextChallenge,
+        PreviousGameId = rolledRandom is not null ? rolledRandom.GameId : null
       });
     }
 
