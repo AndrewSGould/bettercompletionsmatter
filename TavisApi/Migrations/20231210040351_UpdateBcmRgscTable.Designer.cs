@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20231210040351_UpdateBcmRgscTable")]
+    partial class UpdateBcmRgscTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,11 +150,8 @@ namespace TavisApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("BcmPlayerId")
+                    b.Property<long?>("BcmPlayerId")
                         .HasColumnType("bigint");
-
-                    b.Property<int?>("Challenge")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("GameId")
                         .HasColumnType("integer");
@@ -159,8 +159,8 @@ namespace TavisApi.Migrations
                     b.Property<DateTime?>("Issued")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("PreviousGameId")
-                        .HasColumnType("integer");
+                    b.Property<long>("PlayerId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("RerollDate")
                         .HasColumnType("timestamp with time zone");
@@ -1098,13 +1098,9 @@ namespace TavisApi.Migrations
 
             modelBuilder.Entity("Tavis.Models.BcmRgsc", b =>
                 {
-                    b.HasOne("Tavis.Models.BcmPlayer", "BcmPlayer")
-                        .WithMany("BcmRgscs")
-                        .HasForeignKey("BcmPlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BcmPlayer");
+                    b.HasOne("Tavis.Models.BcmPlayer", null)
+                        .WithMany("BcmRgsc")
+                        .HasForeignKey("BcmPlayerId");
                 });
 
             modelBuilder.Entity("Tavis.Models.BcmStat", b =>
@@ -1212,7 +1208,7 @@ namespace TavisApi.Migrations
 
                     b.Navigation("BcmPlayerGames");
 
-                    b.Navigation("BcmRgscs");
+                    b.Navigation("BcmRgsc");
 
                     b.Navigation("BcmStats");
                 });

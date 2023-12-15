@@ -89,7 +89,7 @@ public class AuthController : ControllerBase
 
     var refreshToken = _tokenService.GenerateRefreshToken();
     user.Login!.RefreshToken = refreshToken;
-    user.Login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+    user.Login.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
     await _context.SaveChangesAsync();
 
@@ -197,7 +197,7 @@ public class AuthController : ControllerBase
         accessToken = _tokenService.GenerateAccessToken(claims);
         refreshToken = _tokenService.GenerateRefreshToken();
         login.RefreshToken = refreshToken;
-        login.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+        login.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
         await _context.SaveChangesAsync();
       }

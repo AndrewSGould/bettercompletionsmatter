@@ -5,6 +5,7 @@ using System.Linq;
 using TavisApi.Services;
 using Discord.Rest;
 using Discord;
+using Discord.Net;
 
 [Route("[controller]")]
 [ApiController]
@@ -33,6 +34,7 @@ public class DiscordController : ControllerBase
     if (discordLogin is null) return NoContent();
 
     using var client = new DiscordRestClient();
+
     await client.LoginAsync(TokenType.Bearer, discordLogin.AccessToken);
 
     var user = await client.GetCurrentUserAsync();

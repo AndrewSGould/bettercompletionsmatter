@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Tavis.Models;
 
 public class BcmPlayer
 {
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public long Id { get; set; }
   public long UserId { get; set; }
   public User? User { get; set; }
@@ -10,5 +15,5 @@ public class BcmPlayer
   public ICollection<BcmPlayerGame>? BcmPlayerGames { get; set; }
   public ICollection<BcmPlayerCompletionHistory>? BcmPlayerCompletionHistories { get; set; }
   public BcmStat? BcmStats { get; set; }
-  public ICollection<BcmRgsc>? BcmRgsc { get; set; }
+  public ICollection<BcmRgsc>? BcmRgscs { get; set; }
 }

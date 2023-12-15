@@ -10,7 +10,10 @@ public class BcmRgsc
     public long Id { get; set; }
     public DateTime? Issued { get; set; }
     public bool Rerolled { get; set; }
-
+    public DateTime? RerollDate { get; set; }
     public int? GameId { get; set; }
-    public long PlayerId { get; set; }
+    public int? PreviousGameId { get; set; }
+    public int? Challenge { get; set; }
+    public long BcmPlayerId { get; set; }
+    public BcmPlayer? BcmPlayer { get; set; }
 }

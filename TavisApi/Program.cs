@@ -112,6 +112,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IOpenXblService, OpenXblService>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRgscService, RgscService>();
 
 var app = builder.Build();
 

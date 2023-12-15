@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20231210044830_UpdateBcmRgscTable2")]
+    partial class UpdateBcmRgscTable2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,17 +153,14 @@ namespace TavisApi.Migrations
                     b.Property<long>("BcmPlayerId")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("Challenge")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("GameId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("Issued")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("PreviousGameId")
-                        .HasColumnType("integer");
+                    b.Property<long>("PlayerId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("RerollDate")
                         .HasColumnType("timestamp with time zone");
@@ -1099,7 +1099,7 @@ namespace TavisApi.Migrations
             modelBuilder.Entity("Tavis.Models.BcmRgsc", b =>
                 {
                     b.HasOne("Tavis.Models.BcmPlayer", "BcmPlayer")
-                        .WithMany("BcmRgscs")
+                        .WithMany("BcmRgsc")
                         .HasForeignKey("BcmPlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1212,7 +1212,7 @@ namespace TavisApi.Migrations
 
                     b.Navigation("BcmPlayerGames");
 
-                    b.Navigation("BcmRgscs");
+                    b.Navigation("BcmRgsc");
 
                     b.Navigation("BcmStats");
                 });
