@@ -5,6 +5,7 @@ namespace TavisApi.ContestRules;
 
 public class BcmRule
 {
+  public const int MaximumGameScore = 1500;
   public const double MinimumRatio = 1.5;
   public const int YearlyMinEstimate = 6;
   public const int RandomMaxEstimate = 200;

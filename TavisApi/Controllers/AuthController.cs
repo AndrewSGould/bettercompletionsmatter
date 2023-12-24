@@ -99,7 +99,7 @@ public class AuthController : ControllerBase
       RefreshToken = refreshToken,
       Gamertag = oxblProfile.Gamertag,
       Avatar = oxblProfile.Avatar,
-      Roles = userRolesWithDetails.Select(x => x.Roles.RoleName).ToList()
+      Roles = userRolesWithDetails.Select(x => x.Roles.RoleName).OrderBy(x => x).ToList()
     });
   }
 

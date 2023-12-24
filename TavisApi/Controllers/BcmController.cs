@@ -148,29 +148,27 @@ public class BcmController : ControllerBase
 
     if (bcmPlayer == null) return BadRequest("Player not found");
 
-    var bcmPlayerSummary = new object();
-
     var playersGames = _context.BcmPlayerGames
-                        .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
-                        .Where(x => x.PlayersGames.PlayerId == bcmPlayer.Id
-                          && x.PlayersGames.CompletionDate != null
-                          && x.PlayersGames.CompletionDate >= _bcmService.GetContestStartDate())
-                        .OrderByDescending(x => x.PlayersGames.CompletionDate)
-                        .Select(x => new BcmPlayerSummary
-                        {
-                          Title = x.Games.Title ?? "",
-                          Ratio = x.Games.SiteRatio,
-                          Estimate = x.Games.FullCompletionEstimate,
-                          CompletionDate = x.PlayersGames.CompletionDate,
-                          Points = _bcmService.CalcBcmValue(x.PlayersGames.Platform, x.Games.SiteRatio, x.Games.FullCompletionEstimate)
-                        }).ToList();
+                    .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
+                    .Where(x => x.PlayersGames.PlayerId == bcmPlayer.Id
+                      && x.PlayersGames.CompletionDate != null
+                      && x.PlayersGames.CompletionDate >= _bcmService.GetContestStartDate())
+                    .OrderByDescending(x => x.PlayersGames.CompletionDate)
+                    .Select(x => new BcmPlayerSummary
+                    {
+                      Title = x.Games.Title ?? "",
+                      Ratio = x.Games.SiteRatio,
+                      Estimate = x.Games.FullCompletionEstimate,
+                      CompletionDate = x.PlayersGames.CompletionDate,
+                      Points = _bcmService.CalcBcmValue(x.PlayersGames.Platform, x.Games.SiteRatio, x.Games.FullCompletionEstimate)
+                    }).ToList();
 
-    bcmPlayerSummary = new
+    var bcmPlayerSummary = new
     {
       Player = bcmPlayer,
       Games = playersGames,
-      Ranking = _context.BcmStats.First(x => x.PlayerId == bcmPlayer.Id),
-      Score = playersGames.Sum(x => x.Points)
+      Ranking = _context.BcmStats?.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id),
+      Score = playersGames?.Sum(x => x.Points)
     };
 
     return Ok(bcmPlayerSummary);

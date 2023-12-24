@@ -56,5 +56,7 @@ jobs:
               -e "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" \
               -e "ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" \
               -e "OXBL_APP_KEY=${{ secrets.OXBL_APP_KEY }}" \
+              -e "DISCORD_CLIENTID=${{ vars.DISCORD_CLIENTID }}" \
+              -e "DISCORD_OAUTH_SECRET=${{ secrets.DISCORD_OAUTH_SECRET }}" \
               --restart always --name tavisapi -d ghcr.io/andrewsgould/tavisapi:latest
           EOF
