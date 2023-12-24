@@ -349,31 +349,38 @@ public class BcmController : ControllerBase
   [HttpPost, Route("registerUser")]
   public async Task<IActionResult> RegisterUser()
   {
-    User? user = _userService.GetCurrentUser();
-    if (user is null) return BadRequest("Could not determine user");
-
-    var bcmReg = _context.Registrations.Find(_bcmService.GetRegistrationId()) ?? throw new Exception("Unable to get Registration ID for BCM");
-
-    user.UserRegistrations.Add(new UserRegistration { Registration = bcmReg, RegistrationDate = DateTime.UtcNow });
-
-    _context.BcmPlayers.Add(new BcmPlayer
-    {
-      UserId = user.Id,
-    });
-
-    _context.SaveChanges();
-
     try
     {
-      await _discordService.AddBcmParticipantRole(user);
-      var userInfo = _context.Users.Include(x => x.UserRegistrations)
-                                .FirstOrDefault(x => x.UserRegistrations.Any(x => x.User == user && x.Registration.Name == "Better Completions Matter"));
+      User? user = _userService.GetCurrentUser();
+      if (user is null) return BadRequest("Could not determine user");
 
-      return Ok(new { RegDate = userInfo?.UserRegistrations.FirstOrDefault()?.RegistrationDate });
+      var bcmReg = _context.Registrations.Find(_bcmService.GetRegistrationId()) ?? throw new Exception("Unable to get Registration ID for BCM");
+
+      user.UserRegistrations.Add(new UserRegistration { Registration = bcmReg, RegistrationDate = DateTime.UtcNow });
+
+      _context.BcmPlayers.Add(new BcmPlayer
+      {
+        UserId = user.Id,
+      });
+
+      _context.SaveChanges();
+
+      try
+      {
+        await _discordService.AddBcmParticipantRole(user);
+        var userInfo = _context.Users.Include(x => x.UserRegistrations)
+                                  .FirstOrDefault(x => x.UserRegistrations.Any(x => x.User == user && x.Registration.Name == "Better Completions Matter"));
+
+        return Ok(new { RegDate = userInfo?.UserRegistrations.FirstOrDefault()?.RegistrationDate });
+      }
+      catch
+      {
+        return BadRequest("Something went wrong trying to register for BCM");
+      }
     }
-    catch
+    catch (Exception ex)
     {
-      return BadRequest("Something went wrong trying to register for BCM");
+      return BadRequest(ex.Message);
     }
   }
 
