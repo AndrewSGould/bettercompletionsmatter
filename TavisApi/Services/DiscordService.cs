@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Discord;
 using Discord.Rest;
 using dotenv.net;
+using Microsoft.EntityFrameworkCore;
 using Tavis.Models;
 using TavisApi.Context;
 
@@ -135,18 +136,21 @@ public class DiscordService : IDiscordService
       return await Task.FromException<RestSelfUser>(new Exception("Unable to update Tavis' list of Discord roles" + ex.Message));
     }
 
+    var userWithRoles = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x == user);
+
     try
     {
-      // delete the users roles and rehydrate
-      user.UserRoles.Clear();
       foreach (var roleId in member.RoleIds)
       {
         var dbRole = _context.Roles.First(x => x.DiscordId == roleId);
 
-        user.UserRoles.Add(new UserRole
+        if (userWithRoles?.UserRoles.Find(x => x.RoleId == dbRole.Id) == null)
         {
-          Role = dbRole
-        });
+          userWithRoles?.UserRoles.Add(new UserRole
+          {
+            Role = dbRole
+          });
+        }
       }
 
       await _context.SaveChangesAsync();

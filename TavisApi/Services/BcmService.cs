@@ -32,13 +32,13 @@ public class BcmService : IBcmService
     var is360 = platformId == Platform.Xbox360.Value;
 
     ratio = is360 ? ratio + 0.5 : ratio;
-    ratio = ratio ?? 0;
+    ratio ??= 0;
 
     var rawPoints = Math.Pow((double)ratio, 1.5) * estimate;
 
     rawPoints = is360 ? rawPoints * 1.5 : rawPoints;
 
-    return rawPoints >= 1500 ? 1500 : Convert.ToInt32(rawPoints);
+    return rawPoints >= BcmRule.MaximumGameScore ? BcmRule.MaximumGameScore : Convert.ToInt32(rawPoints);
   }
 
   public List<string> GetAlphabetChallengeProgress(long playerId)
