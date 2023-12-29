@@ -156,6 +156,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRgscService, RgscService>();
 
 var app = builder.Build();
+// todo
 
 app.UseSession();
 
