@@ -209,7 +209,7 @@ public class BcmController : ControllerBase
     {
       players = players.Where(x => x.BcmRgscs == null || x.BcmRgscs.Count() == 0 || x.BcmRgscs
                         .OrderByDescending(x => x.Issued)
-                        .First().Issued <= DateTime.UtcNow.AddHours(-4))
+                        .First().Issued <= DateTime.UtcNow.AddHours(-24))
                         .ToList();
 
       if (players.Count() < 1) return BadRequest("no users left to random");
@@ -244,7 +244,7 @@ public class BcmController : ControllerBase
     // if we get a game, they are rerolling an old game
     var rolledRandom = currentRandoms.FirstOrDefault(x => x.GameId == roll.selectedGameId);
 
-    if (rolledRandom is not null)
+    if (rolledRandom?.GameId is not null)
     {
       rolledRandom.Rerolled = true;
       rolledRandom.RerollDate = DateTime.UtcNow;
@@ -258,7 +258,7 @@ public class BcmController : ControllerBase
       nextChallenge = currentChallenge.Value + 1;
     }
 
-    if (randomGameOptions is null || randomGameOptions?.Count() <= 50)
+    if (randomGameOptions is null || randomGameOptions?.Count() < 50)
     {
       _context.BcmRgsc.Add(new BcmRgsc
       {
@@ -283,8 +283,6 @@ public class BcmController : ControllerBase
       var randomToUpdate = currentRandoms.First();
       randomToUpdate.Issued = DateTime.UtcNow;
       randomToUpdate.GameId = currentRandom.Games.Id;
-      randomToUpdate.Challenge = rolledRandom is not null ? rolledRandom.Challenge : nextChallenge;
-      randomToUpdate.PreviousGameId = rolledRandom is not null ? rolledRandom.GameId : null;
     }
     else
     {

@@ -57,7 +57,7 @@ public class DataSyncController : ControllerBase
   public IActionResult Sync()
   {
     // var playersToScan = _bcmService.GetPlayers();
-    var playersToScan = _bcmService.GetPlayers().Where(x => x.User.Gamertag!.Contains("eohjay")).ToList();
+    var playersToScan = _bcmService.GetPlayers().Where(x => x.LastSync is null).ToList();
 
     if (playersToScan.Any(x => x.TrueAchievementId == 0)) return BadRequest("Cannot scan,missing TA ID's detected");
 

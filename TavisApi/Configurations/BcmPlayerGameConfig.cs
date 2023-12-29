@@ -27,5 +27,9 @@ public class BcmPlayerGameConfiguration : IEntityTypeConfiguration<BcmPlayerGame
       .HasOne(x => x.BcmPlayer)
       .WithMany(x => x.BcmPlayerGames)
       .HasForeignKey(x => x.PlayerId);
+
+    builder
+      .HasIndex(x => new { x.GameId, x.PlayerId })
+      .IsUnique();
   }
 }
