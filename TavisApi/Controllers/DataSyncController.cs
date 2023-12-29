@@ -56,7 +56,8 @@ public class DataSyncController : ControllerBase
   [Route("full")]
   public IActionResult Sync()
   {
-    var playersToScan = _bcmService.GetPlayers();
+    // var playersToScan = _bcmService.GetPlayers();
+    var playersToScan = _bcmService.GetPlayers().Where(x => x.User.Gamertag!.Contains("eohjay")).ToList();
 
     if (playersToScan.Any(x => x.TrueAchievementId == 0)) return BadRequest("Cannot scan,missing TA ID's detected");
 
@@ -121,25 +122,22 @@ public class DataSyncController : ControllerBase
   //and ONLY call this when the user requests it
   //---------------------
   //this goes to all game pages to update the ancillary info
-  [HttpGet]
+  [HttpGet, Authorize(Roles = "Admin")]
   [Route("testSyncGameInfo")]
   public IActionResult SyncGameInfo()
   {
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
     Console.WriteLine($"Beginning game sync with at {DateTime.UtcNow}");
-    //accept a list of game ids to update
-    //loop over the game ids and get the URL from DB
-    //parse out the game information
-    //save to DB
 
     var games = _context.Games.Include(x => x.GameGenres);
     var gamepagesToSync = new List<int>();
 
-    foreach (var game in games)
+    var gamesWithNoGenres = games.Where(x => x.GameGenres != null && x.GameGenres.Count() == 0).ToList();
+
+    foreach (var game in gamesWithNoGenres)
     {
-      if (game.GameGenres == null)
-        gamepagesToSync.Add(game.Id);
+      gamepagesToSync.Add(game.Id);
     }
 
     _dataSync.ParseGamePages(gamepagesToSync);
