@@ -157,7 +157,7 @@ builder.Services.AddScoped<IRgscService, RgscService>();
 
 var app = builder.Build();
 
-app.UseSession();
+app.UseSession(); // test
 
 using (var scope = app.Services.CreateScope())
 {
