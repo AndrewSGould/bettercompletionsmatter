@@ -188,6 +188,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<SyncSignal>("/datasync");
 
-app.MapGet("/", () => "Healthy");
+app.MapGet("/", () => "Healthy!");
 
 app.Run();
