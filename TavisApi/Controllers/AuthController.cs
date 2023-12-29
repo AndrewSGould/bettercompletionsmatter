@@ -53,8 +53,7 @@ public class AuthController : ControllerBase
     {
       _context.Users.Add(new User
       {
-        Xuid = oxblProfile.Xuid,
-        Gamertag = oxblProfile.Gamertag
+        Xuid = oxblProfile.Xuid
       });
 
       await _context.SaveChangesAsync();
@@ -88,6 +87,8 @@ public class AuthController : ControllerBase
     var accessToken = _tokenService.GenerateAccessToken(claims);
 
     var refreshToken = _tokenService.GenerateRefreshToken();
+    user.Gamertag = oxblProfile.Gamertag;
+    user.Avatar = oxblProfile.Avatar;
     user.Login!.RefreshToken = refreshToken;
     user.Login.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 

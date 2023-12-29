@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20231226231626_AvatarToUser")]
+    partial class AvatarToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -405,9 +408,6 @@ namespace TavisApi.Migrations
                     b.Property<int>("GenreId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("LastSync")
-                        .HasColumnType("timestamp with time zone");
-
                     b.HasKey("GameId", "GenreId");
 
                     b.HasIndex("GenreId");
@@ -428,11 +428,6 @@ namespace TavisApi.Migrations
                     b.ToTable("Genres");
 
                     b.HasData(
-                        new
-                        {
-                            Id = 0,
-                            Name = "None"
-                        },
                         new
                         {
                             Id = 1,

@@ -18,6 +18,11 @@ public class GenreConfiguration : IEntityTypeConfiguration<Genre>
     (
       new Genre
       {
+        Id = GenreList.None,
+        Name = GenreList.None.Name
+      },
+      new Genre
+      {
         Id = GenreList.Action,
         Name = GenreList.Action.Name
       },
