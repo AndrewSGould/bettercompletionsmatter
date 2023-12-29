@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using static TavisApi.Services.TA_GameCollection;
 using Microsoft.AspNetCore.SignalR;
 using DeepEqual.Syntax;
+using System.Net;
+using dotenv.net;
 
 namespace TavisApi.Services;
 
@@ -198,10 +200,28 @@ public class DataSync : IDataSync
     Stopwatch stopWatch = new();
     stopWatch.Start();
 
-    using HttpClient httpClient = new();
+    using var httpClientHandler = new HttpClientHandler { CookieContainer = new CookieContainer() };
+    using var httpClient = new HttpClient(httpClientHandler);
+
     var gameCollectionUrl = _taGameCollection.ParseManager(playerTrueAchId, page, gcOptions);
     HttpRequestMessage request = new(HttpMethod.Get, gameCollectionUrl);
+
+    var cookieContainer = httpClientHandler.CookieContainer;
+
+    var envVars = DotEnv.Read();
+    var sessionId = envVars.TryGetValue("TA_SESSIONID", out var key) ? key : null;
+    if (sessionId is null || sessionId == "") sessionId = Environment.GetEnvironmentVariable("TA_SESSIONID")!;
+
+    var authCookie = new Cookie("ASP.NET_SessionId", sessionId)
+    {
+      Domain = "www.trueachievements.com",
+      Path = "/"
+    };
+
+    cookieContainer.Add(authCookie);
+
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
+
     var response = httpClient.Send(request);
     using StreamReader reader = new(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();
@@ -337,11 +357,22 @@ public class DataSync : IDataSync
         FullCompletionEstimate = game.FullCompletionEstimate
       };
 
+      GetXboxApiInfo(newGame);
       _context.Games!.Add(newGame);
     }
 
     // lets save early so we can get our game ID for later inserts
     _context.SaveChanges();
+  }
+
+  private void GetXboxApiInfo(Game game)
+  {
+    // make the call to `{{baseUrl}}/api/v2/achievements/player/:xuid` to get achievement list
+    // in that achievement list, there is an array of titles
+    // use the game.Title to match on the xbl:title.name
+    // if it doesn't match, just move on
+    // save the titleId to the Game table
+    // save the displayImage url
   }
 
   private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, BcmPlayer player)
@@ -428,14 +459,11 @@ public class DataSync : IDataSync
 
   public void ParseGamePages(List<int> gamesToUpdateIds)
   {
-    var fls = _context.FeatureLists!.Select(x => x.FeatureListOfGameId);
-    var parseList = _context.Games!.Where(x => !fls.Contains(x.Id)).Select(x => x.Id);
-
-    var gamesToUpdate = _context.Games!.Where(x => parseList.Contains(x.Id)).ToList();
+    var gamesToUpdate = _context.Games!.Where(x => gamesToUpdateIds.Contains(x.Id)).ToList();
     Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.UtcNow}");
 
     var i = 0;
-    foreach (var game in gamesToUpdate)
+    foreach (var game in gamesToUpdate.Take(1000))
     {
       var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id).ToList();
       _context.GameGenres!.RemoveRange(genresToRemove);
@@ -453,7 +481,14 @@ public class DataSync : IDataSync
       Console.WriteLine($"Finished parsing {game.Title}, {i++} out of {gamesToUpdate.Count()}");
     }
 
-    _context.SaveChanges();
+    try
+    {
+      _context.SaveChanges();
+    }
+    catch (Exception ex)
+    {
+      var derp = ex;
+    }
   }
 
   private TimeSpan ParseGamePage(Game game)
@@ -461,9 +496,32 @@ public class DataSync : IDataSync
     Stopwatch stopWatch = new Stopwatch();
     stopWatch.Start();
 
-    using var httpClient = new HttpClient();
-    var request = new HttpRequestMessage(HttpMethod.Get, $"https://www.trueachievements.com{game.Url}");
+    // using var httpClient = new HttpClient();
+    // var request = new HttpRequestMessage(HttpMethod.Get, $"https://www.trueachievements.com{game.Url}");
+
+    using var httpClientHandler = new HttpClientHandler { CookieContainer = new CookieContainer() };
+    using var httpClient = new HttpClient(httpClientHandler);
+
+    HttpRequestMessage request = new(HttpMethod.Get, $"https://www.trueachievements.com{game.Url}");
+
+    var cookieContainer = httpClientHandler.CookieContainer;
+
+    var envVars = DotEnv.Read();
+    var sessionId = envVars.TryGetValue("TA_SESSIONID", out var key) ? key : null;
+    if (sessionId is null || sessionId == "") sessionId = Environment.GetEnvironmentVariable("TA_SESSIONID")!;
+
+    var authCookie = new Cookie("ASP.NET_SessionId", sessionId)
+    {
+      Domain = "www.trueachievements.com",
+      Path = "/"
+    };
+
+    cookieContainer.Add(authCookie);
+
+    request.Headers.TryAddWithoutValidation("User-Agent", "Other");
+
     var response = httpClient.Send(request);
+
     using var reader = new StreamReader(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();
 
@@ -474,18 +532,32 @@ public class DataSync : IDataSync
     var labels = gameInfoTable?.Descendants("dt").Select(x => x.InnerHtml).ToList();
     var values = gameInfoTable?.Descendants("dd").Select(x => x.InnerText).ToList();
 
-    var genres = GetDataFromDLTable("Genre", doc, labels!, values, game);
-    var splitGenre = genres!.Split(new string[] { ", " }, StringSplitOptions.None);
+    var genres = GetDataFromDLTable("Genre", doc, labels, values, game);
 
-    foreach (var genre in splitGenre)
+    if (genres == null)
     {
-      var typedGenre = GenreList.FromName(genre.Trim());
-
       _context.GameGenres!.Add(new GameGenre
       {
         GameId = game.Id,
-        GenreId = typedGenre
+        GenreId = GenreList.None,
+        LastSync = DateTime.UtcNow
       });
+    }
+    else
+    {
+      var splitGenre = genres!.Split(new string[] { ", " }, StringSplitOptions.None);
+
+      foreach (var genre in splitGenre)
+      {
+        var typedGenre = GenreList.FromName(genre.Trim());
+
+        _context.GameGenres!.Add(new GameGenre
+        {
+          GameId = game.Id,
+          GenreId = typedGenre,
+          LastSync = DateTime.UtcNow
+        });
+      }
     }
 
     var features = GetDataFromDLTable("Feature", doc, labels!, values, game);
@@ -608,17 +680,17 @@ public class DataSync : IDataSync
     return stopWatch.Elapsed;
   }
 
-  private string? GetDataFromDLTable(string column, HtmlDocument doc, List<string> columns, List<string>? values, Game game)
+  private string? GetDataFromDLTable(string column, HtmlDocument doc, List<string>? columns, List<string>? values, Game game)
   {
-    var columnIndex = columns!.FindIndex(x => x.StartsWith(column));
+    var columnIndex = columns?.FindIndex(x => x.StartsWith(column));
 
-    if (columnIndex == -1)
+    if (columnIndex == -1 || columnIndex == null)
     {
       Console.WriteLine($"{game.Title} did not have \"{column}\" to parse");
       return null;
     }
 
-    return values?[columnIndex];
+    return values?[columnIndex.Value];
   }
 
   public void ParseGamesWithGold(ref int page)

@@ -58,5 +58,6 @@ jobs:
               -e "OXBL_APP_KEY=${{ secrets.OXBL_APP_KEY }}" \
               -e "DISCORD_CLIENTID=${{ vars.DISCORD_CLIENTID }}" \
               -e "DISCORD_OAUTH_SECRET=${{ secrets.DISCORD_OAUTH_SECRET }}" \
+              -e "TA_SESSIONID=${{ secrets.TA_SESSIONID }}" \
               --restart always --name tavisapi -d ghcr.io/andrewsgould/tavisapi:latest
           EOF
