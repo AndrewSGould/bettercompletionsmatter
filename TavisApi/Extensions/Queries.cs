@@ -19,6 +19,6 @@ public static class Queries
 
   public static bool FilterCompletedPlayerGames(BcmPlayerGame playerGame)
   {
-    return playerGame.CompletionDate != null && playerGame.CompletionDate.Value.Year == DateTime.UtcNow.Year;
+    return playerGame.CompletionDate != null && playerGame.CompletionDate.Value.Year == 2024;
   }
 }

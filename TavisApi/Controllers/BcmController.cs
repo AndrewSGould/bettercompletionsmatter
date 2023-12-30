@@ -209,7 +209,7 @@ public class BcmController : ControllerBase
     {
       players = players.Where(x => x.BcmRgscs == null || x.BcmRgscs.Count() == 0 || x.BcmRgscs
                         .OrderByDescending(x => x.Issued)
-                        .First().Issued <= DateTime.UtcNow.AddHours(-24))
+                        .First().Issued <= DateTime.UtcNow.AddDays(-25))
                         .ToList();
 
       if (players.Count() < 1) return BadRequest("no users left to random");

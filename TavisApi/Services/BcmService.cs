@@ -45,7 +45,7 @@ public class BcmService : IBcmService
   {
     var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
                                                       && x.CompletionDate != null
-                                                      && x.CompletionDate.Value.Year == DateTime.UtcNow.Year);
+                                                      && x.CompletionDate.Value.Year == 2024);
 
     var completionCharacters = playersCompletedGames.Select(x => x.Game.Title.Substring(0, 1)).AsEnumerable();
     return completionCharacters.Where(x => char.IsLetter(x[0])).Distinct().OrderBy(x => x).ToList();

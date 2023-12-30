@@ -463,7 +463,7 @@ public class DataSync : IDataSync
     Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.UtcNow}");
 
     var i = 0;
-    foreach (var game in gamesToUpdate.Take(1000))
+    foreach (var game in gamesToUpdate)
     {
       var genresToRemove = _context.GameGenres!.Where(x => x.GameId == game.Id).ToList();
       _context.GameGenres!.RemoveRange(genresToRemove);
