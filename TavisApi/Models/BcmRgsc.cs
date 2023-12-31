@@ -9,6 +9,7 @@ public class BcmRgsc
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
     public DateTime? Issued { get; set; }
+    public int PoolSize { get; set; }
     public bool Rerolled { get; set; }
     public DateTime? RerollDate { get; set; }
     public int? GameId { get; set; }

@@ -222,12 +222,16 @@ public class DataSync : IDataSync
 
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
 
+    Thread.Sleep(4000);
     var response = httpClient.Send(request);
     using StreamReader reader = new(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();
 
     HtmlDocument doc = new();
     doc.LoadHtml(responseBody);
+
+    if (responseBody == "<div class=\"information\">Please log in or register to view this Gamer's Game Collection.</div>")
+      throw new Exception("Bot Logged Out!");
 
     var collectionPage = doc.DocumentNode.SelectSingleNode("//table")
       ?.Descendants("tr")

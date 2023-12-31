@@ -81,11 +81,13 @@ public class RgscController : ControllerBase
     if (user is null) return BadRequest("No user found");
 
     var bcmPlayer = _context.BcmPlayers.Include(x => x.BcmRgscs).FirstOrDefault(x => x.Id == user.BcmPlayer!.Id);
-    var rgscList = bcmPlayer?.BcmRgscs?.Where(x => !x.Rerolled).Select(x => new
-    {
-      x.GameId,
-      _context.Games.First(y => y.Id == x.GameId).Title
-    });
+    var rgscList = bcmPlayer?.BcmRgscs
+      ?.Where(x => !x.Rerolled)
+      ?.Select(x => new
+      {
+        GameId = x.GameId ?? -1,
+        Title = _context.Games.FirstOrDefault(y => y.Id == x.GameId)?.Title ?? "No Random Drawn"
+      });
 
     return Ok(new
     {

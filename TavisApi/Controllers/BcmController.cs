@@ -244,7 +244,7 @@ public class BcmController : ControllerBase
     // if we get a game, they are rerolling an old game
     var rolledRandom = currentRandoms.FirstOrDefault(x => x.GameId == roll.selectedGameId);
 
-    if (rolledRandom?.GameId is not null)
+    if (roll.selectedGameId != -1 && rolledRandom is not null)
     {
       rolledRandom.Rerolled = true;
       rolledRandom.RerollDate = DateTime.UtcNow;
@@ -254,20 +254,29 @@ public class BcmController : ControllerBase
     var nextChallenge = 1;
 
     if (currentChallenge.HasValue)
-    {
       nextChallenge = currentChallenge.Value + 1;
-    }
 
     if (randomGameOptions is null || randomGameOptions?.Count() < 50)
     {
-      _context.BcmRgsc.Add(new BcmRgsc
+      if (roll.selectedGameId == -1 && rolledRandom is null)
       {
-        Issued = DateTime.UtcNow,
-        GameId = null,
-        BcmPlayerId = currentBcmPlayer.Id,
-        PreviousGameId = rolledRandom is not null ? rolledRandom.GameId : null,
-        Challenge = rolledRandom is not null ? rolledRandom.Challenge : nextChallenge
-      });
+        // they are rerolling an invalid game, but it's still not valid
+        var mostRecentRandom = currentRandoms.OrderByDescending(x => x.Challenge).First();
+        mostRecentRandom.Issued = DateTime.UtcNow;
+        mostRecentRandom.PoolSize = randomGameOptions?.Count() ?? 0;
+      }
+      else
+      {
+        _context.BcmRgsc.Add(new BcmRgsc
+        {
+          Issued = DateTime.UtcNow,
+          GameId = null,
+          BcmPlayerId = currentBcmPlayer.Id,
+          PreviousGameId = roll.selectedGameId != -1 ? rolledRandom!.GameId : null,
+          Challenge = roll.selectedGameId != -1 ? rolledRandom!.Challenge : nextChallenge,
+          PoolSize = randomGameOptions?.Count() ?? 0
+        });
+      }
 
       _context.SaveChanges();
 
@@ -277,30 +286,21 @@ public class BcmController : ControllerBase
     var randomIndex = new Random().Next(0, randomGameOptions!.Count);
     var currentRandom = randomGameOptions[randomIndex];
 
-    // Try to update any rolls that didn't result in a valid pick first
-    if (currentRandoms.Any(x => x.GameId == null))
+    _context.BcmRgsc.Add(new BcmRgsc
     {
-      var randomToUpdate = currentRandoms.First();
-      randomToUpdate.Issued = DateTime.UtcNow;
-      randomToUpdate.GameId = currentRandom.Games.Id;
-    }
-    else
-    {
-      _context.BcmRgsc.Add(new BcmRgsc
-      {
-        Issued = DateTime.UtcNow,
-        GameId = currentRandom.Games.Id,
-        BcmPlayerId = currentBcmPlayer.Id,
-        Challenge = rolledRandom is not null ? rolledRandom.Challenge : nextChallenge,
-        PreviousGameId = rolledRandom is not null ? rolledRandom.GameId : null
-      });
-    }
+      Issued = DateTime.UtcNow,
+      GameId = currentRandom.Games.Id,
+      BcmPlayerId = currentBcmPlayer.Id,
+      Challenge = roll.selectedGameId != -1 ? rolledRandom!.Challenge : nextChallenge,
+      PreviousGameId = roll.selectedGameId != -1 ? rolledRandom!.GameId : null,
+      PoolSize = randomGameOptions?.Count() ?? 0
+    });
 
     _context.SaveChanges();
 
     return Ok(new
     {
-      PoolSize = randomGameOptions.Count(),
+      PoolSize = randomGameOptions?.Count() ?? 0,
       currentBcmPlayer.User,
       Result = currentRandom,
       BcmValue = _bcmService.CalcBcmValue(currentRandom.BcmPlayersGames.Platform, currentRandom.Games.SiteRatio, currentRandom.Games.FullCompletionEstimate)
