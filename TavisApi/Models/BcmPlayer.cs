@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TavisApi.Models;
 
 namespace Tavis.Models;
 
@@ -15,5 +16,6 @@ public class BcmPlayer
   public ICollection<BcmPlayerGame>? BcmPlayerGames { get; set; }
   public ICollection<BcmPlayerCompletionHistory>? BcmPlayerCompletionHistories { get; set; }
   public BcmStat? BcmStats { get; set; }
+  public BcmMiscStat? BcmMiscStats { get; set; }
   public ICollection<BcmRgsc>? BcmRgscs { get; set; }
 }

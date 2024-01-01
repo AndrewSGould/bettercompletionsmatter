@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Tavis.Extensions;
 using System.Diagnostics;
 using System.Collections.Immutable;
+using System.Numerics;
 
 [ApiController]
 [Route("[controller]")]
@@ -148,48 +149,54 @@ public class BcmController : ControllerBase
 
     if (bcmPlayer == null) return BadRequest("Player not found");
 
-    var playersGames = _context.BcmPlayerGames
-                    .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g })
-                    .Where(x => x.PlayersGames.PlayerId == bcmPlayer.Id
-                      && x.PlayersGames.CompletionDate != null
-                      && x.PlayersGames.CompletionDate >= _bcmService.GetContestStartDate())
-                    .OrderByDescending(x => x.PlayersGames.CompletionDate)
-                    .Select(x => new BcmPlayerSummary
-                    {
-                      Title = x.Games.Title ?? "",
-                      Ratio = x.Games.SiteRatio,
-                      Estimate = x.Games.FullCompletionEstimate,
-                      CompletionDate = x.PlayersGames.CompletionDate,
-                      Points = _bcmService.CalcBcmValue(x.PlayersGames.Platform, x.Games.SiteRatio, x.Games.FullCompletionEstimate)
-                    }).ToList();
+    var playerBcmStats = _context.BcmStats?.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id);
 
-    var bcmPlayerSummary = new
-    {
-      Player = bcmPlayer,
-      Games = playersGames,
-      Ranking = _context.BcmStats?.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id),
-      Score = playersGames?.Sum(x => x.Points)
-    };
-
-    return Ok(bcmPlayerSummary);
+    return Ok(bcmPlayer);
   }
 
   [HttpGet]
-  [Route("yearly-summary")]
-  public async Task<IActionResult> GetYearlySummary(string player)
+  [Route("player/abcSummary")]
+  public async Task<IActionResult> GetPlayerAbcSummary(string player)
   {
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
 
-    if (localuser is null) return BadRequest("Player not found with provided gamertag");
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
 
-    var bcmPlayer = _context.BcmPlayers.First(x => x.UserId == localuser.Id);
+    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
 
-    return await Task.FromResult(Ok(new
-    {
-      completionLetters = _bcmService.GetAlphabetChallengeProgress(bcmPlayer.Id),
-      OddJobCompletions = _bcmService.GetOddJobChallengeProgress(bcmPlayer.Id),
-      YearlyCompletions = 0
-    }));
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+    return Ok(await _bcmService.GetAlphabetChallengeProgress(bcmPlayer.Id));
+  }
+
+  [HttpGet]
+  [Route("player/oddjobSummary")]
+  public async Task<IActionResult> GetPlayerOddjobSummary(string player)
+  {
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+    return Ok(await _bcmService.GetOddJobChallengeProgress(bcmPlayer.Id));
+  }
+
+  [HttpGet]
+  [Route("player/miscstats")]
+  public async Task<IActionResult> GetPlayerMiscStats(string player)
+  {
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+    return Ok();
   }
 
   public class RandomRoll
@@ -272,8 +279,8 @@ public class BcmController : ControllerBase
           Issued = DateTime.UtcNow,
           GameId = null,
           BcmPlayerId = currentBcmPlayer.Id,
-          PreviousGameId = roll.selectedGameId != -1 ? rolledRandom!.GameId : null,
-          Challenge = roll.selectedGameId != -1 ? rolledRandom!.Challenge : nextChallenge,
+          PreviousGameId = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.GameId : null,
+          Challenge = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.Challenge : nextChallenge,
           PoolSize = randomGameOptions?.Count() ?? 0
         });
       }
@@ -291,8 +298,8 @@ public class BcmController : ControllerBase
       Issued = DateTime.UtcNow,
       GameId = currentRandom.Games.Id,
       BcmPlayerId = currentBcmPlayer.Id,
-      Challenge = roll.selectedGameId != -1 ? rolledRandom!.Challenge : nextChallenge,
-      PreviousGameId = roll.selectedGameId != -1 ? rolledRandom!.GameId : null,
+      Challenge = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.Challenge : nextChallenge,
+      PreviousGameId = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.GameId : null,
       PoolSize = randomGameOptions?.Count() ?? 0
     });
 
