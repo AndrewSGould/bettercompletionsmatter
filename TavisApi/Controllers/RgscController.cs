@@ -55,7 +55,7 @@ public class RgscController : ControllerBase
     // if the game was completed within the year it was issues, it scores
     foreach (var game in rgscCompletions)
     {
-      if (game.PlayerGames.CompletionDate.Value.Year == game.Rgsc.Issued.Value.Year)
+      if (game.PlayerGames.CompletionDate!.Value.Year == game.Rgsc.Issued!.Value.Year)
         rgscCompletedGameCount++;
     }
 
@@ -64,13 +64,13 @@ public class RgscController : ControllerBase
     var nonrerolledRgsc = rgsc.FirstOrDefault(x => !x.Rerolled)?.GameId;
     var currentRgscs = _context.Games.Where(x => x.Id == nonrerolledRgsc);
 
-    return Ok(new
-    {
-      CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled),
-      RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletedGameCount - rerollsUsed,
-      RgscsCompleted = rgscCompletedGameCount,
-      RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
-    });
+        return Ok(new
+        {
+            CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled),
+            RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletedGameCount - rerollsUsed,
+            RgscsCompleted = rgscCompletedGameCount,
+            RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
+        });
   }
 
   [HttpGet]

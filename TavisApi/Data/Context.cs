@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using EntityFrameworkCore.EncryptColumn.Interfaces;
 using EntityFrameworkCore.EncryptColumn.Extension;
 using EntityFrameworkCore.EncryptColumn.Util;
+using TavisApi.Models;
 
 namespace TavisApi.Context
 {
@@ -34,6 +35,7 @@ namespace TavisApi.Context
     public DbSet<BcmStat> BcmStats { get; set; }
     public DbSet<BcmRgsc> BcmRgsc { get; set; }
     public DbSet<Role> Roles { get; set; }
+    public DbSet<BcmMiscStat> BcmMiscStats { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -58,6 +60,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new UserRegistrationConfiguration());
       modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
       modelBuilder.ApplyConfiguration(new BcmRgscConfiguration());
+      modelBuilder.ApplyConfiguration(new BcmMiscStatConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

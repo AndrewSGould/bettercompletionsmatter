@@ -41,34 +41,42 @@ public class BcmService : IBcmService
     return rawPoints >= BcmRule.MaximumGameScore ? BcmRule.MaximumGameScore : Convert.ToInt32(rawPoints);
   }
 
-  public List<string> GetAlphabetChallengeProgress(long playerId)
+  public async Task<List<string>> GetAlphabetChallengeProgress(long playerId)
   {
-    var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
-                                                      && x.CompletionDate != null
-                                                      && x.CompletionDate.Value.Year == 2024);
+    var playersCompletedGames = await _context.BcmPlayerGames.Include(x => x.Game)
+        .Where(x => x.PlayerId == playerId && x.CompletionDate != null && x.CompletionDate.Value.Year == 2024)
+        .ToListAsync();
 
-    var completionCharacters = playersCompletedGames.Select(x => x.Game.Title.Substring(0, 1)).AsEnumerable();
-    return completionCharacters.Where(x => char.IsLetter(x[0])).Distinct().OrderBy(x => x).ToList();
+    var completionCharacters = playersCompletedGames
+        .Select(x => x.Game?.Title?.Substring(0, 1))
+        .AsEnumerable();
+
+    return completionCharacters
+        .Where(x => char.IsLetter(x[0]))
+        .Distinct()
+        .OrderBy(x => x)
+        .ToList();
   }
 
-  public List<Game> GetOddJobChallengeProgress(long playerId)
+  public async Task<List<Game>> GetOddJobChallengeProgress(long playerId)
   {
-    var playersCompletedGames = _context.BcmPlayerGames.Include(x => x.Game)
-                            .Join(_context.GameGenres, pcg => pcg.GameId, genre => genre.GameId, (pcg, genre) => new { pcg, genre })
-                            .AsEnumerable() // TODO: rewrite so this stays as a query?
-                            .Where(x => x.pcg.PlayerId == playerId
-                                      && Queries.FilterCompletedPlayerGames(x.pcg)
-                                      && Queries.FilterGamesForYearlies(x.pcg.Game, x.pcg))
-                            .ToList();
+    var playersCompletedGames = await _context.BcmPlayerGames
+                      .Join(_context.Games.Include(x => x.GameGenres), pcg => pcg.GameId, game => game.Id, (pcg, game) => new { pcg, game })
+                      .Where(x => x.pcg.PlayerId == playerId &&
+                        x.pcg.CompletionDate != null && x.pcg.CompletionDate.Value.Year == 2024)
+                      .ToListAsync();
+
+    // now that we have the list of 2024 completions, lets apply our unqiue logic
+    playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
 
     var completedJobs = new List<Game>();
     foreach (var completedGame in playersCompletedGames)
     {
       foreach (var oddjob in BcmRule.OddJobs)
       {
-        if (oddjob.All(job => completedGame.pcg.Game.GameGenres.Any(genre => genre.GenreId == job)))
+        if (oddjob.All(job => completedGame.game.GameGenres.Any(genre => genre.GenreId == job)))
         {
-          completedJobs.Add(completedGame.pcg.Game);
+          completedJobs.Add(completedGame.game);
         }
       }
     }

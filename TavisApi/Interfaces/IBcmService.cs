@@ -7,7 +7,7 @@ public interface IBcmService
   List<BcmPlayer> GetPlayers();
   DateTime? GetContestStartDate();
   int? CalcBcmValue(int platformId, double? ratio, double? estimate);
-  List<string> GetAlphabetChallengeProgress(long playerId);
-  List<Game> GetOddJobChallengeProgress(long playerId);
+  Task<List<string>> GetAlphabetChallengeProgress(long playerId);
+  Task<List<Game>> GetOddJobChallengeProgress(long playerId);
   long? GetRegistrationId();
 }

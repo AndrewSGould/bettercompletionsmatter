@@ -1,19 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tavis.Models;
+using TavisApi.Models;
 
 namespace TavisApi.Context;
 
-public class BcmStatConfiguration : IEntityTypeConfiguration<BcmStat>
+public class BcmMiscStatConfiguration : IEntityTypeConfiguration<BcmMiscStat>
 {
-  public void Configure(EntityTypeBuilder<BcmStat> builder)
+  public void Configure(EntityTypeBuilder<BcmMiscStat> builder)
   {
     builder
       .HasKey(c => c.Id);
 
     builder
       .HasOne(x => x.BcmPlayer)
-      .WithOne(x => x.BcmStats)
-      .HasForeignKey<BcmStat>(x => x.PlayerId);
+      .WithOne(x => x.BcmMiscStats)
+      .HasForeignKey<BcmMiscStat>(x => x.PlayerId);
   }
 }
