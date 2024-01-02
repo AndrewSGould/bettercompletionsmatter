@@ -43,12 +43,17 @@ public class BcmService : IBcmService
 
   public async Task<List<string>> GetAlphabetChallengeProgress(long playerId)
   {
-    var playersCompletedGames = await _context.BcmPlayerGames.Include(x => x.Game)
-        .Where(x => x.PlayerId == playerId && x.CompletionDate != null && x.CompletionDate.Value.Year == 2024)
-        .ToListAsync();
+    var playersCompletedGames = await _context.BcmPlayerGames
+                      .Join(_context.Games.Include(x => x.GameGenres), pcg => pcg.GameId, game => game.Id, (pcg, game) => new { pcg, game })
+                      .Where(x => x.pcg.PlayerId == playerId &&
+                        x.pcg.CompletionDate != null && x.pcg.CompletionDate.Value.Year == 2024)
+                      .ToListAsync();
+
+    // now that we have the list of 2024 completions, lets apply our unqiue logic
+    playersCompletedGames = playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
 
     var completionCharacters = playersCompletedGames
-        .Select(x => x.Game?.Title?.Substring(0, 1))
+        .Select(x => x.game?.Title?.Substring(0, 1))
         .AsEnumerable();
 
     return completionCharacters
@@ -67,7 +72,7 @@ public class BcmService : IBcmService
                       .ToListAsync();
 
     // now that we have the list of 2024 completions, lets apply our unqiue logic
-    playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
+    playersCompletedGames = playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
 
     var completedJobs = new List<Game>();
     foreach (var completedGame in playersCompletedGames)
