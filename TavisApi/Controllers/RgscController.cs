@@ -42,35 +42,38 @@ public class RgscController : ControllerBase
 
     var playersCompletedGames = _context.BcmPlayerGames.Where(x => x.PlayerId == playerId
                                                       && x.CompletionDate != null
-                                                      && x.CompletionDate.Value.Year == DateTime.UtcNow.Year);
+                                                      && x.CompletionDate.Value.Year == 2024).ToList();
 
     var rgscList = rgsc.Join(_context.Games, rgsc => rgsc.GameId,
                                 g => g.Id, (rgsc, g) => new { Rgsc = rgsc, Game = g });
 
     var rgscCompletions = rgsc.Join(playersCompletedGames, rgsc => rgsc.GameId,
-                                pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg });
+                                pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg }).ToList();
 
-    var rgscCompletedGameCount = 0;
-
-    // if the game was completed within the year it was issues, it scores
-    foreach (var game in rgscCompletions)
-    {
-      if (game.PlayerGames.CompletionDate!.Value.Year == game.Rgsc.Issued!.Value.Year)
-        rgscCompletedGameCount++;
-    }
 
     var rerollsUsed = rgsc.Count(x => x.Rerolled);
 
     var nonrerolledRgsc = rgsc.FirstOrDefault(x => !x.Rerolled)?.GameId;
     var currentRgscs = _context.Games.Where(x => x.Id == nonrerolledRgsc);
 
-        return Ok(new
-        {
-            CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled),
-            RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletedGameCount - rerollsUsed,
-            RgscsCompleted = rgscCompletedGameCount,
-            RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
-        });
+    if (currentRgscs.Count() < 1)
+    {
+      return Ok(new
+      {
+        CurrentRandoms = rgsc.FirstOrDefault(),
+        RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletions.Count() - rerollsUsed,
+        RgscsCompleted = rgscCompletions,
+        RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
+      });
+    }
+    else
+      return Ok(new
+      {
+          CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled),
+          RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletions.Count() - rerollsUsed,
+          RgscsCompleted = rgscCompletions,
+          RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
+      });
   }
 
   [HttpGet]

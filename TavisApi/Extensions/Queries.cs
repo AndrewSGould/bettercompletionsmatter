@@ -9,16 +9,19 @@ public static class Queries
   {
     if (pGame.Platform == Platform.Xbox360.Value)
       return ((game.SiteRatio + 0.5) >= BcmRule.MinimumRatio
-              && game.FullCompletionEstimate > BcmRule.YearlyMinEstimate)
-              || game.FullCompletionEstimate >= 15;
+              && game.FullCompletionEstimate >= BcmRule.YearlyMinEstimate)
+              || game.FullCompletionEstimate >= 20;
     else
       return (game.SiteRatio >= BcmRule.MinimumRatio
-              && game.FullCompletionEstimate > BcmRule.YearlyMinEstimate)
-              || game.FullCompletionEstimate >= 15;
+              && game.FullCompletionEstimate >= BcmRule.YearlyMinEstimate)
+              || game.FullCompletionEstimate >= 20;
   }
 
   public static bool FilterCompletedPlayerGames(BcmPlayerGame playerGame)
   {
-    return playerGame.CompletionDate != null && playerGame.CompletionDate.Value.Year == 2024;
+    // todo: fix this and use it
+    var userRegDate = DateTime.Now;  // UserRegistrations.First(x => x.RegistrationId == 1).RegistrationDate;
+
+    return playerGame.CompletionDate != null && playerGame.CompletionDate > userRegDate;
   }
 }
