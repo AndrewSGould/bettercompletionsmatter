@@ -17,6 +17,7 @@ using Tavis.Extensions;
 using System.Diagnostics;
 using System.Collections.Immutable;
 using System.Numerics;
+using DocumentFormat.OpenXml.InkML;
 
 [ApiController]
 [Route("[controller]")]
@@ -51,7 +52,7 @@ public class BcmController : ControllerBase
       var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
     }
 
-    return Ok(players.OrderBy(x => x.BcmStats?.Rank));
+    return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
   }
 
   [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
@@ -89,7 +90,7 @@ public class BcmController : ControllerBase
       playerBcmStats.Completions = completedGamesCount;
       playerBcmStats.AverageRatio = ratioOfGames.DefaultIfEmpty(0).Average();
       playerBcmStats.HighestRatio = ratioOfGames.DefaultIfEmpty(0).Max();
-      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Average();
+      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(20).Average();
       playerBcmStats.HighestTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Max();
 
       double? basePoints = 0.0;
@@ -152,6 +153,78 @@ public class BcmController : ControllerBase
     var playerBcmStats = _context.BcmStats?.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id);
 
     return Ok(bcmPlayer);
+  }
+
+  [HttpGet]
+  [Route("getBcmPlayerWithGames")]
+  public IActionResult BcmPlayerWithGames(string player)
+  {
+    var localuser = _context.Users.Include(x => x.UserRegistrations).FirstOrDefault(x => x.Gamertag == player);
+
+    if (localuser is null) return BadRequest("No gamertag found with provided player");
+
+    var bcmPlayer = _context.BcmPlayers.First(x => x.UserId == localuser.Id);
+
+    if (bcmPlayer == null) return BadRequest("Player not found");
+
+    var registrations = _context.Registrations
+        .Include(x => x.UserRegistrations)
+        .Where(x => x.UserRegistrations.Any(ur => ur.UserId == localuser.Id))
+        .ToList();
+
+    var userRegDate = localuser.UserRegistrations.First(x => x.RegistrationId == 1).RegistrationDate; // TODO: BCM
+
+    var playerBcmGames = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.BcmPlayer == bcmPlayer
+                                                                                && x.CompletionDate != null
+                                                                                && x.CompletionDate > userRegDate);
+
+    var pointedGames = new List<object>();
+
+    foreach (var game in playerBcmGames)
+    {
+      var newGame = new
+      {
+        Game = game,
+        Points = _bcmService.CalcBcmValue(game.Platform, game.Game.SiteRatio, game.Game.FullCompletionEstimate),
+      };
+
+      pointedGames.Add(newGame);
+    }
+
+    var avgRatio = playerBcmGames
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate)
+        .Select(x => x.Game.SiteRatio)
+        .AsEnumerable()
+        .DefaultIfEmpty(0)
+        .Average();
+    var avgTime = playerBcmGames
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate)
+        .Select(x => x.Game.FullCompletionEstimate)
+        .AsEnumerable()
+        .DefaultIfEmpty(0)
+        .Average();
+    var highestTime = playerBcmGames
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate)
+        .Select(x => x.Game.FullCompletionEstimate)
+        .AsEnumerable()
+        .DefaultIfEmpty(0)
+        .Max();
+    var highestRatio = playerBcmGames
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate)
+        .Select(x => x.Game.SiteRatio)
+        .AsEnumerable()
+        .DefaultIfEmpty(0)
+        .Max();
+
+    return Ok(new
+    {
+      Player = bcmPlayer,
+      Games = pointedGames,
+      AvgRatio = avgRatio,
+      AvgTime = avgTime,
+      HighestTime = highestTime,
+      HighestRatio = highestRatio
+    });
   }
 
   [HttpGet]
@@ -314,42 +387,6 @@ public class BcmController : ControllerBase
     });
   }
 
-  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
-  [Route("produceStatReport")]
-  public IActionResult StatReport()
-  {
-    var bcmPlayers = _bcmService.GetPlayers();
-    var statSpread = new List<object>();
-
-    foreach (var player in bcmPlayers)
-    {
-      var gamertag = _context.Users.FirstOrDefault(x => x.Id == player.UserId);
-
-      var playerGames = _context.BcmPlayerGames.Where(x => x.PlayerId == player.Id);
-
-      var gamerscoreTotal = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
-                                        .Sum(x => x.Gamerscore);
-      var trueachievementTotal = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
-                                            .Sum(x => x.TrueAchievement);
-      var completions = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2023 && x.CompletionDate.Value.Month == 2)
-                                    .Count(x => x.CompletionDate != null);
-
-      var stats = new
-      {
-        Player = gamertag,
-        Gamerscore = gamerscoreTotal,
-        TrueAchievement = trueachievementTotal,
-        Ratio = trueachievementTotal == 0 ? 0 : Math.Round((decimal)((decimal)trueachievementTotal! / gamerscoreTotal!), 4),
-        TAD = trueachievementTotal == 0 ? 0 : trueachievementTotal - gamerscoreTotal,
-        Completions = completions
-      };
-
-      statSpread.Add(stats);
-    }
-
-    return Ok(statSpread);
-  }
-
   [Authorize(Roles = "Guest")]
   [HttpPost, Route("registerUser")]
   public async Task<IActionResult> RegisterUser()
@@ -394,5 +431,49 @@ public class BcmController : ControllerBase
   public async Task<IActionResult> UnregisterUser()
   {
     throw new NotImplementedException();
+  }
+
+  [Authorize(Roles = "Participant")]
+  [HttpGet, Route("getPlayersGenres")]
+  public async Task<IActionResult> GetPlayersGenres(string player)
+  {
+    var localuser = _context.Users.Include(x => x.BcmPlayer).FirstOrDefault(x => x.Gamertag == player);
+    if (localuser is null) return BadRequest("No user found with supplied gamertag");
+
+    var playerId = localuser.BcmPlayer?.Id;
+    if (playerId is null) return BadRequest("Could not get Bcm Player");
+
+    var pgs = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.BcmPlayer == localuser.BcmPlayer && x.CompletionDate != null);
+
+    var genreStats = await _context.Genres
+      .GroupJoin(
+          _context.GameGenres,
+          genre => genre.Id,
+          gameGenre => gameGenre.GenreId,
+          (genre, gameGenres) => new
+          {
+            GenreId = genre.Id,
+            GenreName = genre.Name,
+            GenreCount = gameGenres
+            .Join(
+                      _context.BcmPlayerGames
+                          .Where(bpg => bpg.PlayerId == playerId && bpg.CompletionDate != null),
+                      gg => gg.GameId,
+                      bpg => bpg.GameId,
+                      (gg, bpg) => 1
+                  )
+                  .DefaultIfEmpty()
+                  .Count()
+          }
+      )
+      .OrderByDescending(result => result.GenreCount)
+      .Select(x => new
+      {
+        Name = x.GenreName,
+        Value = x.GenreCount
+      })
+      .ToListAsync();
+
+    return Ok(genreStats);
   }
 }

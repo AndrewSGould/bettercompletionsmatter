@@ -69,25 +69,25 @@ public class BcmService : IBcmService
                       .Join(_context.Games.Include(x => x.GameGenres), pcg => pcg.GameId, game => game.Id, (pcg, game) => new { pcg, game })
                       .Where(x => x.pcg.PlayerId == playerId &&
                         x.pcg.CompletionDate != null && x.pcg.CompletionDate.Value.Year == 2024)
+                      .OrderBy(x => x.pcg.CompletionDate)
                       .ToListAsync();
 
-    // now that we have the list of 2024 completions, lets apply our unqiue logic
+    // now that we have the list of 2024 completions, let's apply our unique logic
     playersCompletedGames = playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
 
-    var completedJobs = new List<Game>();
-    foreach (var completedGame in playersCompletedGames)
-    {
-      foreach (var oddjob in BcmRule.OddJobs)
-      {
-        if (oddjob.All(job => completedGame.game.GameGenres.Any(genre => genre.GenreId == job)))
-        {
-          completedJobs.Add(completedGame.game);
-        }
-      }
-    }
+    var completedJobs = BcmRule.OddJobs
+        .Where(oddjob => playersCompletedGames.Any(completedGame =>
+            oddjob.All(job => completedGame.game.GameGenres.Any(genre => genre.GenreId == job))))
+        .Select(oddjob => playersCompletedGames
+            .First(completedGame =>
+                oddjob.All(job => completedGame.game.GameGenres.Any(genre => genre.GenreId == job)))
+            .game)
+        .Distinct()
+        .ToList();
 
-    return completedJobs.Distinct().ToList();
+    return completedJobs;
   }
+
 
   public long? GetRegistrationId()
   {
