@@ -456,14 +456,13 @@ public class BcmController : ControllerBase
             GenreName = genre.Name,
             GenreCount = gameGenres
             .Join(
-                      _context.BcmPlayerGames
-                          .Where(bpg => bpg.PlayerId == playerId && bpg.CompletionDate != null),
-                      gg => gg.GameId,
-                      bpg => bpg.GameId,
-                      (gg, bpg) => 1
-                  )
-                  .DefaultIfEmpty()
-                  .Count()
+                _context.BcmPlayerGames
+                    .Where(bpg => bpg.PlayerId == playerId && bpg.CompletionDate != null),
+                gg => gg.GameId,
+                bpg => bpg.GameId,
+                (gg, bpg) => gg // Use gg instead of 1
+            )
+            .Count()
           }
       )
       .OrderByDescending(result => result.GenreCount)
