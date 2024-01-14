@@ -51,10 +51,10 @@ public class StatsService : IStatsService
     bonusPoints += ScoreJanBaseBonus(filteredCompletions);
 
     var hasAllBuckets = HasBucketBonus(filteredCompletions);
-    bonusPoints = hasAllBuckets ? bonusPoints + 250 : bonusPoints;
+    bonusPoints += hasAllBuckets ? 250 : 0;
 
     var hasCompleted360Game = filteredCompletions.Count(x => x.Platform == Platform.Xbox360) > 0;
-    bonusPoints = communityGoalReached && hasCompleted360Game ? bonusPoints + 500 : bonusPoints;
+    bonusPoints += communityGoalReached && hasCompleted360Game ? 500 : 0;
 
     _context.BcmMonthlyStats.Add(new BcmMonthlyStat
     {
