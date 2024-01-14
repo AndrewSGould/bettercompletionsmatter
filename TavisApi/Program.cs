@@ -154,11 +154,11 @@ builder.Services.AddScoped<IOpenXblService, OpenXblService>();
 builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRgscService, RgscService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 var app = builder.Build();
-// todo
 
-app.UseSession(); // test
+app.UseSession();
 
 using (var scope = app.Services.CreateScope())
 {

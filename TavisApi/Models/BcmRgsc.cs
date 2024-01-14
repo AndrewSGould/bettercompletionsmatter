@@ -15,6 +15,7 @@ public class BcmRgsc
     public int? GameId { get; set; }
     public int? PreviousGameId { get; set; }
     public int? Challenge { get; set; }
+
     public long BcmPlayerId { get; set; }
     public BcmPlayer? BcmPlayer { get; set; }
 }

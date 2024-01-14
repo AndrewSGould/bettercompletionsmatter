@@ -36,6 +36,7 @@ namespace TavisApi.Context
     public DbSet<BcmRgsc> BcmRgsc { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<BcmMiscStat> BcmMiscStats { get; set; }
+    public DbSet<BcmMonthlyStat> BcmMonthlyStats { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -61,6 +62,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
       modelBuilder.ApplyConfiguration(new BcmRgscConfiguration());
       modelBuilder.ApplyConfiguration(new BcmMiscStatConfiguration());
+      modelBuilder.ApplyConfiguration(new BcmMonthlyStatConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

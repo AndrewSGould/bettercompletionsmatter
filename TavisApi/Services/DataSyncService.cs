@@ -222,7 +222,7 @@ public class DataSync : IDataSync
 
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
 
-    Thread.Sleep(2000);
+    Thread.Sleep(800);
     var response = httpClient.Send(request);
     using StreamReader reader = new(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();

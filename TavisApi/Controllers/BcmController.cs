@@ -7,17 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Tavis.Models;
 using System.Data;
-using Newtonsoft.Json;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Tavis.Extensions;
-using System.Diagnostics;
-using System.Collections.Immutable;
-using System.Numerics;
-using DocumentFormat.OpenXml.InkML;
 
 [ApiController]
 [Route("[controller]")]
@@ -39,96 +32,6 @@ public class BcmController : ControllerBase
     _bcmService = bcmService;
     _userService = userService;
     _discordService = discordService;
-  }
-
-  [HttpGet]
-  [Route("getBcmLeaderboardList")]
-  public IActionResult BcmLeaderboardList()
-  {
-    var players = _bcmService.GetPlayers();
-
-    foreach (var player in players)
-    {
-      var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
-    }
-
-    return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
-  }
-
-  [HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
-  [Route("recalcBcmLeaderboard")]
-  public IActionResult RecalcBcmLeaderboard()
-  {
-    //TODO: Changing data. This should be a POST
-    var players = _bcmService.GetPlayers();
-
-    var leaderboardList = new List<Ranking>();
-
-    foreach (var player in players)
-    {
-      var playerBcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
-
-      if (playerBcmStats == null)
-      {
-        playerBcmStats = new BcmStat();
-        _context.BcmStats.Add(playerBcmStats);
-      }
-
-      playerBcmStats.PlayerId = player.Id;
-
-      var playerCompletions = _context.BcmPlayerGames
-                                      .Where(x => x.PlayerId == player.Id &&
-                                        x.CompletionDate != null &&
-                                        x.CompletionDate >= _bcmService.GetContestStartDate());
-
-      var gamesCompletedThisYear = playerCompletions.Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { PlayersGames = pg, Games = g }).ToList();
-
-      var completedGamesCount = gamesCompletedThisYear.Count();
-      var ratioOfGames = gamesCompletedThisYear.Select(x => x.Games.SiteRatio);
-      var estimateOfGames = gamesCompletedThisYear.Select(x => x.Games.FullCompletionEstimate);
-
-      playerBcmStats.Completions = completedGamesCount;
-      playerBcmStats.AverageRatio = ratioOfGames.DefaultIfEmpty(0).Average();
-      playerBcmStats.HighestRatio = ratioOfGames.DefaultIfEmpty(0).Max();
-      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(20).Average();
-      playerBcmStats.HighestTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Max();
-
-      double? basePoints = 0.0;
-      foreach (var game in gamesCompletedThisYear)
-      {
-        var pointValue = _bcmService.CalcBcmValue(game.PlayersGames.Platform, game.Games.SiteRatio, game.Games.FullCompletionEstimate);
-        if (pointValue != null)
-          basePoints += pointValue;
-      }
-
-      playerBcmStats.BasePoints = basePoints;
-      playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
-
-      leaderboardList.Add(new Ranking
-      {
-        PlayerId = player.Id,
-        BcmPoints = playerBcmStats.BasePoints
-      });
-    }
-
-    _context.SaveChanges();
-
-    // after saving point calculations, lets order the leaderboard and save again for the rankings
-    leaderboardList = leaderboardList.OrderByDescending(x => x.BcmPoints).ToList();
-
-    foreach (var player in players)
-    {
-      var playerBcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id);
-      var previousRanking = playerBcmStats.Rank;
-      var newRanking = leaderboardList.FindIndex(x => x.PlayerId == player.Id) + 1;
-
-      playerBcmStats.Rank = newRanking;
-      playerBcmStats.RankMovement = previousRanking - newRanking;
-    }
-
-    _context.SaveChanges();
-
-    return Ok();
   }
 
   [HttpGet, Authorize(Roles = "Guest")]
@@ -388,6 +291,19 @@ public class BcmController : ControllerBase
       Result = currentRandom,
       BcmValue = _bcmService.CalcBcmValue(currentRandom.BcmPlayersGames.Platform, currentRandom.Games.SiteRatio, currentRandom.Games.FullCompletionEstimate)
     });
+  }
+
+  [Authorize(Roles = "Guest")]
+  [HttpGet, Route("monthly/jan")]
+  public async Task<IActionResult> JanSummary(string player)
+  {
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");    
+
+    return Ok(await _context.BcmMonthlyStats.FirstOrDefaultAsync(x => x.BcmPlayerId == bcmPlayer.Id && x.Challenge == 1));
   }
 
   [Authorize(Roles = "Guest")]
