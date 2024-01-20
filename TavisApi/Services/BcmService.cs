@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tavis.Extensions;
 using Tavis.Models;
@@ -86,6 +87,11 @@ public class BcmService : IBcmService
         .ToList();
 
     return completedJobs;
+  }
+
+  public int GetParticipationProgress(BcmPlayer player)
+  {
+    return _context.BcmMonthlyStats.Where(x => x.BcmPlayerId == player.Id && x.BonusPoints > 0).GroupBy(x => x.Challenge).Count();
   }
 
 

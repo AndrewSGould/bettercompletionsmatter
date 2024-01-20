@@ -44,8 +44,6 @@ public class StatsService : IStatsService
   {
     var filteredCompletions = completedGames.Where(x => Queries.FilterGamesForYearlies(x.Game!, x)).ToList();
 
-    _context.BcmMonthlyStats.RemoveRange();
-
     var bonusPoints = 0;
 
     bonusPoints += ScoreJanBaseBonus(filteredCompletions);
@@ -62,7 +60,7 @@ public class StatsService : IStatsService
       BonusPoints = bonusPoints,
       Participation = filteredCompletions.Count(x => x.Game!.ReleaseDate!.Value.Year <= 2023) > 0,
       AllBuckets = hasAllBuckets,
-      CommunityBonus = communityGoalReached,
+      CommunityBonus = communityGoalReached && hasCompleted360Game,
       BcmPlayer = player,
       BcmPlayerId = player.Id
     });
