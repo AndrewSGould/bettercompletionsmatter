@@ -7,7 +7,7 @@
 namespace TavisApi.Migrations
 {
     /// <inheritdoc />
-    public partial class HistoricalStats : Migration
+    public partial class AddActualMiscStats : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

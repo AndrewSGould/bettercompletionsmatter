@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 using Tavis.Extensions;
 using Tavis.Models;
 using TavisApi.ContestRules;
@@ -44,17 +45,22 @@ public class BcmService : IBcmService
 
   public async Task<List<string>> GetAlphabetChallengeProgress(long playerId)
   {
-    var playersCompletedGames = await _context.BcmPlayerGames
-                      .Join(_context.Games.Include(x => x.GameGenres), pcg => pcg.GameId, game => game.Id, (pcg, game) => new { pcg, game })
-                      .Where(x => x.pcg.PlayerId == playerId &&
-                        x.pcg.CompletionDate != null && x.pcg.CompletionDate.Value.Year == 2024)
-                      .ToListAsync();
+    var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.BcmPlayer!.Id == playerId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+    var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+    var playerCompletions = await _context.BcmPlayerGames
+                                    .Include(x => x.Game)
+                                    .Where(x => x.PlayerId == playerId &&
+                                      x.CompletionDate != null &&
+                                      x.CompletionDate >= GetContestStartDate() &&
+                                      x.CompletionDate >= userRegDate)
+                                    .ToListAsync();
 
     // now that we have the list of 2024 completions, lets apply our unqiue logic
-    playersCompletedGames = playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
+    var filteredPlayerCompletions = playerCompletions.Where(x => Queries.FilterGamesForYearlies(x.Game!, x));
 
-    var completionCharacters = playersCompletedGames
-        .Select(x => x.game?.Title?.Substring(0, 1))
+    var completionCharacters = filteredPlayerCompletions
+        .Select(x => x.Game?.Title?.Substring(0, 1))
         .AsEnumerable();
 
     return completionCharacters
@@ -66,25 +72,37 @@ public class BcmService : IBcmService
 
   public async Task<List<Game>> GetOddJobChallengeProgress(long playerId)
   {
-    var playersCompletedGames = await _context.BcmPlayerGames
+    var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.BcmPlayer!.Id == playerId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+    var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+
+    var playerCompletions = await _context.BcmPlayerGames
                       .Join(_context.Games.Include(x => x.GameGenres), pcg => pcg.GameId, game => game.Id, (pcg, game) => new { pcg, game })
                       .Where(x => x.pcg.PlayerId == playerId &&
-                        x.pcg.CompletionDate != null && x.pcg.CompletionDate.Value.Year == 2024)
+                        x.pcg.CompletionDate != null &&
+                        x.pcg.CompletionDate >= GetContestStartDate() &&
+                        x.pcg.CompletionDate >= userRegDate)
                       .OrderBy(x => x.pcg.CompletionDate)
                       .ToListAsync();
 
     // now that we have the list of 2024 completions, let's apply our unique logic
-    playersCompletedGames = playersCompletedGames.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg)).ToList();
+    var filteredCompletedGames = playerCompletions.Where(x => Queries.FilterGamesForYearlies(x.game, x.pcg));
 
     var completedJobs = BcmRule.OddJobs
-        .Where(oddjob => playersCompletedGames.Any(completedGame =>
-            oddjob.All(job => completedGame.game.GameGenres.Any(genre => genre.GenreId == job))))
-        .Select(oddjob => playersCompletedGames
-            .First(completedGame =>
-                oddjob.All(job => completedGame.game.GameGenres.Any(genre => genre.GenreId == job)))
-            .game)
-        .Distinct()
-        .ToList();
+      .Where(oddjob =>
+          filteredCompletedGames.Any(completedGame =>
+              oddjob.All(job =>
+                  completedGame.game?.GameGenres?.Any(genre =>
+                      genre.GenreId == job) ?? false)))
+      .Select(oddjob =>
+          filteredCompletedGames
+              .First(completedGame =>
+                  oddjob.All(job =>
+                      completedGame.game?.GameGenres?.Any(genre =>
+                          genre.GenreId == job) ?? false))
+              .game)
+      .Distinct()
+      .ToList();
 
     return completedJobs;
   }

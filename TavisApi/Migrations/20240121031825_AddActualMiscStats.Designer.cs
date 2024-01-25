@@ -12,8 +12,8 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    [Migration("20240120202059_HistoricalStats")]
-    partial class HistoricalStats
+    [Migration("20240121031825_AddActualMiscStats")]
+    partial class AddActualMiscStats
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

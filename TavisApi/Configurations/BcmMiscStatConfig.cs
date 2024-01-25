@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -2756,6 +2757,17 @@ public class BcmMiscStatConfiguration : IEntityTypeConfiguration<BcmMiscStat>
       }
     };
 
+    var magicalChildHistoricalStats = new List<BcmHistoricalStats>
+    {
+      new BcmHistoricalStats
+      {
+        Year = 2023,
+        Rgsc = 0,
+        FullCombo = false,
+        Placement = 111
+      }
+    };
+
     builder.HasData
     (
       new BcmMiscStat
@@ -3381,6 +3393,12 @@ public class BcmMiscStatConfiguration : IEntityTypeConfiguration<BcmMiscStat>
         Id = 103,
         PlayerId = 83,
         HistoricalStats = JsonConvert.SerializeObject(neoHistoricalStats)
+      },
+      new BcmMiscStat
+      {
+        Id = 105,
+        PlayerId = 166,
+        HistoricalStats = JsonConvert.SerializeObject(magicalChildHistoricalStats)
       }
     );
     #endregion

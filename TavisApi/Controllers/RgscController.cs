@@ -47,7 +47,7 @@ public class RgscController : ControllerBase
     {
       players = players.Where(x => x.BcmRgscs == null || x.BcmRgscs.Count() == 0 || x.BcmRgscs
                         .OrderByDescending(x => x.Issued)
-                        .First().Issued <= DateTime.UtcNow.AddDays(-21))
+                        .First().Issued <= DateTime.UtcNow.AddDays(-1))
                         .ToList();
 
       if (players.Count() < 1) return BadRequest("no users left to random");
