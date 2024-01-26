@@ -8,6 +8,8 @@ using Tavis.Models;
 using System.Data;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using TavisApi.Models;
 
 [ApiController]
 [Route("[controller]")]
@@ -38,6 +40,24 @@ public class StatsController : ControllerBase
     return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
   }
 
+  [HttpGet, Authorize(Roles = "Guest")]
+  [Route("miscSummary")]
+  public IActionResult GetMiscSummary(string player)
+  {
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+    var miscStats = _context.BcmMiscStats.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id);
+    if (miscStats is null) return Ok();
+
+    var historicalStats = JsonConvert.DeserializeObject<List<BcmHistoricalStats>>(miscStats.HistoricalStats!);
+
+    return Ok(historicalStats);
+  }
+
   [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("recalcBcmLeaderboard")]
   public IActionResult RecalcBcmLeaderboard()
@@ -46,6 +66,7 @@ public class StatsController : ControllerBase
 
     var leaderboardList = new List<Ranking>();
 
+    _context.BcmMonthlyStats.RemoveRange(_context.BcmMonthlyStats.ToList());
     var janCommunityGoalReached = _statsService.CalcJanCommunityGoal();
 
     foreach (var player in players)
@@ -60,11 +81,15 @@ public class StatsController : ControllerBase
 
       playerBcmStats.PlayerId = player.Id;
 
+      var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+      var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
       var playerCompletions = _context.BcmPlayerGames
                                       .Include(x => x.Game)
                                       .Where(x => x.PlayerId == player.Id &&
                                         x.CompletionDate != null &&
-                                        x.CompletionDate >= _bcmService.GetContestStartDate());
+                                        x.CompletionDate >= _bcmService.GetContestStartDate() &&
+                                        x.CompletionDate >= userRegDate);
 
       var gamesCompletedThisYear = playerCompletions.ToList();
 
@@ -75,7 +100,7 @@ public class StatsController : ControllerBase
       playerBcmStats.Completions = completedGamesCount;
       playerBcmStats.AverageRatio = ratioOfGames.DefaultIfEmpty(0).Average();
       playerBcmStats.HighestRatio = ratioOfGames.DefaultIfEmpty(0).Max();
-      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(20).Average();
+      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Average();
       playerBcmStats.HighestTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Max();
 
       double? basePoints = 0.0;
@@ -90,6 +115,7 @@ public class StatsController : ControllerBase
       playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
 
       _statsService.CalcJanBonus(player, gamesCompletedThisYear, janCommunityGoalReached);
+
       var bonusPoints = _context.BcmMonthlyStats.FirstOrDefault(x => x.BcmPlayerId == player.Id)?.BonusPoints ?? 0;
 
       playerBcmStats.BonusPoints = bonusPoints;

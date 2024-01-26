@@ -42,6 +42,7 @@ public class BcmController : ControllerBase
   }
 
   [HttpGet]
+  [Authorize(Roles = "Guest")]
   [Route("getBcmPlayer")]
   public IActionResult BcmPlayer(string player)
   {
@@ -59,6 +60,7 @@ public class BcmController : ControllerBase
   }
 
   [HttpGet]
+  [Authorize(Roles = "Guest")]
   [Route("getBcmPlayerWithGames")]
   public IActionResult BcmPlayerWithGames(string player)
   {
@@ -134,6 +136,22 @@ public class BcmController : ControllerBase
   }
 
   [HttpGet]
+  [Authorize(Roles = "Guest")]
+  [Route("yearlySummary")]
+  public async Task<IActionResult> GetPlayerYearlySummary(string player)
+  {
+    var localuser = await _context.Users.FirstOrDefaultAsync(x => x.Gamertag == player);
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+    var bcmPlayer = await _context.BcmPlayers.FirstOrDefaultAsync(x => x.UserId == localuser.Id);
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+    return Ok(_bcmService.GetParticipationProgress(bcmPlayer));
+  }
+
+
+  [HttpGet]
+  [Authorize(Roles = "Guest")]
   [Route("player/abcSummary")]
   public async Task<IActionResult> GetPlayerAbcSummary(string player)
   {
@@ -149,6 +167,7 @@ public class BcmController : ControllerBase
   }
 
   [HttpGet]
+  [Authorize(Roles = "Guest")]
   [Route("player/oddjobSummary")]
   public async Task<IActionResult> GetPlayerOddjobSummary(string player)
   {
@@ -164,6 +183,7 @@ public class BcmController : ControllerBase
   }
 
   [HttpGet]
+  [Authorize(Roles = "Guest")]
   [Route("player/miscstats")]
   public async Task<IActionResult> GetPlayerMiscStats(string player)
   {
@@ -176,121 +196,6 @@ public class BcmController : ControllerBase
     if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
 
     return Ok();
-  }
-
-  public class RandomRoll
-  {
-    public string? selectedPlayer { get; set; }
-    public int? selectedGameId { get; set; }
-  }
-
-  [HttpPost, Authorize(Roles = "Admin")]
-  [Route("rollRandom")]
-  public IActionResult RollRandomGame([FromBody] RandomRoll roll)
-  {
-    var players = _context.BcmPlayers.Include(u => u.User).Include(x => x.BcmRgscs).ToList();
-    var currentBcmPlayer = players.FirstOrDefault(x => x.User!.Gamertag == roll.selectedPlayer);
-
-    if (currentBcmPlayer is null)
-    {
-      players = players.Where(x => x.BcmRgscs == null || x.BcmRgscs.Count() == 0 || x.BcmRgscs
-                        .OrderByDescending(x => x.Issued)
-                        .First().Issued <= DateTime.UtcNow.AddDays(-25))
-                        .ToList();
-
-      if (players.Count() < 1) return BadRequest("no users left to random");
-
-      var playerIndex = new Random().Next(0, players.Count);
-      currentBcmPlayer = players[playerIndex];
-    }
-
-    _context.Attach(currentBcmPlayer);
-
-    var randomGameOptions = _context.BcmPlayerGames?
-            .Join(_context.Games!, pg => pg.GameId,
-              g => g.Id, (pg, g) => new { BcmPlayersGames = pg, Games = g })
-            .Where(x => x.BcmPlayersGames.PlayerId == currentBcmPlayer.Id
-              && x.Games.GamersCompleted > 0
-              && x.Games.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
-              && !x.Games.Unobtainables
-              && !x.BcmPlayersGames.NotForContests
-              && x.BcmPlayersGames.CompletionDate == null
-              && x.BcmPlayersGames.Ownership != Ownership.NoLongerHave
-              && BcmRule.RandomValidPlatforms.Contains(x.BcmPlayersGames.Platform!))
-            .AsEnumerable() // TODO: rewrite so this stays as a query?
-            .Where(x => Queries.FilterGamesForYearlies(x.Games, x.BcmPlayersGames))
-            .ToList();
-
-    var currentRandoms = _context.BcmRgsc.Where(x => !x.Rerolled && x.BcmPlayerId == currentBcmPlayer.Id);
-
-    randomGameOptions = randomGameOptions?
-      .Where(x => !currentRandoms.Any(y => y.GameId == x.Games.Id))
-      .ToList();
-
-    // if we get a game, they are rerolling an old game
-    var rolledRandom = currentRandoms.FirstOrDefault(x => x.GameId == roll.selectedGameId);
-
-    if (roll.selectedGameId != -1 && rolledRandom is not null)
-    {
-      rolledRandom.Rerolled = true;
-      rolledRandom.RerollDate = DateTime.UtcNow;
-    }
-
-    var currentChallenge = currentRandoms.OrderByDescending(x => x.Challenge).Select(x => x.Challenge).FirstOrDefault();
-    var nextChallenge = 1;
-
-    if (currentChallenge.HasValue)
-      nextChallenge = currentChallenge.Value + 1;
-
-    if (randomGameOptions is null || randomGameOptions?.Count() < 50)
-    {
-      if (roll.selectedGameId == -1 && rolledRandom is null)
-      {
-        // they are rerolling an invalid game, but it's still not valid
-        var mostRecentRandom = currentRandoms.OrderByDescending(x => x.Challenge).First();
-        mostRecentRandom.Issued = DateTime.UtcNow;
-        mostRecentRandom.PoolSize = randomGameOptions?.Count() ?? 0;
-      }
-      else
-      {
-        _context.BcmRgsc.Add(new BcmRgsc
-        {
-          Issued = DateTime.UtcNow,
-          GameId = null,
-          BcmPlayerId = currentBcmPlayer.Id,
-          PreviousGameId = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.GameId : null,
-          Challenge = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.Challenge : nextChallenge,
-          PoolSize = randomGameOptions?.Count() ?? 0
-        });
-      }
-
-      _context.SaveChanges();
-
-      return Ok(new { PoolSize = randomGameOptions?.Count() ?? 0, currentBcmPlayer.User });
-    }
-
-    var randomIndex = new Random().Next(0, randomGameOptions!.Count);
-    var currentRandom = randomGameOptions[randomIndex];
-
-    _context.BcmRgsc.Add(new BcmRgsc
-    {
-      Issued = DateTime.UtcNow,
-      GameId = currentRandom.Games.Id,
-      BcmPlayerId = currentBcmPlayer.Id,
-      Challenge = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.Challenge : nextChallenge,
-      PreviousGameId = roll.selectedGameId != -1 && roll.selectedGameId != null ? rolledRandom!.GameId : null,
-      PoolSize = randomGameOptions?.Count() ?? 0
-    });
-
-    _context.SaveChanges();
-
-    return Ok(new
-    {
-      PoolSize = randomGameOptions?.Count() ?? 0,
-      currentBcmPlayer.User,
-      Result = currentRandom,
-      BcmValue = _bcmService.CalcBcmValue(currentRandom.BcmPlayersGames.Platform, currentRandom.Games.SiteRatio, currentRandom.Games.FullCompletionEstimate)
-    });
   }
 
   [Authorize(Roles = "Guest")]

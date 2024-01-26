@@ -17,12 +17,14 @@ public class DataSync : IDataSync
   private TavisContext _context;
   private readonly IParser _parser;
   private readonly ITA_GameCollection _taGameCollection;
+  private readonly IRgscService _rgscService;
 
-  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection)
+  public DataSync(TavisContext context, IParser parser, ITA_GameCollection taGameCollection, IRgscService rgscService)
   {
     _context = context;
     _parser = parser;
     _taGameCollection = taGameCollection;
+    _rgscService = rgscService;
   }
 
   public object DynamicSync(List<BcmPlayer> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub)
@@ -47,9 +49,14 @@ public class DataSync : IDataSync
       var parseEnd = DateTime.UtcNow;
 
       Console.WriteLine($"{gamertag} has been parsed at {DateTime.UtcNow}");
-    }
 
-    _context.SaveChanges();
+      var eligRandoms = _rgscService.GetEligibleRandoms(player);
+      var rgsc = _context.BcmRgsc.Where(x => x.BcmPlayerId == player.Id).OrderByDescending(x => x.Issued).FirstOrDefault();
+      if (rgsc != null)
+        rgsc.PoolSize = eligRandoms?.Count() ?? 0;
+
+      _context.SaveChanges();
+    }
 
     var totalHits = 0;
     TimeSpan totalTimeHittingTa = new TimeSpan();
@@ -222,7 +229,6 @@ public class DataSync : IDataSync
 
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
 
-    Thread.Sleep(800);
     var response = httpClient.Send(request);
     using StreamReader reader = new(response.Content.ReadAsStream());
     var responseBody = reader.ReadToEnd();

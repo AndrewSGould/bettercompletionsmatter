@@ -9,9 +9,9 @@ public class BcmMiscStat
   [Key]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public long Id { get; set; }
-  public List<DateTime>? YearsParticipated { get; set; }
-  public int? LifetimeRgscCompletions { get; set; }
-  public List<DateTime>? FullCombos { get; set; }
+
+  [Column(TypeName = "jsonb")]
+  public string? HistoricalStats { get ; set; }
 
   public long PlayerId { get; set; }
   public BcmPlayer? BcmPlayer { get; set; }

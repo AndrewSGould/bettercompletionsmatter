@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20240121031825_AddActualMiscStats")]
+    partial class AddActualMiscStats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1737,12 +1740,6 @@ namespace TavisApi.Migrations
                             Id = 103L,
                             HistoricalStats = "[{\"Year\":2020,\"Rgsc\":6,\"FullCombo\":false,\"Placement\":17},{\"Year\":2021,\"Rgsc\":3,\"FullCombo\":false,\"Placement\":84},{\"Year\":2022,\"Rgsc\":4,\"FullCombo\":false,\"Placement\":70},{\"Year\":2023,\"Rgsc\":4,\"FullCombo\":false,\"Placement\":78}]",
                             PlayerId = 83L
-                        },
-                        new
-                        {
-                            Id = 105L,
-                            HistoricalStats = "[{\"Year\":2023,\"Rgsc\":0,\"FullCombo\":false,\"Placement\":111}]",
-                            PlayerId = 166L
                         });
                 });
 

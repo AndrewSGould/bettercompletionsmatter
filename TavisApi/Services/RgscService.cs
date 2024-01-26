@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Tavis.Extensions;
+using Tavis.Models;
 using TavisApi.ContestRules;
 using TavisApi.Context;
 
@@ -11,6 +13,29 @@ public class RgscService : IRgscService
   public RgscService(TavisContext context)
   {
     _context = context;
+  }
+
+  public List<BcmPlayerGame>? GetEligibleRandoms(BcmPlayer player)
+  {
+    var randomGameOptions = _context.BcmPlayerGames?
+            .Include(x => x.Game)
+            .Where(x => x.PlayerId == player.Id
+              && x.Game!.GamersCompleted > 0
+              && x.Game!.FullCompletionEstimate <= BcmRule.RandomMaxEstimate
+              && !x.Game!.Unobtainables
+              && !x.NotForContests
+              && x.CompletionDate == null
+              && x.Ownership != Ownership.NoLongerHave
+              && BcmRule.RandomValidPlatforms.Contains(x.Platform!))
+            .AsEnumerable() // TODO: rewrite so this stays as a query?
+            .Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+            .ToList();
+
+    var currentRandoms = _context.BcmRgsc.Where(x => !x.Rerolled && x.BcmPlayerId == player.Id);
+
+    return randomGameOptions?
+      .Where(x => !currentRandoms.Any(y => y.GameId == x.Game!.Id))
+      .ToList();
   }
 
   public int GetUserRerollCount(long userId)
