@@ -1,4 +1,4 @@
-namespace WebApi.Controllers;
+namespace TavisApi.Controllers;
 
 using TavisApi.Context;
 using TavisApi.Services;

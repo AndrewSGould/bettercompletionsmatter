@@ -1,4 +1,4 @@
-namespace WebApi.Controllers;
+namespace TavisApi.Controllers;
 
 using TavisApi.Context;
 using TavisApi.Services;
@@ -146,7 +146,8 @@ public class RgscController : ControllerBase
                                 g => g.Id, (rgsc, g) => new { Rgsc = rgsc, Game = g });
 
     var rgscCompletions = rgsc.Join(playersCompletedGames, rgsc => rgsc.GameId,
-                                pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg }).ToList();
+                                pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg })
+                              .ToList();
 
 
     var rerollsUsed = rgsc.Count(x => x.Rerolled);
@@ -158,18 +159,18 @@ public class RgscController : ControllerBase
     {
       return Ok(new
       {
-        CurrentRandoms = rgsc.FirstOrDefault(),
+        CurrentRandoms = rgsc.OrderByDescending(x => x.Challenge).FirstOrDefault(),
         RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletions.Count() - rerollsUsed,
-        RgscsCompleted = rgscCompletions,
+        RgscsCompleted = rgscCompletions.Where(x => x.Rgsc.Rerolled == false),
         RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
       });
     }
     else
       return Ok(new
       {
-          CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled),
+          CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled).OrderByDescending(x => x.Rgsc.Challenge),
           RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletions.Count() - rerollsUsed,
-          RgscsCompleted = rgscCompletions,
+          RgscsCompleted = rgscCompletions.Where(x => x.Rgsc.Rerolled == false),
           RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
       });
   }

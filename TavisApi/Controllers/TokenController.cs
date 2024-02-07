@@ -1,4 +1,5 @@
-namespace WebApi.Controllers;
+namespace TavisApi.Controllers;
+
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using TavisApi.Context;

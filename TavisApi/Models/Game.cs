@@ -21,6 +21,7 @@ public class Game
   public DateTime? ServerClosure { get; set; }
   public double? InstallSize { get; set; }
   public double? FullCompletionEstimate { get; set; }
+  public bool ManuallyScored { get; set; }
 
 
   public FeatureList? FeatureList { get; set; }

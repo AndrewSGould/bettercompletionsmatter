@@ -1,4 +1,4 @@
-namespace WebApi.Controllers;
+namespace TavisApi.Controllers;
 
 using TavisApi.ContestRules;
 using TavisApi.Context;
@@ -83,7 +83,7 @@ public class BcmController : ControllerBase
 
     var playerBcmGames = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.BcmPlayer == bcmPlayer
                                                                                 && x.CompletionDate != null
-                                                                                && x.CompletionDate > userRegDate
+                                                                                && x.CompletionDate > userRegDate!.Value.AddDays(-1)
                                                                                 && x.CompletionDate > bcmRegDate);
 
     var pointedGames = new List<object>();
@@ -100,25 +100,25 @@ public class BcmController : ControllerBase
     }
 
     var avgRatio = playerBcmGames
-        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate && x.CompletionDate > bcmRegDate)
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate!.Value.AddDays(-1) && x.CompletionDate > bcmRegDate)
         .Select(x => x.Game.SiteRatio)
         .AsEnumerable()
         .DefaultIfEmpty(0)
         .Average();
     var avgTime = playerBcmGames
-        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate && x.CompletionDate > bcmRegDate)
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate!.Value.AddDays(-1) && x.CompletionDate > bcmRegDate)
         .Select(x => x.Game.FullCompletionEstimate)
         .AsEnumerable()
         .DefaultIfEmpty(0)
         .Average();
     var highestTime = playerBcmGames
-        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate && x.CompletionDate > bcmRegDate)
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate!.Value.AddDays(-1) && x.CompletionDate > bcmRegDate)
         .Select(x => x.Game.FullCompletionEstimate)
         .AsEnumerable()
         .DefaultIfEmpty(0)
         .Max();
     var highestRatio = playerBcmGames
-        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate && x.CompletionDate > bcmRegDate)
+        .Where(x => x.CompletionDate != null && x.CompletionDate > userRegDate!.Value.AddDays(-1) && x.CompletionDate > bcmRegDate)
         .Select(x => x.Game.SiteRatio)
         .AsEnumerable()
         .DefaultIfEmpty(0)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20240205232930_PrefillYearlyData")]
+    partial class PrefillYearlyData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -956,12 +959,9 @@ namespace TavisApi.Migrations
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
-                    b.Property<long>("PlayerId")
-                        .HasColumnType("bigint")
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer")
                         .HasColumnOrder(2);
-
-                    b.Property<bool>("Approved")
-                        .HasColumnType("boolean");
 
                     b.Property<int?>("GameId")
                         .HasColumnType("integer");

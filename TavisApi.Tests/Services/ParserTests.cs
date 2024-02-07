@@ -3,7 +3,7 @@ using TavisApi.Services;
 
 namespace TavisApi.Tests;
 
-public class ParserTests : IDisposable
+public class ParserTests
 {
   Parser _parse;
 
@@ -264,9 +264,5 @@ public class ParserTests : IDisposable
   public void Properly_Parses_GameUrl(string unparsedGameUrl, string expectedUrl) {
     var parsedGameUrl = _parse.GameUrl(unparsedGameUrl);
     Assert.Equal(parsedGameUrl, expectedUrl);
-  }
-
-  public void Dispose() {
-
   }
 }

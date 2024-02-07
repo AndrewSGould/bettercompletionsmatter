@@ -18,6 +18,22 @@ public class StatsService : IStatsService
     _bcmService = bcmService;
   }
 
+  public int ScoreRgscCompletions(BcmPlayer player, List<BcmPlayerGame> completedGames)
+  {
+    var rgsc = _context.BcmRgsc.Where(x => x.BcmPlayerId == player.Id)
+                                .OrderByDescending(x => x.Issued)
+                                .ToList();
+
+    var rgscCompletions = rgsc.Join(completedGames, rgsc => rgsc.GameId,
+                                pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg })
+                              .Where(x => x.Rgsc.Rerolled == false)
+                              .ToList();
+
+    var fullCompletionBonus = rgscCompletions.Count() == 11 ? 1000 : 0;
+
+    return fullCompletionBonus + rgscCompletions.Count() * 100;
+  }
+
   public bool CalcJanCommunityGoal()
   {
     var janCompletions = _context.BcmPlayerGames

@@ -303,33 +303,33 @@ public class DataSync : IDataSync
       {
         incomingData.Add(new TA_CollectionEntry
         {
-          GameId = _parser.GameId(game[1].GameIdHtml!),
-          Title = Extensions.NullIfWhiteSpace(game[0].CollectionValuesHtml!),
-          GameUrl = _parser.GameUrl(game[0].CollectionImagesHtml!),
-          Platform = _parser.GamePlatform(game[1].CollectionImagesHtml!),
-          PlayerTrueAchievement = _parser.PlayersGameSlashedValue(game[2].CollectionValuesHtml!),
-          TotalTrueAchievement = _parser.GameTotalSlashedValue(game[2].CollectionValuesHtml!),
-          PlayerGamerscore = _parser.PlayersGameSlashedValue(game[3].CollectionValuesHtml!),
-          TotalGamerscore = _parser.GameTotalSlashedValue(game[3].CollectionValuesHtml!),
-          PlayerAchievementCount = _parser.PlayersGameSlashedValue(game[4].CollectionValuesHtml!),
-          TotalAchievementCount = _parser.GameTotalSlashedValue(game[4].CollectionValuesHtml!),
-          StartedDate = _parser.TaDate(game[5].CollectionValuesHtml!),
-          CompletionDate = _parser.TaDate(game[6].CollectionValuesHtml!),
-          LastUnlock = _parser.TaDate(game[7].CollectionValuesHtml!),
-          Ownership = _parser.GameOwnership(game[8].CollectionValuesHtml!),
-          NotForContests = _parser.GameNotForContests(game[9].CollectionImagesHtml!),
-          Publisher = Extensions.NullIfWhiteSpace(game[10].CollectionValuesHtml!),
-          Developer = Extensions.NullIfWhiteSpace(game[11].CollectionValuesHtml!),
-          ReleaseDate = _parser.TaDate(game[12].CollectionValuesHtml!),
-          GamersWithGame = _parser.GamersCount(game[13].CollectionValuesHtml!),
-          GamersCompleted = _parser.GamersCount(game[14].CollectionValuesHtml!),
-          BaseCompletionEstimate = _parser.BaseGameCompletionEstimate(game[15].CollectionValuesHtml!),
-          SiteRatio = _parser.DecimalString(game[16].CollectionValuesHtml!),
-          SiteRating = _parser.DecimalString(game[17].CollectionValuesHtml!),
-          Unobtainables = _parser.Unobtainables(game[18].CollectionImagesHtml!),
-          ServerClosure = _parser.TaDate(game[19].CollectionValuesHtml!),
-          InstallSize = _parser.GameSize(game[20].CollectionValuesHtml!),
-          FullCompletionEstimate = _parser.FullCompletionEstimate(game[21].CollectionValuesHtml!)
+          GameId = _parser.GameId(game[1].GameIdHtml),
+          Title = Extensions.NullIfWhiteSpace(game[0].CollectionValuesHtml),
+          GameUrl = _parser.GameUrl(game[0].CollectionImagesHtml),
+          Platform = _parser.GamePlatform(game[1].CollectionImagesHtml),
+          PlayerTrueAchievement = _parser.PlayersGameSlashedValue(game[2].CollectionValuesHtml),
+          TotalTrueAchievement = _parser.GameTotalSlashedValue(game[2].CollectionValuesHtml),
+          PlayerGamerscore = _parser.PlayersGameSlashedValue(game[3].CollectionValuesHtml),
+          TotalGamerscore = _parser.GameTotalSlashedValue(game[3].CollectionValuesHtml),
+          PlayerAchievementCount = _parser.PlayersGameSlashedValue(game[4].CollectionValuesHtml),
+          TotalAchievementCount = _parser.GameTotalSlashedValue(game[4].CollectionValuesHtml),
+          StartedDate = _parser.TaDate(game[5].CollectionValuesHtml),
+          CompletionDate = _parser.TaDate(game[6].CollectionValuesHtml),
+          LastUnlock = _parser.TaDate(game[7].CollectionValuesHtml),
+          Ownership = _parser.GameOwnership(game[8].CollectionValuesHtml),
+          NotForContests = _parser.GameNotForContests(game[9].CollectionImagesHtml),
+          Publisher = Extensions.NullIfWhiteSpace(game[10].CollectionValuesHtml),
+          Developer = Extensions.NullIfWhiteSpace(game[11].CollectionValuesHtml),
+          ReleaseDate = _parser.TaDate(game[12].CollectionValuesHtml),
+          GamersWithGame = _parser.GamersCount(game[13].CollectionValuesHtml),
+          GamersCompleted = _parser.GamersCount(game[14].CollectionValuesHtml),
+          BaseCompletionEstimate = _parser.BaseGameCompletionEstimate(game[15].CollectionValuesHtml),
+          SiteRatio = _parser.DecimalString(game[16].CollectionValuesHtml),
+          SiteRating = _parser.DecimalString(game[17].CollectionValuesHtml),
+          Unobtainables = _parser.Unobtainables(game[18].CollectionImagesHtml),
+          ServerClosure = _parser.TaDate(game[19].CollectionValuesHtml),
+          InstallSize = _parser.GameSize(game[20].CollectionValuesHtml),
+          FullCompletionEstimate = _parser.FullCompletionEstimate(game[21].CollectionValuesHtml)
         });
       }
       catch (Exception ex)
@@ -417,31 +417,50 @@ public class DataSync : IDataSync
 
   private void UpdateGameInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList)
   {
-    var knownGames = incomingData.Where(incData => taGameIdList.Contains(incData.GameId)).ToList();
-    var gamesToUpdate = _context.Games!.Where(x => knownGames.Select(y => y.GameId).Contains(x.TrueAchievementId));
+    var incomingGames = incomingData.Where(incData => taGameIdList.Contains(incData.GameId)).ToList();
+    var gamesToUpdate = _context.Games!.Where(x => incomingGames.Select(y => y.GameId).Contains(x.TrueAchievementId));
 
     foreach (var gameToUpdate in gamesToUpdate)
     {
-      var knownGame = knownGames.First(x => x.GameId == gameToUpdate.TrueAchievementId);
+      var incomingGame = incomingGames.First(x => x.GameId == gameToUpdate.TrueAchievementId);
 
-      gameToUpdate.Publisher = knownGame.Publisher;
-      gameToUpdate.Developer = knownGame.Developer;
-      gameToUpdate.ReleaseDate = knownGame.ReleaseDate;
-      gameToUpdate.Title = knownGame.Title;
-      gameToUpdate.TrueAchievement = knownGame.TotalTrueAchievement;
-      gameToUpdate.Gamerscore = knownGame.TotalGamerscore;
-      gameToUpdate.AchievementCount = knownGame.TotalAchievementCount;
-      gameToUpdate.GamersWithGame = knownGame.GamersWithGame;
-      gameToUpdate.GamersCompleted = knownGame.GamersCompleted;
-      gameToUpdate.BaseCompletionEstimate = knownGame.BaseCompletionEstimate ?? gameToUpdate.BaseCompletionEstimate;
-      gameToUpdate.SiteRatio = knownGame.SiteRatio;
-      gameToUpdate.SiteRating = knownGame.SiteRating;
-      gameToUpdate.Unobtainables = knownGame.Unobtainables;
-      gameToUpdate.ServerClosure = knownGame.ServerClosure;
-      gameToUpdate.InstallSize = knownGame.InstallSize;
-      gameToUpdate.FullCompletionEstimate = knownGame.FullCompletionEstimate ?? gameToUpdate.FullCompletionEstimate;
-      gameToUpdate.Url = knownGame.GameUrl;
+      gameToUpdate.Publisher = incomingGame.Publisher;
+      gameToUpdate.Developer = incomingGame.Developer;
+      gameToUpdate.ReleaseDate = incomingGame.ReleaseDate;
+      gameToUpdate.Title = incomingGame.Title;
+      gameToUpdate.TrueAchievement = incomingGame.TotalTrueAchievement;
+      gameToUpdate.Gamerscore = incomingGame.TotalGamerscore;
+      gameToUpdate.AchievementCount = incomingGame.TotalAchievementCount;
+      gameToUpdate.GamersWithGame = incomingGame.GamersWithGame;
+      gameToUpdate.GamersCompleted = incomingGame.GamersCompleted;
+      gameToUpdate.BaseCompletionEstimate = incomingGame.BaseCompletionEstimate;
+      gameToUpdate.SiteRatio = incomingGame.SiteRatio;
+      gameToUpdate.SiteRating = incomingGame.SiteRating;
+      gameToUpdate.Unobtainables = incomingGame.Unobtainables;
+      gameToUpdate.ServerClosure = incomingGame.ServerClosure;
+      gameToUpdate.InstallSize = incomingGame.InstallSize;
+      gameToUpdate.FullCompletionEstimate = DetermineCompletionEstimate(gameToUpdate, incomingGame);
+      gameToUpdate.Url = incomingGame.GameUrl;
     }
+  }
+
+  public double? DetermineCompletionEstimate(Game tavisGame, TA_CollectionEntry scannedGame)
+  {
+    // always use the TA estimate if it's not empty
+    if (scannedGame.FullCompletionEstimate != null)
+    {
+      tavisGame.ManuallyScored = false;
+      return scannedGame.FullCompletionEstimate;
+    }
+
+    // if a game _seems_ like its a base game, use the base completion estimate
+    if ((scannedGame.TotalGamerscore == 1000 || scannedGame.TotalGamerscore == 400 || scannedGame.TotalGamerscore == 200) && scannedGame.BaseCompletionEstimate != -1)
+      return scannedGame.BaseCompletionEstimate;
+
+    // otherwise return nothing to be manually scored, unless it's already been manually scored
+    return tavisGame.ManuallyScored
+        ? tavisGame.FullCompletionEstimate
+        : null;
   }
 
   private void UpdateCollectionInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, BcmPlayer player)

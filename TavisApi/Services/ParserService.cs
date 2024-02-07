@@ -7,7 +7,7 @@ namespace TavisApi.Services
 //TODO: improve performance here
   public class Parser : IParser 
   {
-    public int? PlayersGameSlashedValue(string unparsed) {
+    public int? PlayersGameSlashedValue(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == "-" || unparsed == null) return null;
 
@@ -24,7 +24,7 @@ namespace TavisApi.Services
       }
     }
 
-    public int? GameTotalSlashedValue(string unparsed) {
+    public int? GameTotalSlashedValue(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == "-" || unparsed == null) return null;
 
@@ -41,7 +41,7 @@ namespace TavisApi.Services
       }
     }
 
-    public Platform GamePlatform(string unparsed) {
+    public Platform GamePlatform(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return Platform.None;
 
@@ -55,7 +55,7 @@ namespace TavisApi.Services
       }
     }
 
-    public int GameId(string unparsed) {
+    public int GameId(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) 
         throw new Exception("GameId was unable to be parsed! " + unparsed);
@@ -71,7 +71,7 @@ namespace TavisApi.Services
       }
     }
 
-    public DateTime? TaDate(string unparsed) {
+    public DateTime? TaDate(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return null;
 
@@ -94,7 +94,7 @@ namespace TavisApi.Services
       }
     }
 
-    public Ownership GameOwnership(string unparsed) {
+    public Ownership GameOwnership(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return Ownership.None;
         return Ownership.FromName(unparsed);
@@ -105,7 +105,7 @@ namespace TavisApi.Services
       }
     }
 
-    public bool GameNotForContests(string unparsed) {
+    public bool GameNotForContests(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return false;
 
@@ -122,7 +122,7 @@ namespace TavisApi.Services
       }
     }
 
-    public int GamersCount(string unparsed) {
+    public int GamersCount(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return -1;
         return int.Parse(unparsed, NumberStyles.AllowThousands);
@@ -133,7 +133,7 @@ namespace TavisApi.Services
       }
     }
 
-    public double BaseGameCompletionEstimate(string unparsed) {
+    public double BaseGameCompletionEstimate(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return -1;
 
@@ -151,7 +151,7 @@ namespace TavisApi.Services
       }
     }
 
-    public double DecimalString(string unparsed) {
+    public double DecimalString(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null || unparsed == "-") return 0.000;
         return double.Parse(unparsed, NumberStyles.Float);
@@ -162,7 +162,7 @@ namespace TavisApi.Services
       }
     }
 
-    public bool Unobtainables(string unparsed) {
+    public bool Unobtainables(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return false;
       
@@ -180,7 +180,7 @@ namespace TavisApi.Services
       }
     }
 
-    public double? GameSize(string unparsed) {
+    public double? GameSize(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return null;
 
@@ -227,7 +227,7 @@ namespace TavisApi.Services
       }
     }
 
-    public double? FullCompletionEstimate(string unparsed) {
+    public double? FullCompletionEstimate(string? unparsed) {
       try{
         if (unparsed == "" || unparsed == null) return null;
 
@@ -247,7 +247,7 @@ namespace TavisApi.Services
       }
     }
 
-    public string? GameUrl(string unparsed) {
+    public string? GameUrl(string? unparsed) {
       try {
         if (unparsed == "" || unparsed == null) return null;
 

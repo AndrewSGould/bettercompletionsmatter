@@ -1,4 +1,5 @@
-namespace WebApi.Controllers;
+namespace TavisApi.Controllers;
+
 using Microsoft.AspNetCore.Mvc;
 using TavisApi.Context;
 using System.Linq;

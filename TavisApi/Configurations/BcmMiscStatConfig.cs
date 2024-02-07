@@ -2075,7 +2075,7 @@ public class BcmMiscStatConfiguration : IEntityTypeConfiguration<BcmMiscStat>
       {
         Year = 2022,
         Rgsc = 12,
-        FullCombo = false,
+        FullCombo = true,
         Placement = 11
       },
       new BcmHistoricalStats

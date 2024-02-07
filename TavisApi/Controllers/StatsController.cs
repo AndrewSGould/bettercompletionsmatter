@@ -1,4 +1,4 @@
-namespace WebApi.Controllers;
+namespace TavisApi.Controllers;
 
 using TavisApi.Context;
 using TavisApi.Services;
@@ -67,6 +67,7 @@ public class StatsController : ControllerBase
     var leaderboardList = new List<Ranking>();
 
     _context.BcmMonthlyStats.RemoveRange(_context.BcmMonthlyStats.ToList());
+
     var janCommunityGoalReached = _statsService.CalcJanCommunityGoal();
 
     foreach (var player in players)
@@ -89,7 +90,7 @@ public class StatsController : ControllerBase
                                       .Where(x => x.PlayerId == player.Id &&
                                         x.CompletionDate != null &&
                                         x.CompletionDate >= _bcmService.GetContestStartDate() &&
-                                        x.CompletionDate >= userRegDate);
+                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1));
 
       var gamesCompletedThisYear = playerCompletions.ToList();
 
@@ -114,12 +115,13 @@ public class StatsController : ControllerBase
       playerBcmStats.BasePoints = basePoints;
       playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
 
+      var rgscBonus = _statsService.ScoreRgscCompletions(player, gamesCompletedThisYear);
       _statsService.CalcJanBonus(player, gamesCompletedThisYear, janCommunityGoalReached);
 
-      var bonusPoints = _context.BcmMonthlyStats.FirstOrDefault(x => x.BcmPlayerId == player.Id)?.BonusPoints ?? 0;
+      var monthlyBonus = _context.BcmMonthlyStats.FirstOrDefault(x => x.BcmPlayerId == player.Id)?.BonusPoints ?? 0;
 
-      playerBcmStats.BonusPoints = bonusPoints;
-      playerBcmStats.TotalPoints = basePoints + bonusPoints;
+      playerBcmStats.BonusPoints = monthlyBonus + rgscBonus;
+      playerBcmStats.TotalPoints = basePoints + monthlyBonus + rgscBonus;
 
       leaderboardList.Add(new Ranking
       {

@@ -53,7 +53,7 @@ public class BcmService : IBcmService
                                     .Where(x => x.PlayerId == playerId &&
                                       x.CompletionDate != null &&
                                       x.CompletionDate >= GetContestStartDate() &&
-                                      x.CompletionDate >= userRegDate)
+                                      x.CompletionDate >= userRegDate!.Value.AddDays(-1))
                                     .ToListAsync();
 
     // now that we have the list of 2024 completions, lets apply our unqiue logic
@@ -81,7 +81,7 @@ public class BcmService : IBcmService
                       .Where(x => x.pcg.PlayerId == playerId &&
                         x.pcg.CompletionDate != null &&
                         x.pcg.CompletionDate >= GetContestStartDate() &&
-                        x.pcg.CompletionDate >= userRegDate)
+                        x.pcg.CompletionDate >= userRegDate!.Value.AddDays(-1))
                       .OrderBy(x => x.pcg.CompletionDate)
                       .ToListAsync();
 
