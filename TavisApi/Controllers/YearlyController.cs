@@ -33,21 +33,17 @@ public class YearlyController : ControllerBase
     if (playerId is null) return BadRequest("Could not get Bcm Player");
 
     var yearlyList = await _context.YearlyChallenges
-                  .GroupJoin(
-                      _context.PlayerYearlyChallenges.Include(x => x.Game),
-                      yc => yc.Id,
-                      pyc => pyc.YearlyChallengeId,
-                      (yc, pycGroup) => new { YearlyChallenge = yc, PlayerYearlyChallenges = pycGroup.DefaultIfEmpty() }
-                  )
-                  .SelectMany(
-                      x => x.PlayerYearlyChallenges,
-                      (x, pyc) => new { x.YearlyChallenge, PlayerYearlyChallenge = pyc }
-                  )
-                  .Where(x => x.PlayerYearlyChallenge == null || x.PlayerYearlyChallenge.PlayerId == playerId)
-                  .OrderBy(x => x.YearlyChallenge.Title)
-                  .ToListAsync();
+        .OrderBy(x => x.Id)
+        .ToListAsync();
 
-    return Ok(yearlyList);
+    var playerYearlyList = yearlyList.GroupJoin(
+        _context.PlayerYearlyChallenges.Include(x => x.Game),
+        yc => yc.Id,
+        pyc => pyc.YearlyChallengeId,
+        (yc, pycGroup) => new { YearlyChallenge = yc, PlayerYearlyChallenge = pycGroup.FirstOrDefault(x => x.PlayerId == playerId) }
+    );
+
+    return Ok(playerYearlyList);
   }
 
   [Authorize(Roles = "Participant")]
