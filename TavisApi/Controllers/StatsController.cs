@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using TavisApi.Models;
+using System.Numerics;
+using Tavis.Extensions;
 
 [ApiController]
 [Route("[controller]")]
@@ -68,8 +70,6 @@ public class StatsController : ControllerBase
 
     _context.BcmMonthlyStats.RemoveRange(_context.BcmMonthlyStats.ToList());
 
-    var janCommunityGoalReached = _statsService.CalcJanCommunityGoal();
-
     foreach (var player in players)
     {
       var playerBcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
@@ -116,12 +116,11 @@ public class StatsController : ControllerBase
       playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
 
       var rgscBonus = _statsService.ScoreRgscCompletions(player, gamesCompletedThisYear);
-      _statsService.CalcJanBonus(player, gamesCompletedThisYear, janCommunityGoalReached);
+      var janBonus = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+      var febBonus = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
-      var monthlyBonus = _context.BcmMonthlyStats.FirstOrDefault(x => x.BcmPlayerId == player.Id)?.BonusPoints ?? 0;
-
-      playerBcmStats.BonusPoints = monthlyBonus + rgscBonus;
-      playerBcmStats.TotalPoints = basePoints + monthlyBonus + rgscBonus;
+      playerBcmStats.BonusPoints = rgscBonus + janBonus + febBonus;
+      playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
       leaderboardList.Add(new Ranking
       {
@@ -143,6 +142,59 @@ public class StatsController : ControllerBase
 
       playerBcmStats.Rank = newRanking;
       playerBcmStats.RankMovement = previousRanking - newRanking;
+    }
+
+    _context.SaveChanges();
+
+    return Ok();
+  }
+
+  [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+  [Route("calcMonthlyBonus")]
+  public IActionResult CalcMonthlyBonus()
+  {
+    var players = _bcmService.GetPlayers();
+    var leaderboardList = new List<Ranking>();
+
+    var allFebCompletions = _context.BcmPlayerGames
+        .Include(x => x.Game)
+        .Where(x => x.CompletionDate != null
+            && x.CompletionDate.Value.Year == 2024
+            && x.CompletionDate.Value.Month == 2)
+        .GroupBy(x => x.Game)
+        .Select(g => Tuple.Create(g.Key, g.Count()))
+        .ToList();
+
+    var communityBonusReached = allFebCompletions.Where(x => x.Item2 > 10).Count() >= 3;
+
+    _context.FebRecap.RemoveRange(_context.FebRecap.ToList());
+
+    foreach (var player in players)
+    {
+      var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+      var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+      var playerCompletions = _context.BcmPlayerGames
+                                      .Include(x => x.Game)
+                                      .Where(x => x.PlayerId == player.Id &&
+                                        x.CompletionDate != null &&
+                                        x.CompletionDate >= _bcmService.GetContestStartDate() &&
+                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1));
+
+      var gamesCompletedThisMonth = playerCompletions.Where(x => x.CompletionDate!.Value.Year == 2024 && x.CompletionDate!.Value.Month == 2).ToList();
+
+      _statsService.CalcFebBonus(player, gamesCompletedThisMonth, allFebCompletions!, communityBonusReached);
+    }
+
+    foreach (var player in players)
+    {
+      var febStats = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+      if (febStats != null)
+      {
+        var febRanking = _context.FebRecap.OrderByDescending(x => x.TotalPoints).ToList();
+        int rank = febRanking.FindIndex(x => x.Id == febStats.Id);
+        febStats.Rank = rank + 1;
+      }
     }
 
     _context.SaveChanges();

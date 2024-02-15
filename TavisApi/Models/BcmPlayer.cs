@@ -16,6 +16,8 @@ public class BcmPlayer
   public ICollection<BcmPlayerGame>? BcmPlayerGames { get; set; }
   public ICollection<BcmPlayerCompletionHistory>? BcmPlayerCompletionHistories { get; set; }
   public BcmStat? BcmStats { get; set; }
+  public JanRecap? JanRecap { get; set; }
+  public FebRecap? FebRecap { get; set; }
   public BcmMiscStat? BcmMiscStats { get; set; }
   public ICollection<BcmRgsc>? BcmRgscs { get; set; }
   public ICollection<BcmMonthlyStat>? BcmMonthlyStats { get; set; }

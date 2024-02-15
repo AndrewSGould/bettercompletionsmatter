@@ -149,7 +149,6 @@ public class BcmController : ControllerBase
     return Ok(_bcmService.GetParticipationProgress(bcmPlayer));
   }
 
-
   [HttpGet]
   [Authorize(Roles = "Guest")]
   [Route("player/abcSummary")]
@@ -199,16 +198,16 @@ public class BcmController : ControllerBase
   }
 
   [Authorize(Roles = "Guest")]
-  [HttpGet, Route("monthly/jan")]
-  public async Task<IActionResult> JanSummary(string player)
+  [HttpGet, Route("monthly/feb")]
+  public async Task<IActionResult> FebSummary(string player)
   {
     var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
     if (localuser is null) return BadRequest("Player not found with the provided gamertag");
 
     var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
-    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");    
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
 
-    return Ok(await _context.BcmMonthlyStats.FirstOrDefaultAsync(x => x.BcmPlayerId == bcmPlayer.Id && x.Challenge == 1));
+    return Ok(await _context.FebRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id));
   }
 
   [Authorize(Roles = "Guest")]

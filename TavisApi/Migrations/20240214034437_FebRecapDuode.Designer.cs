@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20240214034437_FebRecapDuode")]
+    partial class FebRecapDuode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -380,23 +383,14 @@ namespace TavisApi.Migrations
                     b.Property<int>("BiCompletion")
                         .HasColumnType("integer");
 
-                    b.Property<double>("BiPoints")
-                        .HasColumnType("double precision");
-
                     b.Property<bool>("CommunityBonus")
                         .HasColumnType("boolean");
 
                     b.Property<int>("DecCompletion")
                         .HasColumnType("integer");
 
-                    b.Property<double>("DecPoints")
-                        .HasColumnType("double precision");
-
                     b.Property<int>("DuodeCompletion")
                         .HasColumnType("integer");
-
-                    b.Property<double>("DuodePoints")
-                        .HasColumnType("double precision");
 
                     b.Property<string>("Gamertag")
                         .IsRequired()
@@ -405,26 +399,14 @@ namespace TavisApi.Migrations
                     b.Property<int>("OctCompletion")
                         .HasColumnType("integer");
 
-                    b.Property<double>("OctPoints")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool>("Participation")
-                        .HasColumnType("boolean");
-
                     b.Property<long>("PlayerId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("QuadCompletion")
                         .HasColumnType("integer");
 
-                    b.Property<double>("QuadPoints")
-                        .HasColumnType("double precision");
-
                     b.Property<int>("QuintCompletion")
                         .HasColumnType("integer");
-
-                    b.Property<double>("QuintPoints")
-                        .HasColumnType("double precision");
 
                     b.Property<int>("Rank")
                         .HasColumnType("integer");
@@ -432,14 +414,8 @@ namespace TavisApi.Migrations
                     b.Property<int>("SepCompletion")
                         .HasColumnType("integer");
 
-                    b.Property<double>("SepPoints")
-                        .HasColumnType("double precision");
-
                     b.Property<int>("SexCompletion")
                         .HasColumnType("integer");
-
-                    b.Property<double>("SexPoints")
-                        .HasColumnType("double precision");
 
                     b.Property<double>("TotalPoints")
                         .HasColumnType("double precision");
@@ -447,14 +423,8 @@ namespace TavisApi.Migrations
                     b.Property<int>("TriCompletion")
                         .HasColumnType("integer");
 
-                    b.Property<double>("TriPoints")
-                        .HasColumnType("double precision");
-
                     b.Property<int>("UndeCompletion")
                         .HasColumnType("integer");
-
-                    b.Property<double>("UndePoints")
-                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
