@@ -267,6 +267,8 @@ public class StatsService : IStatsService
       }
     }
 
+    var playerMetCommunityBonus = communityBonusReached && (triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0);
+
     var playerFebStats = _context.FebRecap.Add(new FebRecap
     {
       Gamertag = player.User!.Gamertag!,
@@ -291,8 +293,8 @@ public class StatsService : IStatsService
       DuodeCompletion = duodeComps,
       DuodePoints = duodePoints,
       Participation = biComps > 0 || triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0,
-      CommunityBonus = communityBonusReached && (triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0),
-      TotalPoints = biPoints + triPoints + quadPoints + quintPoints + sexPoints + sepPoints + octPoints + decPoints + undePoints + duodePoints,
+      CommunityBonus = playerMetCommunityBonus,
+      TotalPoints = biPoints + triPoints + quadPoints + quintPoints + sexPoints + sepPoints + octPoints + decPoints + undePoints + duodePoints + (playerMetCommunityBonus ? 500 : 0),
       PlayerId = player.Id
     });
 
