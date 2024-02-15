@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using Tavis.Extensions;
@@ -36,6 +37,10 @@ public class StatsService : IStatsService
 
   public bool CalcJanCommunityGoal()
   {
+    // defaulting to this because this was already scored
+    // and we want this to lock in
+    return true;
+
     var janCompletions = _context.BcmPlayerGames
         .Include(x => x.Game)
         .Where(x => x.CompletionDate != null
@@ -62,7 +67,7 @@ public class StatsService : IStatsService
 
     var bonusPoints = 0;
 
-    bonusPoints += ScoreJanBaseBonus(filteredCompletions);
+    bonusPoints += ScoreJanBaseBonus(player, filteredCompletions);
 
     var hasAllBuckets = HasBucketBonus(filteredCompletions);
     bonusPoints += hasAllBuckets ? 250 : 0;
@@ -94,27 +99,208 @@ public class StatsService : IStatsService
     return bucket1 && bucket2 && bucket3 && bucket4;
   }
 
-  private int ScoreJanBaseBonus(List<BcmPlayerGame> completedGames)
+  private int ScoreJanBaseBonus(BcmPlayer player, List<BcmPlayerGame> completedGames)
   {
     var gameBonusPoints = 0;
+
+    var bucket1Points = 0;
+    var bucket1Comps = 0;
+    var bucket2Points = 0;
+    var bucket2Comps = 0;
+    var bucket3Points = 0;
+    var bucket3Comps = 0;
+    var bucket4Points = 0;
+    var bucket4Comps = 0;
 
     foreach(var completion in completedGames)
     {
       var rawPoints = _bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game!.FullCompletionEstimate);
 
       if (completion.Game.ReleaseDate!.Value.Year >= 2005 && completion.Game.ReleaseDate!.Value.Year <= 2009 && rawPoints != null)
-        gameBonusPoints += Convert.ToInt32(Math.Floor(rawPoints.Value * .5));
-
+      {
+        var bonusPoints = Convert.ToInt32(Math.Floor(rawPoints.Value * .5));
+        gameBonusPoints += bonusPoints;
+        bucket1Points += bonusPoints;
+        bucket1Comps++;
+      }
+        
       if (completion.Game.ReleaseDate!.Value.Year >= 2010 && completion.Game.ReleaseDate!.Value.Year <= 2014 && rawPoints != null)
-        gameBonusPoints += Convert.ToInt32(Math.Floor(rawPoints.Value * .25));
-
+      {
+        var bonusPoints = Convert.ToInt32(Math.Floor(rawPoints.Value * .25));
+        gameBonusPoints += bonusPoints;
+        bucket2Points += bonusPoints;
+        bucket2Comps++;
+      }
+        
       if (completion.Game.ReleaseDate!.Value.Year >= 2015 && completion.Game.ReleaseDate!.Value.Year <= 2019 && rawPoints != null)
-        gameBonusPoints += Convert.ToInt32(Math.Floor(rawPoints.Value * .15));
-
+      {
+        var bonusPoints = Convert.ToInt32(Math.Floor(rawPoints.Value * .15));
+        gameBonusPoints += bonusPoints;
+        bucket3Points += bonusPoints;
+        bucket3Comps++;
+      }
+        
       if (completion.Game.ReleaseDate!.Value.Year >= 2020 && completion.Game.ReleaseDate!.Value.Year <= 2023 && rawPoints != null)
-        gameBonusPoints += Convert.ToInt32(Math.Floor(rawPoints.Value * .10));
+      {
+        var bonusPoints = Convert.ToInt32(Math.Floor(rawPoints.Value * .10));
+        gameBonusPoints += bonusPoints;
+        bucket4Points += bonusPoints;
+        bucket4Comps++;
+      }
     }
 
+    var hasCompleted360Game = completedGames.Count(x => x.Platform == Platform.Xbox360) > 0;
+
+    var playerJanStats = _context.JanRecap.Add(new JanRecap
+    {
+      Gamertag = player.User!.Gamertag!,
+      Bucket1Points = bucket1Points,
+      Bucket1Comps = bucket1Comps,
+      Bucket2Points = bucket2Points,
+      Bucket2Comps = bucket2Comps,
+      Bucket3Points = bucket3Points,
+      Bucket3Comps = bucket3Comps,
+      Bucket4Points = bucket4Points,
+      Bucket4Comps = bucket4Comps,
+      AllBuckets = HasBucketBonus(completedGames),
+      CommunityBonus = hasCompleted360Game,
+      TotalPoints = gameBonusPoints + (HasBucketBonus(completedGames) ? 250 : 0) + (hasCompleted360Game ? 500 : 0),
+      PlayerId = player.Id
+    });
+
+    _context.SaveChanges();
+
     return gameBonusPoints;
+  }
+
+  public void CalcFebBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, List<Tuple<Game, int>> allFebCompletions, bool communityBonusReached)
+  {
+    var biComps = 0;
+    var triComps = 0;
+    var quadComps = 0;
+    var quintComps = 0;
+    var sexComps = 0;
+    var sepComps = 0;
+    var octComps = 0;
+    var decComps = 0;
+    var undeComps = 0;
+    var duodeComps = 0;
+
+    double biPoints = 0;
+    double triPoints = 0;
+    double quadPoints = 0;
+    double quintPoints = 0;
+    double sexPoints = 0;
+    double sepPoints = 0;
+    double octPoints = 0;
+    double decPoints = 0;
+    double undePoints = 0;
+    double duodePoints = 0;
+
+    foreach (var completion in completedGames)
+    {
+      var completionCollection = allFebCompletions.Where(x => Queries.FilterGamesForYearlies(x.Item1, completion)).FirstOrDefault(x => x.Item1.Id == completion.GameId);
+
+      if (completionCollection == null) break;
+      if (completionCollection.Item2 < 2) break;
+
+      var baseGamePoints = _bcmService.CalcBcmValue(completion.Platform, completionCollection!.Item1.SiteRatio, completionCollection!.Item1.FullCompletionEstimate);
+
+      if (completionCollection!.Item2 == 11)
+      {
+        duodeComps++;
+        duodePoints += (baseGamePoints ?? 0) * 1;
+      }
+        
+      if (completionCollection!.Item2 == 10)
+      {
+        undeComps++;
+        undePoints += (baseGamePoints ?? 0) * .9;
+      }
+        
+      if (completionCollection!.Item2 == 9)
+      {
+        decComps++;
+        undePoints += (baseGamePoints ?? 0) * .8;
+      }
+        
+      if (completionCollection!.Item2 == 8)
+      {
+        octComps++;
+        octPoints += (baseGamePoints ?? 0) * .7;
+      }
+        
+      if (completionCollection!.Item2 == 7)
+      {
+        sepComps++;
+        sepPoints += (baseGamePoints ?? 0) * .6;
+      }
+        
+      if (completionCollection!.Item2 == 6)
+      {
+        sexComps++;
+        sexPoints += (baseGamePoints ?? 0) * .5;
+      }
+        
+      if (completionCollection!.Item2 == 5)
+      {
+        quintComps++;
+        quintPoints += (baseGamePoints ?? 0) * .4;
+      }
+        
+      if (completionCollection!.Item2 == 4)
+      {
+        quadComps++;
+        quadPoints += (baseGamePoints ?? 0) * .3;
+      }
+        
+      if (completionCollection!.Item2 == 3)
+      {
+        triComps++;
+        triPoints += (baseGamePoints ?? 0) * .2;
+      }
+        
+      if (completionCollection!.Item2 == 2)
+      {
+        biComps++;
+        biPoints += (baseGamePoints ?? 0) * .1;
+      }
+    }
+
+    var playerFebStats = _context.FebRecap.Add(new FebRecap
+    {
+      Gamertag = player.User!.Gamertag!,
+      BiCompletion = biComps,
+      BiPoints = biPoints,
+      TriCompletion = triComps,
+      TriPoints = triPoints,
+      QuadCompletion = quadComps,
+      QuadPoints = quadPoints,
+      QuintCompletion = quintComps,
+      QuintPoints = quintPoints,
+      SexCompletion = sexComps,
+      SexPoints = sexPoints,
+      SepCompletion = sepComps,
+      SepPoints = sepPoints,
+      OctCompletion = octComps,
+      OctPoints = octPoints,
+      DecCompletion = decComps,
+      DecPoints = decPoints,
+      UndeCompletion = undeComps,
+      UndePoints = undePoints,
+      DuodeCompletion = duodeComps,
+      DuodePoints = duodePoints,
+      Participation = biComps > 0 || triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0,
+      CommunityBonus = communityBonusReached && (triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0),
+      TotalPoints = biPoints + triPoints + quadPoints + quintPoints + sexPoints + sepPoints + octPoints + decPoints + undePoints + duodePoints,
+      PlayerId = player.Id
+    });
+
+    _context.SaveChanges();
+  }
+
+  private bool FebCommunityGoalReached()
+  {
+    return false;
   }
 }

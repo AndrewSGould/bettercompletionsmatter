@@ -107,9 +107,25 @@ public class BcmService : IBcmService
     return completedJobs;
   }
 
-  public int GetParticipationProgress(BcmPlayer player)
+  public object GetParticipationProgress(BcmPlayer player)
   {
-    return _context.BcmMonthlyStats.Where(x => x.BcmPlayerId == player.Id && x.BonusPoints > 0).GroupBy(x => x.Challenge).Count();
+    var challengeSummary = _context.PlayerYearlyChallenges.Include(x => x.YearlyChallenge).Where(x => x.PlayerId == player.Id);
+    var commStar = challengeSummary.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.CommunityStar);
+    var tavis = challengeSummary.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS);
+    var retirement = challengeSummary.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty);
+    var partipCount = _context.BcmMonthlyStats.Where(x => x.BcmPlayerId == player.Id && x.BonusPoints > 0).GroupBy(x => x.Challenge).Count();
+    var febPartipCount = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)!.Participation ? 1 : 0;
+
+    return new
+    {
+      Participation = partipCount + febPartipCount,
+      CommStarApproved = commStar.Where(x => x.Approved).Count(),
+      CommStarUnapproved = commStar.Where(x => !x.Approved).Count(),
+      TavisApproved = tavis.Where(x => x.Approved).Count(),
+      TavisUnapproved = tavis.Where(x => !x.Approved).Count(),
+      RetirementApproved = retirement.Where(x => x.Approved).Count(),
+      RetirementUnapproved = retirement.Where(x => !x.Approved).Count()
+    };
   }
 
 
