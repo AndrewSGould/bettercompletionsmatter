@@ -82,6 +82,35 @@ public class DataSyncController : ControllerBase
     return Ok();
   }
 
+  [HttpGet, Authorize(Roles = "Admin")]
+  [Route("shallow")]
+  public IActionResult ShallowSync()
+  {
+    var playersToScan = _bcmService.GetPlayers().Where(x => x.LastSync is null).ToList();
+
+    if (playersToScan.Any(x => x.TrueAchievementId == 0)) return BadRequest("Cannot scan,missing TA ID's detected");
+
+    var syncLog = new SyncHistory
+    {
+      Start = DateTime.UtcNow,
+      PlayerCount = playersToScan.Count(),
+      Profile = SyncProfileList.CompletedOnly
+    };
+
+    var gcOptions = new SyncOptions
+    {
+      CompletionStatus = SyncOption_CompletionStatus.Complete
+    };
+
+    var results = _dataSync.DynamicSync(playersToScan, gcOptions, syncLog, _hub);
+
+    syncLog.End = DateTime.UtcNow;
+    _context.SyncHistory!.Add(syncLog);
+    _context.SaveChanges();
+
+    return Ok();
+  }
+
   // does a scan of completed games within the past month only
   [HttpGet, Authorize(Roles = "Admin")]
   [Route("lastmonthscompletions")]

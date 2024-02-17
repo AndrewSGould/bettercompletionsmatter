@@ -201,12 +201,12 @@ public class StatsService : IStatsService
     {
       var completionCollection = allFebCompletions.Where(x => Queries.FilterGamesForYearlies(x.Item1, completion)).FirstOrDefault(x => x.Item1.Id == completion.GameId);
 
-      if (completionCollection == null) break;
-      if (completionCollection.Item2 < 2) break;
+      if (completionCollection == null) continue;
+      if (completionCollection.Item2 < 2) continue;
 
       var baseGamePoints = _bcmService.CalcBcmValue(completion.Platform, completionCollection!.Item1.SiteRatio, completionCollection!.Item1.FullCompletionEstimate);
 
-      if (completionCollection!.Item2 == 11)
+      if (completionCollection!.Item2 > 10)
       {
         duodeComps++;
         duodePoints += (baseGamePoints ?? 0) * 1;

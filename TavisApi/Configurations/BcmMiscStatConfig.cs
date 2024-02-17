@@ -1995,8 +1995,8 @@ public class BcmMiscStatConfiguration : IEntityTypeConfiguration<BcmMiscStat>
       new BcmHistoricalStats
       {
         Year = 2023,
-        Rgsc = 1,
-        FullCombo = false,
+        Rgsc = 12,
+        FullCombo = true,
         Placement = 7
       }
     };

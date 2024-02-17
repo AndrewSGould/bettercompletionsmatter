@@ -62,7 +62,7 @@ public class StatsController : ControllerBase
 
   [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
   [Route("recalcBcmLeaderboard")]
-  public IActionResult RecalcBcmLeaderboard()
+  public async Task<IActionResult> RecalcBcmLeaderboard()
   {
     var players = _bcmService.GetPlayers();
 
@@ -116,10 +116,12 @@ public class StatsController : ControllerBase
       playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
 
       var rgscBonus = _statsService.ScoreRgscCompletions(player, gamesCompletedThisYear);
+      var oddJobProgress = await _bcmService.GetOddJobChallengeProgress(player.Id);
+      var oddJobBonus = oddJobProgress.Count() == 5 ? 1000 : 0;
       var janBonus = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
       var febBonus = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
-      playerBcmStats.BonusPoints = rgscBonus + janBonus + febBonus;
+      playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + janBonus + febBonus;
       playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
       leaderboardList.Add(new Ranking

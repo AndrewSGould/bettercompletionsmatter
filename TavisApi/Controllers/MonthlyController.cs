@@ -25,9 +25,15 @@ public class MonthlyController : ControllerBase
   [HttpGet, Route("jan-leaderboard")]
   public async Task<IActionResult> GetJanLeaderboard()
   {
-    // rank, tag, bucket1pts, bucket1compls, bucket2pts, bucket2compls, bucket3, bucket4, all buckets, community bonus, total points
+    var recap = await _context.JanRecap.ToListAsync();
+    return Ok(recap);
+  }
 
-    return Ok();
+  [HttpGet, Route("feb-leaderboard")]
+  public async Task<IActionResult> GetFebLeaderboard()
+  {
+    var recap = await _context.FebRecap.ToListAsync();
+    return Ok(recap);
   }
 
   [Authorize(Roles = "Participant")]
