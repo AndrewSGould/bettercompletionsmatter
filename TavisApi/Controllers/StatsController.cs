@@ -68,8 +68,6 @@ public class StatsController : ControllerBase
 
     var leaderboardList = new List<Ranking>();
 
-    _context.BcmMonthlyStats.RemoveRange(_context.BcmMonthlyStats.ToList());
-
     foreach (var player in players)
     {
       var playerBcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
@@ -118,10 +116,23 @@ public class StatsController : ControllerBase
       var rgscBonus = _statsService.ScoreRgscCompletions(player, gamesCompletedThisYear);
       var oddJobProgress = await _bcmService.GetOddJobChallengeProgress(player.Id);
       var oddJobBonus = oddJobProgress.Count() == 5 ? 1000 : 0;
+      var playersChallenges = _context.PlayerYearlyChallenges.Include(x => x.YearlyChallenge)
+                                .Where(x => x.PlayerId == player.Id && x.Approved);
+
+      var communityStarBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.CommunityStar).Count() == 20
+                                  ? 5000 : 0;
+
+      var tavisBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS).Count() == 20
+                                  ? 5000 : 0;
+
+      var retirementBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty).Count() == 10
+                                  ? 2500 : 0;
+
       var janBonus = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
       var febBonus = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+      var marBonus = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
-      playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + janBonus + febBonus;
+      playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + janBonus + febBonus + marBonus + tavisBonus + communityStarBonus + retirementBonus;
       playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
       leaderboardList.Add(new Ranking
@@ -196,6 +207,50 @@ public class StatsController : ControllerBase
         var febRanking = _context.FebRecap.OrderByDescending(x => x.TotalPoints).ToList();
         int rank = febRanking.FindIndex(x => x.Id == febStats.Id);
         febStats.Rank = rank + 1;
+      }
+    }
+
+    _context.SaveChanges();
+
+    return Ok();
+  }
+
+  [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+  [Route("calcMonthlyBonus2")]
+  public IActionResult CalcMonthlyBonus2()
+  {
+    var players = _bcmService.GetPlayers();
+    var leaderboardList = new List<Ranking>();
+
+    var communityBonusReached = _statsService.CalcMarCommunityGoal();
+
+    _context.MarRecap.RemoveRange(_context.MarRecap.ToList());
+
+    foreach (var player in players)
+    {
+      var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+      var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+      var playerCompletions = _context.BcmPlayerGames
+                                      .Include(x => x.Game)
+                                      .Where(x => x.PlayerId == player.Id &&
+                                        x.CompletionDate != null &&
+                                        x.CompletionDate >= _bcmService.GetContestStartDate() &&
+                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1));
+
+      var gamesCompletedThisMonth = playerCompletions.Where(x => x.CompletionDate!.Value.Year == 2024 && x.CompletionDate!.Value.Month == 3).ToList();
+
+      _statsService.CalcMarBonus(player, gamesCompletedThisMonth, communityBonusReached);
+    }
+
+    foreach (var player in players)
+    {
+      var marStats = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+      if (marStats != null)
+      {
+        var marRanking = _context.MarRecap.OrderByDescending(x => x.TotalPoints).ToList();
+        int rank = marRanking.FindIndex(x => x.Id == marStats.Id);
+        marStats.Rank = rank + 1;
       }
     }
 

@@ -20,5 +20,4 @@ public class BcmPlayer
   public FebRecap? FebRecap { get; set; }
   public BcmMiscStat? BcmMiscStats { get; set; }
   public ICollection<BcmRgsc>? BcmRgscs { get; set; }
-  public ICollection<BcmMonthlyStat>? BcmMonthlyStats { get; set; }
 }
