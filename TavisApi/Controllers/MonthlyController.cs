@@ -36,6 +36,13 @@ public class MonthlyController : ControllerBase
     return Ok(recap);
   }
 
+  [HttpGet, Route("mar-leaderboard")]
+  public async Task<IActionResult> GetMarLeaderboard()
+  {
+    var recap = await _context.MarRecap.ToListAsync();
+    return Ok(recap);
+  }
+
   [Authorize(Roles = "Participant")]
   [HttpGet, Route("challenges")]
   public async Task<IActionResult> GetChallenges(string player)

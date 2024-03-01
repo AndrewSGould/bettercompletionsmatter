@@ -217,20 +217,11 @@ public class DataSync : IDataSync
 
     var cookieContainer = httpClientHandler.CookieContainer;
 
-    //var envVars = DotEnv.Read();
-    //var sessionId = envVars.TryGetValue("TA_SESSIONID", out var key) ? key : null;
-    //if (sessionId is null || sessionId == "") sessionId = Environment.GetEnvironmentVariable("TA_SESSIONID")!;
+    var envVars = DotEnv.Read();
+    var sessionId = envVars.TryGetValue("TA_SESSIONID", out var key) ? key : null;
+    if (sessionId is null || sessionId == "") sessionId = Environment.GetEnvironmentVariable("TA_SESSIONID")!;
 
-    //var authCookie = new Cookie("ASP.NET_SessionId", sessionId)
-    //{
-    //  Domain = "www.trueachievements.com",
-    //  Path = "/"
-    //};
-
-    //cookieContainer.Add(authCookie);
-
-    PrepAuthCookies(cookieContainer);
-
+    request.Headers.TryAddWithoutValidation("Cookie", sessionId);
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
 
     var response = httpClient.Send(request);
@@ -537,22 +528,11 @@ public class DataSync : IDataSync
 
     HttpRequestMessage request = new(HttpMethod.Get, $"https://www.trueachievements.com{game.Url}");
 
-    var cookieContainer = httpClientHandler.CookieContainer;
+    var envVars = DotEnv.Read();
+    var sessionId = envVars.TryGetValue("TA_SESSIONID", out var key) ? key : null;
+    if (sessionId is null || sessionId == "") sessionId = Environment.GetEnvironmentVariable("TA_SESSIONID")!;
 
-    //var envVars = DotEnv.Read();
-    //var sessionId = envVars.TryGetValue("TA_SESSIONID", out var key) ? key : null;
-    //if (sessionId is null || sessionId == "") sessionId = Environment.GetEnvironmentVariable("TA_SESSIONID")!;
-
-    //var authCookie = new Cookie("ASP.NET_SessionId", sessionId)
-    //{
-    //  Domain = "www.trueachievements.com",
-    //  Path = "/"
-    //};
-
-    //cookieContainer.Add(authCookie);
-
-    PrepAuthCookies(cookieContainer);
-
+    request.Headers.TryAddWithoutValidation("Cookie", sessionId);
     request.Headers.TryAddWithoutValidation("User-Agent", "Other");
 
     var response = httpClient.Send(request);
@@ -765,257 +745,6 @@ public class DataSync : IDataSync
       page = page + 1;
       ParseGamesWithGold(ref page);
     }
-  }
-
-  private void PrepAuthCookies(CookieContainer cookieJar)
-  {
-    var externalCookie = new Cookie(".AspNet.ExternalCookie", "_y-I3fGmosR8k6ZAgyoF2vuN5krJGWuMcpGPSnH9l0XHFhqEgr95NB0W4pFcjoN7wG3nyOgUCpIUcN5N7i9qa_OLfZ-VHpNQH7gC7Zh3sDAefeJncIwOnBdMHm2-OzxYL5Iov7gGKHIPuoQ54WYhQG4y9FaD02MYh0ytcvLHry0u1XEOn4iGPsYCmnYdu9GPPDLTnD1YtO0c1CSSrHY2CwDCT11vvY2Oq4Mc29QcnoBaV4ANUT4JMhmZrZHjZxkGJ06yuaEvuV_aePAGY0YhuTymqLUJ2kaqqd4zENfoHD-8ZEoovuRTpjlgfGFn4eYNSO0o5_ud7bI7soD4yrOnwpx3Szn_OLhMyf5-g1WEJqwbYyFJzrqAqm9FuW5bTw9ITxU0rAnXKNfE-9wdo3AzHAIdZB6ed9n3FGbM1LMpPuFjF1dNXFxHy-GwaVctTnWzs8AKlXsLP3ul0Rm55rVobgPffehnQgnBMgiemnNSOomPtfCpXZM8nKmicyPMUBLZnHTel6z4HwWHx9JP7qigAp3M7LDQ1j8kql74lsVJeTKY3c0FvrAehqh4JN6nqjrxe0GDoai06ph8XmKpsPnfQ3blVzysM1bnCTcdheUQNUVMi5UQgEYhq9Utf7lptURyneakwXjGbhnbTbnbwDjwJ67vt3IGSRSs5l0TxD2EWzorPIg65xnhu7zUT1dm0BCYLHvSYdpSXXn6RIhOLcwiQ1ojB-KkIn0nKpSQb4E_-xfRnmavnEgOZrnusMojdgStqXvnGXCD6ZSIV-Ei1rd93M8F8HqjXpy6YeltX8vzxuTRk8QEIg1OPVM7u2jZKBJXRsbaoj0nTY_-5_diwt7cukhXfLzLKMEPrRhjonhJzquJRzXaa6tXbbUH_cZBBqYH14mdBqs_yTNBhTjZUIDtkBsSsQ-bQo29yaTC-6-kHoU34SPXTHIzcjor80znFfZ6LyDm6AlsEkGQLJhRfha6tnzA5iHgZjkCdbJ_jU1LXVAj0O2Qa6iE3tflNwzzyokCgZ7m9kVwjBZ_DB3avm0DvfLAY1RRahsM5PWuT-Ca64E_-0d1gm-zzpcpKE1uMpX3e8mJC5T71t6usxOmiPiXCRBszd1cQWh74iN0cXYObkcwNgIpgBI_BWFn13pxxM5rUXN2Vr1J2OpFwGCoNSdrPWHadFRV71PY5pXfeHJM-FM8J3bFFtSYk0Q4x3FTH4MvB-NlK4dcFfVm_fUOXY4OyIZSw5nwT-1GqWGJGwYon0-G2HACSElYo2Hi3K5zZpaXacGTZJefU8eYCzJaOOlFV1PVMOQMUfVt-q3dVprbVuV8B8dE3VOpS_1i2vr2ZEhviUXxsPa4f6yeQC2dM1GRWBOl9pjZgnY9Qe9XVDV6c8Q58EiW35mfazh2VsabXJ75tD0bykrdumwjPHOewPioxBneN8Y4OWv5DpZ9tr1opfrC5gSsAifelhL6kuO4_m1m4fd8crTSjNNjprNowek1D6Wvg79Jq-3dtoYU_J8sF2b0Gh21-f03pxS6qQAO2u0q3Z8fFGT0oiIm4U94N_jC7HPLBzHP2bFnzVb-tNJA63HHbU4v0P2APHWDkJOnXbJ1dEhIRE5AtfbccngBkv1g-OwJ7yJw4dJx6kYSzqy7jpiNb7BBBwgNS2HsydZydA7OPmKbstnH1XfzPmKwkuRuNsdwydrALh_XRUN-5sQKQ-1ApBCLHvKP2oGdmnTJAf5p6W1sEYJ8dCd51yUriAxpMNGAvtkdjiM5ibik_WhNJLtfE5TRKZ0rbFirRaDvSoR7t5gNwcPAs1WorUQICg4XMgYjpLJ0AxOUESauhwgTDXprsFVhqsawfrNv45wMC6V5pJLg3nUv-r_860p4ob0g-tAur0J604gAL-5utYHdxkL_L6SaFqeEgiAbh5Id1jK0wVEauXhOFSa63nGAkqosYTOYlHldTFocJM3dwLJOk66l5SgL49Qb2vvFqtLYo9OreUhFGtyCk2H_62GIOWGj6wZe0zk4RMsG_x40DBIzfNYFZQLsWWi2tFcCBjYY9o74rw7Md72lk9mZ5byFL3bbwsFslOanrf2rNkH0Epb9mqS6LhKpbbCf8P1bGt2pLaHRqLHULbYdsvn3Bdc_aYQMfSZmjPBg2UO2sgfBwGYvjvFz4yNTFs76wHSRnqH5iPo_2-IvlU0znm_gm6zRIhIdf28wMoVm21jhaPIPKMnQZ5tsGH0cq2mBnj01WcuY8-oJTLADYck8lUGNrXbboBYXH0ZTJ8cNZB4kDxG1kb2mr-wH2zk-cr55zEYDHGruwadq9tTk1aBCTqyjwZ8ccwr1a_lR_Vd3OIAqqlaQzqs-yWM05dhm4Z1uRvw_1K0IKLOPgLGUphi0M5lYK2YrNC1ExbenDlXt7exxyDaDfbRUY-cYPg70eCDXX6GlN4CBMu5GCuYGsi02hNeZUe2HN5FfBrN0RVC_yGD7tkTbVvOxfV2vi75OJmFVmm_6wwOsUOEQxiJ-VCivM3Vq_vRQWP6BY0_wgfyK0cABhCwjSmWKfMyDKeQFM1wB7xagw7TuDbjImWsEOo6KrTfgfI7cSvkE68_QPbI6dOcdaL7RImBjCloFbrPZbeRzhQrNGCOSNQCKpovTs1n6ZIw_rlC_Z1niPA95jLOnmI6LNVtNq0mMXx32Tq79D4LxkHTJEsciQSsNUHRFwPECgD0_7C_cB5tum5GcJlyrEEdsvhi93PiaS8qW2ZaUL44C7XCDEyjw91FhVi4p1ykkl49HEzutKrwI9gircSj4hNDc4mhAaP0vTIj09O3pBJ4tq8vS7Ppd7-qAZCVJIv99bN65IemhSIS-sWOAu4YRTa8uPeIjWfh0Lec8azmZwDTplmeRGexEuuy3xMUf5bK3SB9yfKwTr4SvQuczk10iLCw0DeLdq8Var4rWzi-CanNUZnJgcmMtjGOkrETUo4gPRdQcrsuKhldicft7jou7KMjR6nHPFzUFrUc0G0vAFE-D6lluHMRIPF9reH3YYZMvgemzwZ7YvFREV0AheBuacw-iAEEAsTB2U9YZKCsswjRjrXWG77qyH4ihoiGn0ivo_WOOvRKL2mZwYSPWocPUOPfM2H4TYKgqNsv5C7dYptn79P_D7_6BKd6OEbIWZoT_cXOUS_GtJBc5VlTHJGUGAbcGeeIGrJ3OZnLWXzKb")
-    {
-      Domain = "www.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(externalCookie);
-
-    var sessionCookie = new Cookie("ASP.NET_SessionId", "su5zepyrisupiulijb2251v1")
-    {
-      Domain = "www.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(sessionCookie);
-
-    var logglyCookie = new Cookie("logglytrackingsession", "636a67d2-686f-44b5-a707-100bc8cdb961")
-    {
-      Domain = "www.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(logglyCookie);
-
-    var boncedCookie = new Cookie("bounceClientVisit6884v", "N4IgNgDiBcIBYBcEQM4FIDMBBNAmAYnvgO6kB0CATgK4CmAhgMZwCWtAbrQLa0B2CKMowD2XIiAA0ISjBCSQLFAH0A5sKUpaKFC2G8YAM3phNUxaogatOvYeOaAvkA")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(boncedCookie);
-
-    var gidCookie = new Cookie("_gid", "GA1.2.78795632.1708152331")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gidCookie);
-
-    var panIdCookie = new Cookie("panoramaId", "0289662f7fa1e525745e7c7c8863185ca02c189769550ce82eab4b835d0eefda")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(panIdCookie);
-
-    var typeCookie = new Cookie("panoramaIdType", "panoDevice")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(typeCookie);
-
-    var panoCookie = new Cookie("panoramaId_expiry", "1708757127269")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(panoCookie);
-
-    var pbjsCookie = new Cookie("_pbjs_userid_consent_data", "6683316680106290")
-    {
-      Domain = "www.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(pbjsCookie);
-
-    var eoiCookie = new Cookie("__eoi", "ID=d531edff929d82fd:T=1708152328:RT=1708152328:S=AA-AfjajEUZT8vFBlPoj44G05MT3")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(eoiCookie);
-
-    var ccidCookie = new Cookie("_cc_id", "e14cdc95c8ef61ab5e1b27b208877482")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(ccidCookie);
-
-    var sharedCookie = new Cookie("_sharedid", "6c113ef1-6b89-4c26-a32d-e643e6eeaba1")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(sharedCookie);
-
-    var dnsCookie = new Cookie("dnsDisplayed", "undefined")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(dnsCookie);
-
-    var ccpaCookie = new Cookie("ccpaApplies", "false")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(ccpaCookie);
-
-    var signedCookie = new Cookie("signedLspa", "undefined")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(signedCookie);
-
-    var spCookie = new Cookie("_sp_su", "false")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(spCookie);
-
-    var uuidCookie = new Cookie("ccpaUUID", "ababa9db-29a1-45da-b93d-ff5de5074099")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(uuidCookie);
-
-    var bounceCookie = new Cookie("bounceClientVisit6884", "N4IgJglmIFwgHARgOyIGxoKwCZ4AZsBmPZNRRQ7EAGhADcpYU8kdL41C15M9aAzOgBcmyFoja5aAQwD2sPiAA2AB1ggAFkKEqAzgFJCAQX3YAYqbMB3GwDohAJwCuAU2kBjDRBd0XAWxcAOyFdW3dZP0saEGldBVo6FTomWmg4aFoHdWj3YVFxSXhaXUYYRFoAc3cssoBOWj945TyysVYiXABfIA")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(bounceCookie);
-
-    var auCookie = new Cookie("_au_1d", "AU1D-0100-001708152331-PBD6M4B7-TKKX")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(auCookie);
-
-    var auLastCookie = new Cookie("_au_last_seen_pixels", "eyJhcG4iOjE3MDgxNTIzMzEsInR0ZCI6MTcwODE1MjMzMSwicHViIjoxNzA4MTUyMzMxLCJydWIiOjE3MDgxNTIzMzEsInRhcGFkIjoxNzA4MTUyMzMxLCJhZHgiOjE3MDgxNTIzMzEsImdvbyI6MTcwODE1MjMzMSwiaW5kZXgiOjE3MDgxNTIzMzEsIm9wZW54IjoxNzA4MTUyMzMxLCJzb24iOjE3MDgxNTIzMzF9")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(auLastCookie);
-
-    var gamerCookie = new Cookie("GamerID", "1480739")
-    {
-      Domain = "wwww.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gamerCookie);
-
-    var hashCookie = new Cookie("HashKey", "cb0c9eed21c343ffa7f3550f57110571")
-    {
-      Domain = "wwww.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(hashCookie);
-
-    var tpGamerCookie = new Cookie("TPGamerID", "1480739")
-    {
-      Domain = "wwww.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(tpGamerCookie);
-
-    var gamerTokenCookie = new Cookie("GamerToken", "cb0c9eed21c343ffa7f3550f57110571_FC3893F59C9C4B36AC02D71A0A2A63BB")
-    {
-      Domain = "wwww.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gamerTokenCookie);
-
-    var tgIdentityCookie = new Cookie("TrueGamingIdentity", "2YZaaXfJmBeGA13JfaTG50Rly0vLPAK_4-6aUDTMs4eexwVjlTlG-tWrVU781eqJWItSPKEFyT4zfVNQlIXF0UTMYDOI2musiEEhcYBrQFQoQlVh2Tx_a4hYteBWl0JAvUAru1HBJdS7BdZPVU7Tenbezs3436_CibTZcC_IdGjlgw21KgYkV6JTkA0nliWLd6jBr9BPC6BzkQtskCWr41vWEWFj56WkS01UezCBxop3VIZ9Red_AAwLUibdwI_8XR42XRpdtDHPWYxj9MnwAYWtgo4Vh_Za4SHTkTPSv324Ji2V8NG-i2KfcCkot0h0ysT7QR0l7LQHD9cpCefb8rntdZQWAMsBTa1yCX47INk2uHhm")
-    {
-      Domain = "wwww.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(tgIdentityCookie);
-
-    var langCookie = new Cookie("LanguageID", "0")
-    {
-      Domain = "wwww.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(langCookie);
-
-    var gadsCookie = new Cookie("__gads", "ID=cbb6253d87801b1b:T=1708152328:RT=1708152328:S=ALNI_MaQ7RCNZlMCqk_Tj98-rD5JKZH5lw")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gadsCookie);
-
-    var gpiCookie = new Cookie("__gpi", "UID=00000dc1d5e677c6:T=1708152328:RT=1708152328:S=ALNI_Mapkt9u07bzkaXqZK42mjchyEW4Rw")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gpiCookie);
-
-    var regionCookie = new Cookie("ContentRecordRegionID", "1")
-    {
-      Domain = "www.trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(regionCookie);
-
-    var gaCookie = new Cookie("_ga", "GA1.2.1288830505.1708152329")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gaCookie);
-
-    var gaextCookie = new Cookie("_ga_0CPE0JFSCT", "GS1.1.1708152329.1.0.1708152331.0.0.0")
-    {
-      Domain = ".trueachievements.com",
-      Path = "/"
-    };
-
-    cookieJar.Add(gaextCookie);
   }
 
   public class CollectionSplit

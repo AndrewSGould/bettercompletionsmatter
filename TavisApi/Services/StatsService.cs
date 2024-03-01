@@ -1,6 +1,8 @@
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
 using Tavis.Extensions;
 using Tavis.Models;
 using TavisApi.ContestRules;
@@ -65,6 +67,9 @@ public class StatsService : IStatsService
   {
     var filteredCompletions = completedGames.Where(x => Queries.FilterGamesForYearlies(x.Game!, x)).ToList();
 
+    var firstMonthOfYear = new DateTime(DateTime.Now.Year, 1, 1);
+    filteredCompletions = filteredCompletions.Where(x => x.CompletionDate!.Value.Month == firstMonthOfYear.Month).ToList();
+
     var bonusPoints = 0;
 
     bonusPoints += ScoreJanBaseBonus(player, filteredCompletions);
@@ -75,16 +80,16 @@ public class StatsService : IStatsService
     var hasCompleted360Game = filteredCompletions.Count(x => x.Platform == Platform.Xbox360) > 0;
     bonusPoints += communityGoalReached && hasCompleted360Game ? 500 : 0;
 
-    _context.BcmMonthlyStats.Add(new BcmMonthlyStat
-    {
-      Challenge = 1,
-      BonusPoints = bonusPoints,
-      Participation = filteredCompletions.Count(x => x.Game!.ReleaseDate!.Value.Year <= 2023) > 0,
-      AllBuckets = hasAllBuckets,
-      CommunityBonus = communityGoalReached && hasCompleted360Game,
-      BcmPlayer = player,
-      BcmPlayerId = player.Id
-    });
+    //_context.BcmMonthlyStats.Add(new BcmMonthlyStat
+    //{
+    //  Challenge = 1,
+    //  BonusPoints = bonusPoints,
+    //  Participation = filteredCompletions.Count(x => x.Game!.ReleaseDate!.Value.Year <= 2023) > 0,
+    //  AllBuckets = hasAllBuckets,
+    //  CommunityBonus = communityGoalReached && hasCompleted360Game,
+    //  BcmPlayer = player,
+    //  BcmPlayerId = player.Id
+    //});
 
     _context.SaveChanges();
   }
@@ -171,6 +176,141 @@ public class StatsService : IStatsService
     _context.SaveChanges();
 
     return gameBonusPoints;
+  }
+
+  private IEnumerable<BcmPlayerGame> CommunityBounties()
+  {
+    var allMarCompletions = _context.BcmPlayerGames
+        .Include(x => x.Game)
+        .Where(x => x.CompletionDate != null
+            && x.CompletionDate.Value.Year == 2024
+            && x.CompletionDate.Value.Month == 3)
+        .ToList();
+
+    return allMarCompletions.Where(x => Bounties().Contains(x.Game!));
+  }
+
+  public void CalcMarBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonusReached)
+  {
+    var communityBounties = CommunityBounties();
+    var completedBounties = completedGames.Where(x => Bounties().Contains(x.Game!));
+    double bonusPoints = 0;
+    var bestBounty = (new BcmPlayerGame(), 0.0);
+    var currentBounty = (new BcmPlayerGame(), 0.0);
+
+    foreach (var bounty in completedBounties)
+    {
+      var bountyProgress = communityBounties.Where(x => x.Game!.Id == bounty.GameId).Count();
+      if (bountyProgress == 1)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 4;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 2)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 2.5;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 3)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 1;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 4)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .9;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 5)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .8;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 6)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .75;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 7)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .7;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 8)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .65;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 9)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .6;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress == 10)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .55;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+      else if (bountyProgress > 10)
+      {
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .5;
+        currentBounty.Item1 = bounty;
+        currentBounty.Item2 = bonusPoints;
+      }
+
+      if (bestBounty.Item2 == 0 || bestBounty.Item2 < currentBounty.Item2)
+        bestBounty = currentBounty;
+    }
+
+    var playerBountiesCompleted = completedBounties.Count();
+    var playerMetCommunityBonus = communityBonusReached && playerBountiesCompleted > 0;
+    var claimedBounties = completedBounties.Count() == 0 ? "" : completedBounties.Count() == 1 ? completedBounties.First().Game!.Title : string.Join(", ", completedBounties.Select(x => x.Game!.Title));
+
+    var playerMarStats = _context.MarRecap.Add(new MarRecap
+    {
+      Gamertag = player.User!.Gamertag!,
+      BestBounty = bestBounty.Item1.Game?.Title ?? "",
+      BountyCount = playerBountiesCompleted,
+      BountiesClaimed = claimedBounties ?? "",
+      Participation = playerBountiesCompleted > 0,
+      CommunityBonus = playerMetCommunityBonus,
+      TotalPoints = bonusPoints + (playerMetCommunityBonus ? 500 : 0),
+      PlayerId = player.Id
+    });
+
+    _context.SaveChanges();
+  }
+
+  public bool CalcMarCommunityGoal()
+  {
+    var allMarCompletions = _context.BcmPlayerGames
+      .Include(x => x.Game)
+      .Where(x => x.CompletionDate != null
+          && x.CompletionDate.Value.Year == 2024
+          && x.CompletionDate.Value.Month == 3
+          && Bounties().Any(y => y == x.Game))
+      .GroupBy(x => x.Game)
+      .Select(g => Tuple.Create(g.Key, g.Count()))
+      .ToList();
+
+    if (allMarCompletions.Count() < 1) return false;
+
+    foreach(var game in allMarCompletions)
+    {
+      if (game.Item2 < 2) return false;
+    }
+
+    return true;
   }
 
   public void CalcFebBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, List<Tuple<Game, int>> allFebCompletions, bool communityBonusReached)
@@ -304,5 +444,11 @@ public class StatsService : IStatsService
   private bool FebCommunityGoalReached()
   {
     return false;
+  }
+
+  public List<Game> Bounties()
+  {
+    var bountyIds = new HashSet<int> { 3093, 229, 85, 246, 3173, 334, 3122, 1489, 2144, 3147, 4363, 1507, 344, 2211, 3255, 364, 238, 3113, 3241, 3228, 3059, 3128, 3174, 305, 298 };
+    return _context.Games.Where(x => bountyIds.Contains(x.Id)).ToList();
   }
 }

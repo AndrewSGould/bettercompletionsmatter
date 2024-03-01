@@ -94,12 +94,16 @@ public class DataSyncController : ControllerBase
     {
       Start = DateTime.UtcNow,
       PlayerCount = playersToScan.Count(),
-      Profile = SyncProfileList.CompletedOnly
+      Profile = SyncProfileList.LastMonthsCompleted
     };
+
+    DateTime nowUtc = DateTime.UtcNow;
+    DateTime startOfMonthUtc = new DateTime(nowUtc.Year, nowUtc.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
     var gcOptions = new SyncOptions
     {
-      CompletionStatus = SyncOption_CompletionStatus.Complete
+      CompletionStatus = SyncOption_CompletionStatus.Complete,
+      LastUnlockCutoff = startOfMonthUtc,
     };
 
     var results = _dataSync.DynamicSync(playersToScan, gcOptions, syncLog, _hub);
