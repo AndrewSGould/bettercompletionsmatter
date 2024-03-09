@@ -155,6 +155,7 @@ builder.Services.AddScoped<IDiscordService, DiscordService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRgscService, RgscService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
+builder.Services.AddScoped<IYearlyService, YearlyService>();
 
 var app = builder.Build();
 

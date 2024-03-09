@@ -69,7 +69,7 @@ public class MonthlyController : ControllerBase
 
   [Authorize(Roles = "Participant")]
   [HttpPost, Route("save-writein")]
-  public async Task<IActionResult> SaveWriteIn([FromBody] WriteInOption writeIn)
+  public async Task<IActionResult> SaveWriteIn([FromBody] Submission writeIn)
   {
     var currentUsername = _userService.GetCurrentUserName();
     var user = _context.Users.Include(x => x.BcmPlayer).FirstOrDefault(x => x.Gamertag == currentUsername);

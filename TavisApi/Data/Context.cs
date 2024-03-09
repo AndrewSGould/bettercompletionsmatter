@@ -41,6 +41,7 @@ namespace TavisApi.Context
     public DbSet<JanRecap> JanRecap { get; set; }
     public DbSet<FebRecap> FebRecap { get; set; }
     public DbSet<MarRecap> MarRecap { get; set; }
+    public DbSet<MonthlyExclusion> MonthlyExclusions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -68,8 +69,10 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new BcmMiscStatConfiguration());
       modelBuilder.ApplyConfiguration(new YearlyChallengeConfiguration());
       modelBuilder.ApplyConfiguration(new PlayerYearlyChallengeConfiguration());
+      modelBuilder.ApplyConfiguration(new MonthlyExclusionsConfiguration());
       modelBuilder.ApplyConfiguration(new JanRecapConfiguration());
       modelBuilder.ApplyConfiguration(new FebRecapConfiguration());
+      
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

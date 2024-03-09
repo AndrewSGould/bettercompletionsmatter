@@ -142,8 +142,12 @@ public class RgscController : ControllerBase
                                                       && x.CompletionDate != null
                                                       && x.CompletionDate.Value.Year == 2024).ToList();
 
-    var rgscList = rgsc.Join(_context.Games, rgsc => rgsc.GameId,
-                                g => g.Id, (rgsc, g) => new { Rgsc = rgsc, Game = g });
+    var rgscList = rgsc
+        .GroupJoin(_context.Games,
+                   rgsc => rgsc.GameId,
+                   g => g.Id,
+                   (rgsc, games) => new { Rgsc = rgsc, Games = games.DefaultIfEmpty() })
+        .SelectMany(x => x.Games.Select(g => new { Rgsc = x.Rgsc, Game = g }));
 
     var rgscCompletions = rgsc.Join(playersCompletedGames, rgsc => rgsc.GameId,
                                 pg => pg.GameId, (rgsc, pg) => new { Rgsc = rgsc, PlayerGames = pg })
@@ -155,24 +159,13 @@ public class RgscController : ControllerBase
     var nonrerolledRgsc = rgsc.FirstOrDefault(x => !x.Rerolled)?.GameId;
     var currentRgscs = _context.Games.Where(x => x.Id == nonrerolledRgsc);
 
-    if (currentRgscs.Count() < 1)
+    return Ok(new
     {
-      return Ok(new
-      {
-        CurrentRandoms = rgsc.OrderByDescending(x => x.Challenge).FirstOrDefault(),
+        CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled).OrderByDescending(x => x.Rgsc.Challenge),
         RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletions.Count() - rerollsUsed,
         RgscsCompleted = rgscCompletions.Where(x => x.Rgsc.Rerolled == false),
         RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
-      });
-    }
-    else
-      return Ok(new
-      {
-          CurrentRandoms = rgscList.Where(x => !x.Rgsc.Rerolled).OrderByDescending(x => x.Rgsc.Challenge),
-          RerollsRemaining = BcmRule.RgscStartingRerolls + rgscCompletions.Count() - rerollsUsed,
-          RgscsCompleted = rgscCompletions.Where(x => x.Rgsc.Rerolled == false),
-          RandomsRolledAway = rgscList.Where(x => x.Rgsc.Rerolled),
-      });
+    });
   }
 
   [HttpGet]

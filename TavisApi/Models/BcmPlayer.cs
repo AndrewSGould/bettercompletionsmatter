@@ -14,6 +14,7 @@ public class BcmPlayer
   public int TrueAchievementId { get; set; } = 0;
   public DateTime? LastSync { get; set; }
   public ICollection<BcmPlayerGame>? BcmPlayerGames { get; set; }
+  public ICollection<MonthlyExclusion>? MonthlyExclusions { get; set; }
   public ICollection<BcmPlayerCompletionHistory>? BcmPlayerCompletionHistories { get; set; }
   public BcmStat? BcmStats { get; set; }
   public JanRecap? JanRecap { get; set; }
