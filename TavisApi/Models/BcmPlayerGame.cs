@@ -11,6 +11,7 @@ public class BcmPlayerGame
   public DateTime? LastUnlock { get; set; }
   public Ownership? Ownership { get; set; }
   public bool NotForContests { get; set; } = false;
+  public double? BcmPoints { get; set; }
 
 
   public long PlayerId { get; set; }

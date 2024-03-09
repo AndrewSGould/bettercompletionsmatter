@@ -87,13 +87,15 @@ public class BcmController : ControllerBase
                                                                                 && x.CompletionDate > bcmRegDate);
 
     var pointedGames = new List<object>();
+    var bonusGamesUsed = _context.MonthlyExclusions.Where(x => x.PlayerId == bcmPlayer.Id).ToList();
 
     foreach (var game in playerBcmGames)
     {
       var newGame = new
       {
         Game = game,
-        Points = _bcmService.CalcBcmValue(game.Platform, game.Game.SiteRatio, game.Game.FullCompletionEstimate),
+        Bonus = bonusGamesUsed.FirstOrDefault(x => x.GameId == game.GameId)?.Challenge,
+        Points = _bcmService.CalcBcmValue(game.Platform, game.Game!.SiteRatio, game.Game.FullCompletionEstimate),
       };
 
       pointedGames.Add(newGame);
@@ -208,6 +210,19 @@ public class BcmController : ControllerBase
     if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
 
     return Ok(await _context.FebRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id));
+  }
+
+  [Authorize(Roles = "Guest")]
+  [HttpGet, Route("monthly/mar")]
+  public async Task<IActionResult> MarSummary(string player)
+  {
+    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+    return Ok(await _context.MarRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id));
   }
 
   [Authorize(Roles = "Guest")]

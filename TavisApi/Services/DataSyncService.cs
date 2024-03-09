@@ -384,9 +384,10 @@ public class DataSync : IDataSync
   {
     // lets figure out and update it if its the first time we see it in the players collection
     var newCollectionEntries = incomingData
-                                    .Where(incData => !_context.BcmPlayerGames!.Where(x => x.PlayerId == player.Id)
-                                    .Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
-                                    .Select(x => x.g.TrueAchievementId).Contains(incData.GameId));
+      .Where(incData => !_context.BcmPlayerGames.Include(x => x.Game)
+          .Any(x => x.PlayerId == player.Id && x.Game!.TrueAchievementId == incData.GameId))
+      .ToList();
+
 
     var gameIds = _context.Games!.Where(x => newCollectionEntries.Select(y => y.GameId).Contains(x.TrueAchievementId)).ToList();
     foreach (var entry in newCollectionEntries)

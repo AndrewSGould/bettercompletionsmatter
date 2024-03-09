@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using TavisApi.Models;
 using System.Numerics;
 using Tavis.Extensions;
+using TavisApi.ContestRules;
 
 [ApiController]
 [Route("[controller]")]
@@ -163,20 +164,24 @@ public class StatsController : ControllerBase
   }
 
   [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-  [Route("calcMonthlyBonus")]
-  public IActionResult CalcMonthlyBonus()
+  [Route("calcMonthlyBonusFeb")]
+  public IActionResult CalcMonthlyBonusFeb()
   {
     var players = _bcmService.GetPlayers();
     var leaderboardList = new List<Ranking>();
+
+    var test = new List<Game>();
 
     var allFebCompletions = _context.BcmPlayerGames
         .Include(x => x.Game)
         .Where(x => x.CompletionDate != null
             && x.CompletionDate.Value.Year == 2024
             && x.CompletionDate.Value.Month == 2)
-        .GroupBy(x => x.Game)
-        .Select(g => Tuple.Create(g.Key, g.Count()))
-        .ToList();
+        .ToList()
+          .Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId))
+          .GroupBy(x => x.Game)
+          .Select(g => Tuple.Create(g.Key, g.Count()))
+          .ToList();
 
     var communityBonusReached = allFebCompletions.Where(x => x.Item2 > 10).Count() >= 3;
 
@@ -192,9 +197,16 @@ public class StatsController : ControllerBase
                                       .Where(x => x.PlayerId == player.Id &&
                                         x.CompletionDate != null &&
                                         x.CompletionDate >= _bcmService.GetContestStartDate() &&
-                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1));
+                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1) && 
+                                        x.CompletionDate.Value.Year == 2024 &&
+                                        x.CompletionDate.Value.Month == 2)
+                                      .ToList();
 
-      var gamesCompletedThisMonth = playerCompletions.Where(x => x.CompletionDate!.Value.Year == 2024 && x.CompletionDate!.Value.Month == 2).ToList();
+      var gamesCompletedThisMonth = playerCompletions
+              .Where(x =>
+                  !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId) ||
+                  !_context.MonthlyExclusions.Any(y => y.PlayerId == player.Id && y.GameId == x.GameId))
+              .ToList();
 
       _statsService.CalcFebBonus(player, gamesCompletedThisMonth, allFebCompletions!, communityBonusReached);
     }
@@ -216,8 +228,8 @@ public class StatsController : ControllerBase
   }
 
   [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-  [Route("calcMonthlyBonus2")]
-  public IActionResult CalcMonthlyBonus2()
+  [Route("calcMonthlyBonus")]
+  public IActionResult CalcMonthlyBonusMar()
   {
     var players = _bcmService.GetPlayers();
     var leaderboardList = new List<Ranking>();
@@ -225,6 +237,7 @@ public class StatsController : ControllerBase
     var communityBonusReached = _statsService.CalcMarCommunityGoal();
 
     _context.MarRecap.RemoveRange(_context.MarRecap.ToList());
+    _context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 3));
 
     foreach (var player in players)
     {
@@ -236,9 +249,11 @@ public class StatsController : ControllerBase
                                       .Where(x => x.PlayerId == player.Id &&
                                         x.CompletionDate != null &&
                                         x.CompletionDate >= _bcmService.GetContestStartDate() &&
-                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1));
+                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
+                                        x.CompletionDate!.Value.Year == 2024 &&
+                                        x.CompletionDate!.Value.Month == 3).ToList();
 
-      var gamesCompletedThisMonth = playerCompletions.Where(x => x.CompletionDate!.Value.Year == 2024 && x.CompletionDate!.Value.Month == 3).ToList();
+      var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)).ToList();
 
       _statsService.CalcMarBonus(player, gamesCompletedThisMonth, communityBonusReached);
     }
@@ -258,4 +273,48 @@ public class StatsController : ControllerBase
 
     return Ok();
   }
+
+  //[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+  //[Route("calcMonthlyBonus3")]
+  //public IActionResult CalcMonthlyBonus3()
+  //{
+  //  var players = _bcmService.GetPlayers();
+  //  var leaderboardList = new List<Ranking>();
+
+  //  var communityBonusReached = true;
+
+  //  _context.JanRecap.RemoveRange(_context.JanRecap.ToList());
+
+  //  foreach (var player in players)
+  //  {
+  //    var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+  //    var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+  //    var playerCompletions = _context.BcmPlayerGames
+  //                                    .Include(x => x.Game)
+  //                                    .Where(x => x.PlayerId == player.Id &&
+  //                                      x.CompletionDate != null &&
+  //                                      x.CompletionDate >= _bcmService.GetContestStartDate() &&
+  //                                      x.CompletionDate >= userRegDate!.Value.AddDays(-1));
+
+  //    var gamesCompletedThisMonth = playerCompletions.Where(x => x.CompletionDate!.Value.Year == 2024 && x.CompletionDate!.Value.Month == 1).ToList();
+
+  //    _statsService.CalcJanBonus(player, gamesCompletedThisMonth, communityBonusReached);
+  //  }
+
+  //  foreach (var player in players)
+  //  {
+  //    var janStats = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+  //    if (janStats != null)
+  //    {
+  //      var janRanking = _context.JanRecap.OrderByDescending(x => x.TotalPoints).ToList();
+  //      int rank = janRanking.FindIndex(x => x.Id == janStats.Id);
+  //      janStats.Rank = rank + 1;
+  //    }
+  //  }
+
+  //  _context.SaveChanges();
+
+  //  return Ok();
+  //}
 }

@@ -2,7 +2,7 @@
 
 namespace Tavis.Models;
 
-public class WriteInOption
+public class Submission
 {
   public string Option { get; set; } = string.Empty;
   public PlayerYearlyChallenge? PlayerYearlyChallenge { get; set; }

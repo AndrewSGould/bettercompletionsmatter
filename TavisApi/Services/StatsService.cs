@@ -7,6 +7,7 @@ using Tavis.Extensions;
 using Tavis.Models;
 using TavisApi.ContestRules;
 using TavisApi.Context;
+using TavisApi.Models;
 
 namespace TavisApi.Services;
 
@@ -80,17 +81,6 @@ public class StatsService : IStatsService
     var hasCompleted360Game = filteredCompletions.Count(x => x.Platform == Platform.Xbox360) > 0;
     bonusPoints += communityGoalReached && hasCompleted360Game ? 500 : 0;
 
-    //_context.BcmMonthlyStats.Add(new BcmMonthlyStat
-    //{
-    //  Challenge = 1,
-    //  BonusPoints = bonusPoints,
-    //  Participation = filteredCompletions.Count(x => x.Game!.ReleaseDate!.Value.Year <= 2023) > 0,
-    //  AllBuckets = hasAllBuckets,
-    //  CommunityBonus = communityGoalReached && hasCompleted360Game,
-    //  BcmPlayer = player,
-    //  BcmPlayerId = player.Id
-    //});
-
     _context.SaveChanges();
   }
 
@@ -152,6 +142,14 @@ public class StatsService : IStatsService
         bucket4Points += bonusPoints;
         bucket4Comps++;
       }
+
+      if (completion.Game.ReleaseDate!.Value.Year <= 2023)
+        _context.MonthlyExclusions.Add(new MonthlyExclusion
+        {
+          GameId = completion.GameId,
+          PlayerId = player.Id,
+          Challenge = 1
+        });
     }
 
     var hasCompleted360Game = completedGames.Count(x => x.Platform == Platform.Xbox360) > 0;
@@ -203,7 +201,7 @@ public class StatsService : IStatsService
       var bountyProgress = communityBounties.Where(x => x.Game!.Id == bounty.GameId).Count();
       if (bountyProgress == 1)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 4;
+        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 5;
         currentBounty.Item1 = bounty;
         currentBounty.Item2 = bonusPoints;
       }
@@ -270,6 +268,17 @@ public class StatsService : IStatsService
 
       if (bestBounty.Item2 == 0 || bestBounty.Item2 < currentBounty.Item2)
         bestBounty = currentBounty;
+
+      var game = _context.BcmPlayerGames.FirstOrDefault(x => x.PlayerId == player.Id && x.GameId == currentBounty.Item1.GameId);
+      if (game != null)
+        game.BcmPoints = bonusPoints;
+
+      _context.MonthlyExclusions.Add(new MonthlyExclusion
+      {
+        Challenge = 3,
+        GameId = currentBounty.Item1.GameId,
+        PlayerId = player.Id
+      });
     }
 
     var playerBountiesCompleted = completedBounties.Count();
@@ -299,6 +308,8 @@ public class StatsService : IStatsService
           && x.CompletionDate.Value.Year == 2024
           && x.CompletionDate.Value.Month == 3
           && Bounties().Any(y => y == x.Game))
+      .ToList()
+      .Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId))
       .GroupBy(x => x.Game)
       .Select(g => Tuple.Create(g.Key, g.Count()))
       .ToList();
@@ -361,7 +372,7 @@ public class StatsService : IStatsService
       if (completionCollection!.Item2 == 9)
       {
         decComps++;
-        undePoints += (baseGamePoints ?? 0) * .8;
+        decPoints += (baseGamePoints ?? 0) * .8;
       }
         
       if (completionCollection!.Item2 == 8)
@@ -405,6 +416,13 @@ public class StatsService : IStatsService
         biComps++;
         biPoints += (baseGamePoints ?? 0) * .1;
       }
+
+      //_context.MonthlyExclusions.Add(new MonthlyExclusion
+      //{
+      //  Challenge = 2,
+      //  GameId = completion.GameId,
+      //  PlayerId = player.Id
+      //});
     }
 
     var playerMetCommunityBonus = communityBonusReached && (triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0);

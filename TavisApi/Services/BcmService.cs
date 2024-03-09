@@ -60,7 +60,7 @@ public class BcmService : IBcmService
     var filteredPlayerCompletions = playerCompletions.Where(x => Queries.FilterGamesForYearlies(x.Game!, x));
 
     var completionCharacters = filteredPlayerCompletions
-        .Select(x => x.Game?.Title?.Substring(0, 1))
+        .Select(x => x.Game?.Title?.Substring(0, 1).ToUpper())
         .AsEnumerable();
 
     return completionCharacters
