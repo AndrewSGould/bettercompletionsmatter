@@ -474,8 +474,8 @@ public class DataSync : IDataSync
       entryToUpdate.pg.TrueAchievement = knownEntry.PlayerTrueAchievement;
       entryToUpdate.pg.Gamerscore = knownEntry.PlayerGamerscore;
       entryToUpdate.pg.AchievementCount = knownEntry.PlayerAchievementCount;
-      entryToUpdate.pg.StartedDate = knownEntry.StartedDate;
-      entryToUpdate.pg.CompletionDate = knownEntry.CompletionDate;
+      entryToUpdate.pg.StartedDate = new DateTime(knownEntry.StartedDate!.Value.Year, knownEntry.StartedDate!.Value.Month, knownEntry.StartedDate!.Value.Day);
+      entryToUpdate.pg.CompletionDate = new DateTime(knownEntry.CompletionDate!.Value.Year, knownEntry.CompletionDate!.Value.Month, knownEntry.CompletionDate!.Value.Day);
       entryToUpdate.pg.LastUnlock = knownEntry.LastUnlock;
       entryToUpdate.pg.Ownership = knownEntry.Ownership;
       entryToUpdate.pg.NotForContests = knownEntry.NotForContests;
