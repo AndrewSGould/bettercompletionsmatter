@@ -115,8 +115,40 @@ public class DataSyncController : ControllerBase
     return Ok();
   }
 
-  // does a scan of completed games within the past month only
-  [HttpGet, Authorize(Roles = "Admin")]
+	[HttpGet, Authorize(Roles = "Admin")]
+	[Route("rgsc")]
+	public IActionResult RgscSync()
+	{
+		var playersToScan = _bcmService.GetPlayers().Where(x => x.LastSync is null).ToList();
+
+		if (playersToScan.Any(x => x.TrueAchievementId == 0)) return BadRequest("Cannot scan,missing TA ID's detected");
+
+		var syncLog = new SyncHistory
+		{
+			Start = DateTime.UtcNow,
+			PlayerCount = playersToScan.Count(),
+			Profile = SyncProfileList.IncompleteOnly
+		};
+
+		DateTime nowUtc = DateTime.UtcNow;
+		DateTime startOfMonthUtc = new DateTime(nowUtc.Year, nowUtc.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+		var gcOptions = new SyncOptions
+		{
+			CompletionStatus = SyncOption_CompletionStatus.Incomplete,
+		};
+
+		var results = _dataSync.DynamicSync(playersToScan, gcOptions, syncLog, _hub);
+
+		syncLog.End = DateTime.UtcNow;
+		_context.SyncHistory!.Add(syncLog);
+		_context.SaveChanges();
+
+		return Ok();
+	}
+
+	// does a scan of completed games within the past month only
+	[HttpGet, Authorize(Roles = "Admin")]
   [Route("lastmonthscompletions")]
   public IActionResult SyncLastMonthsCompletions()
   {

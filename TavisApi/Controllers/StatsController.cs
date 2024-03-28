@@ -238,8 +238,9 @@ public class StatsController : ControllerBase
 
     _context.MarRecap.RemoveRange(_context.MarRecap.ToList());
     _context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 3));
+		var communityBounties = _statsService.CommunityBounties();
 
-    foreach (var player in players)
+		foreach (var player in players)
     {
       var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
       var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
@@ -252,10 +253,9 @@ public class StatsController : ControllerBase
                                         x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
                                         x.CompletionDate!.Value.Year == 2024 &&
                                         x.CompletionDate!.Value.Month == 3).ToList();
-
+      
       var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)).ToList();
-
-      _statsService.CalcMarBonus(player, gamesCompletedThisMonth, communityBonusReached);
+      _statsService.CalcMarBonus(player, gamesCompletedThisMonth, communityBonusReached, communityBounties);
     }
 
     foreach (var player in players)

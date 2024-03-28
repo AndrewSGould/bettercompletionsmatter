@@ -176,7 +176,7 @@ public class StatsService : IStatsService
     return gameBonusPoints;
   }
 
-  private IEnumerable<BcmPlayerGame> CommunityBounties()
+  public IEnumerable<BcmPlayerGame> CommunityBounties()
   {
     var allMarCompletions = _context.BcmPlayerGames
         .Include(x => x.Game)
@@ -185,15 +185,15 @@ public class StatsService : IStatsService
             && x.CompletionDate.Value.Month == 3)
         .ToList();
 
-    return allMarCompletions.Where(x => Bounties().Contains(x.Game!));
+    return allMarCompletions.Where(x => Bounties().Contains(x.Game!)).ToList();
   }
 
-  public void CalcMarBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonusReached)
+  public void CalcMarBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonusReached, IEnumerable<BcmPlayerGame> communityBounties)
   {
-    var communityBounties = CommunityBounties();
     var completedBounties = completedGames.Where(x => Bounties().Contains(x.Game!));
     double bonusPoints = 0;
-    var bestBounty = (new BcmPlayerGame(), 0.0);
+    double individualGameBonusPoints = 0;
+		var bestBounty = (new BcmPlayerGame(), 0.0);
     var currentBounty = (new BcmPlayerGame(), 0.0);
 
     foreach (var bounty in completedBounties)
@@ -201,69 +201,80 @@ public class StatsService : IStatsService
       var bountyProgress = communityBounties.Where(x => x.Game!.Id == bounty.GameId).Count();
       if (bountyProgress == 1)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 5;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+        individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 5;
+        bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 2)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 2.5;
+        individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 3;
+				bonusPoints += individualGameBonusPoints;
         currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 3)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 1;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 2;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 4)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .9;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * 1;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 5)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .8;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .95;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 6)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .75;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .90;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 7)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .7;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .85;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 8)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .65;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .80;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 9)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .6;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .75;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress == 10)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .55;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .65;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
       else if (bountyProgress > 10)
       {
-        bonusPoints += (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .5;
-        currentBounty.Item1 = bounty;
-        currentBounty.Item2 = bonusPoints;
+				individualGameBonusPoints = (_bcmService.CalcBcmValue(bounty.Platform, bounty.Game!.SiteRatio, bounty.Game!.FullCompletionEstimate) ?? 0) * .60;
+				bonusPoints += individualGameBonusPoints;
+				currentBounty.Item1 = bounty;
+        currentBounty.Item2 = individualGameBonusPoints;
       }
 
       if (bestBounty.Item2 == 0 || bestBounty.Item2 < currentBounty.Item2)
@@ -271,7 +282,7 @@ public class StatsService : IStatsService
 
       var game = _context.BcmPlayerGames.FirstOrDefault(x => x.PlayerId == player.Id && x.GameId == currentBounty.Item1.GameId);
       if (game != null)
-        game.BcmPoints = bonusPoints;
+        game.BcmPoints = individualGameBonusPoints;
 
       _context.MonthlyExclusions.Add(new MonthlyExclusion
       {

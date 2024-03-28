@@ -70,7 +70,7 @@ public class RgscController : ControllerBase
       rolledRandom.RerollDate = DateTime.UtcNow;
     }
 
-    var nextChallenge = 3;
+    var nextChallenge = 4;
 
     if (randomGameOptions is null || randomGameOptions?.Count() < 50)
     {

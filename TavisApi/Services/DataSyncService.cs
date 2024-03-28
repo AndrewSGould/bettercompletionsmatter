@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using DeepEqual.Syntax;
 using System.Net;
 using dotenv.net;
+using DocumentFormat.OpenXml.Vml.Office;
 
 namespace TavisApi.Services;
 
@@ -142,11 +143,11 @@ public class DataSync : IDataSync
 
   private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, BcmPlayer player, SyncOptions gcOptions)
   {
-    // Only remove Games from collection if we are doing a full sync
-    if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value ||
-      gcOptions.ContestStatus.Value != SyncOption_ContestStatus.All.Value ||
-      gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null)
-      return;
+    // Only remove Games from collection if we are doing a full or rgsc sync
+    if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value) return;
+    if (gcOptions.ContestStatus.Value != SyncOption_ContestStatus.All.Value) return;
+    if (gcOptions.DateCutoff != null) return;
+    if (gcOptions.LastUnlockCutoff != null) return;
 
     // Get all the TA ID's Tavis has for the player
     var gamesInCollection = _context.BcmPlayerGames.Where(x => x.PlayerId == player.Id)
@@ -254,7 +255,6 @@ public class DataSync : IDataSync
 
       if (collectionPage.Count() == 100)
       {
-
         // if we have a cutoff, lets try to quit parsing early
         if (gcOptions.DateCutoff != null || gcOptions.LastUnlockCutoff != null)
         {
@@ -264,11 +264,24 @@ public class DataSync : IDataSync
 
           if (lastUnlockDate < gcOptions.LastUnlockCutoff)
           {
+            var tempCollection = new List<List<CollectionSplit>>();
+
+						foreach (var entry in collectionPage)
+						{
+							var entryLastUnlock = _parser.TaDate(entry![7].CollectionValuesHtml);
+							if (entryLastUnlock >= gcOptions.LastUnlockCutoff)
+							{
+								tempCollection.Add(entry);
+							}
+						}
+
+						collectionPage = tempCollection;
+
             stopWatch.Stop();
             return stopWatch.Elapsed;
           }
 
-          if (lastEntryCompletionDate < gcOptions.DateCutoff)
+					if (lastEntryCompletionDate < gcOptions.DateCutoff)
           {
             stopWatch.Stop();
             return stopWatch.Elapsed;
@@ -380,38 +393,49 @@ public class DataSync : IDataSync
     // save the displayImage url
   }
 
-  private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, BcmPlayer player)
-  {
+	private void SaveNewlyDetectedCollectionEntries(List<TA_CollectionEntry> incomingData, BcmPlayer player)
+	{
     // lets figure out and update it if its the first time we see it in the players collection
-    var newCollectionEntries = incomingData
-      .Where(incData => !_context.BcmPlayerGames.Include(x => x.Game)
-          .Any(x => x.PlayerId == player.Id && x.Game!.TrueAchievementId == incData.GameId))
-      .ToList();
+    var taIds = _context.BcmPlayerGames
+        .Where(x => x.PlayerId == player.Id)
+        .Select(x => x.Game.TrueAchievementId)
+        .ToList();
 
+    var newCollectionEntries = incomingData
+        .Where(incData => !taIds.Contains(incData.GameId))
+        .ToList();
 
     var gameIds = _context.Games!.Where(x => newCollectionEntries.Select(y => y.GameId).Contains(x.TrueAchievementId)).ToList();
-    foreach (var entry in newCollectionEntries)
-    {
-      var newGame = new BcmPlayerGame
-      {
-        GameId = gameIds.First(x => x.TrueAchievementId == entry.GameId).Id,
-        PlayerId = player.Id,
-        Platform = entry.Platform,
-        TrueAchievement = entry.PlayerTrueAchievement,
-        Gamerscore = entry.PlayerGamerscore,
-        AchievementCount = entry.PlayerAchievementCount,
-        StartedDate = entry.StartedDate,
-        CompletionDate = entry.CompletionDate,
-        LastUnlock = entry.LastUnlock,
-        Ownership = entry.Ownership,
-        NotForContests = entry.NotForContests
-      };
+    //var newCollectionEntries = incomingData
+    //	.Where(incData => !_context.BcmPlayerGames.Include(x => x.Game)
+    //			.Any(x => x.PlayerId == player.Id && x.Game!.TrueAchievementId == incData.GameId))
+    //	.ToList();
 
-      _context.BcmPlayerGames!.Add(newGame);
-    }
-  }
 
-  private void UpdateGameInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList)
+    //var gameIds = _context.Games!.Where(x => newCollectionEntries.Select(y => y.GameId).Contains(x.TrueAchievementId)).ToList();
+
+		foreach (var entry in newCollectionEntries)
+		{
+			var newGame = new BcmPlayerGame
+			{
+				GameId = gameIds.First(x => x.TrueAchievementId == entry.GameId).Id,
+				PlayerId = player.Id,
+				Platform = entry.Platform,
+				TrueAchievement = entry.PlayerTrueAchievement,
+				Gamerscore = entry.PlayerGamerscore,
+				AchievementCount = entry.PlayerAchievementCount,
+				StartedDate = entry.StartedDate,
+				CompletionDate = entry.CompletionDate,
+				LastUnlock = entry.LastUnlock,
+				Ownership = entry.Ownership,
+				NotForContests = entry.NotForContests
+			};
+
+			_context.BcmPlayerGames!.Add(newGame);
+		}
+	}
+
+	private void UpdateGameInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList)
   {
     var incomingGames = incomingData.Where(incData => taGameIdList.Contains(incData.GameId)).ToList();
     var gamesToUpdate = _context.Games!.Where(x => incomingGames.Select(y => y.GameId).Contains(x.TrueAchievementId));
@@ -438,6 +462,8 @@ public class DataSync : IDataSync
       gameToUpdate.FullCompletionEstimate = DetermineCompletionEstimate(gameToUpdate, incomingGame);
       gameToUpdate.Url = incomingGame.GameUrl;
     }
+
+    _context.SaveChanges();
   }
 
   public double? DetermineCompletionEstimate(Game tavisGame, TA_CollectionEntry scannedGame)
@@ -474,12 +500,14 @@ public class DataSync : IDataSync
       entryToUpdate.pg.TrueAchievement = knownEntry.PlayerTrueAchievement;
       entryToUpdate.pg.Gamerscore = knownEntry.PlayerGamerscore;
       entryToUpdate.pg.AchievementCount = knownEntry.PlayerAchievementCount;
-      entryToUpdate.pg.StartedDate = new DateTime(knownEntry.StartedDate!.Value.Year, knownEntry.StartedDate!.Value.Month, knownEntry.StartedDate!.Value.Day);
-      entryToUpdate.pg.CompletionDate = new DateTime(knownEntry.CompletionDate!.Value.Year, knownEntry.CompletionDate!.Value.Month, knownEntry.CompletionDate!.Value.Day);
+      entryToUpdate.pg.StartedDate = knownEntry.StartedDate == null ? null : new DateTime(knownEntry.StartedDate.Value.Year, knownEntry.StartedDate.Value.Month, knownEntry.StartedDate.Value.Day);
+      entryToUpdate.pg.CompletionDate = knownEntry.CompletionDate == null ? null : new DateTime(knownEntry.CompletionDate.Value.Year, knownEntry.CompletionDate.Value.Month, knownEntry.CompletionDate.Value.Day);
       entryToUpdate.pg.LastUnlock = knownEntry.LastUnlock;
       entryToUpdate.pg.Ownership = knownEntry.Ownership;
       entryToUpdate.pg.NotForContests = knownEntry.NotForContests;
     }
+
+    _context.SaveChanges();
   }
 
   public void ParseGamePages(List<int> gamesToUpdateIds)
