@@ -96,23 +96,23 @@ public class YearlyService : IYearlyService
 
   private List<BcmPlayerGame> ConnoisseurYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.GamersWithGame <= 5000 && x.Game!.SiteRating >= 4).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.GamersWithGame <= 5000 && x.Game!.SiteRating >= 4).ToList();
   }
 
   private List<BcmPlayerGame> HipsterYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.GamersWithGame <= 1000).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.GamersWithGame <= 1000).ToList();
   }
 
   private List<BcmPlayerGame> CriticYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.SiteRating >= 4.25).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.SiteRating >= 4.25).ToList();
   }
 
   private List<BcmPlayerGame> SocialiteYearly(BcmPlayer player, List<BcmPlayerGame> gamesToEval)
   {
     var threeOrMoreCompletions = _context.BcmPlayerGames
-        .Where(x => x.PlayerId != player.Id && x.CompletionDate != null && x.CompletionDate.Value.Year == 2024)
+        .Where(x => x.Game!.TrueAchievementId != 0 && x.PlayerId != player.Id && x.CompletionDate != null && x.CompletionDate.Value.Year == 2024)
         .GroupBy(x => x.GameId)
         .Where(group => group.Count() >= 3)
         .Select(group => group.Key);
@@ -127,7 +127,7 @@ public class YearlyService : IYearlyService
     var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.BcmPlayer!.Id == player.Id && x.UserRegistrations.Any(x => x.RegistrationId == 1));
     var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
 
-    var completedGames = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.PlayerId == player.Id && x.CompletionDate != null);
+    var completedGames = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.PlayerId == player.Id && x.Game!.TrueAchievementId != 0 && x.CompletionDate != null);
     var toTake = (int)Math.Ceiling(completedGames.Count() * 0.1);
     var top10percent = completedGames.OrderByDescending(x => x.Game!.SiteRatio);
     var top10percentThreshold = top10percent.Take(toTake);
@@ -145,49 +145,49 @@ public class YearlyService : IYearlyService
 
   private List<BcmPlayerGame> PioneerYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.GamersCompleted <= 100).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.GamersCompleted <= 100).ToList();
   }
 
   private List<BcmPlayerGame> ConformistYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.GamersWithGame >= 7500).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.GamersWithGame >= 7500).ToList();
   }
 
   private List<BcmPlayerGame> MinimalistYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.InstallSize <= 200).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.InstallSize <= 200).ToList();
   }
 
   private List<BcmPlayerGame> HedonistYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.InstallSize >= 30000).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.InstallSize >= 30000).ToList();
   }
 
   private List<BcmPlayerGame> CalProjectYearly(BcmPlayer player, List<BcmPlayerGame> gamesToEval)
   {
     var startYear = _context.BcmPlayerGames.OrderBy(x => x.StartedDate).First(x => x.BcmPlayer!.Id == player.Id && x.StartedDate != null).StartedDate!.Value.Year;
-    return gamesToEval.Where(x => x.Game!.ReleaseDate != null && x.Game!.ReleaseDate.Value.Year == startYear).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.ReleaseDate != null && x.Game!.ReleaseDate.Value.Year == startYear).ToList();
   }
 
   private List<BcmPlayerGame> TradYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.AchievementCount == 50).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.AchievementCount == 50).ToList();
   }
 
   private List<BcmPlayerGame> ArcadeTradYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Game!.AchievementCount == 12).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.AchievementCount == 12).ToList();
   }
 
   private List<BcmPlayerGame> RaidBossYearly(List<BcmPlayerGame> gamesToEval)
   {
-    return gamesToEval.Where(x => x.Platform == Platform.Xbox360.Value && x.Game!.FullCompletionEstimate >= 100).ToList();
+    return gamesToEval.Where(x => x.Game!.TrueAchievementId != 0 && x.Platform == Platform.Xbox360.Value && x.Game!.FullCompletionEstimate >= 100).ToList();
   }
 
   private List<BcmPlayerGame> OrthographerYearly(BcmPlayer player, List<BcmPlayerGame> gamesToEval)
   {
     return gamesToEval
-        .Where(x => x.Game!.Title != null && x.Game.Title.Distinct().Count() >= 14)
+        .Where(x => x.Game!.TrueAchievementId != 0 && x.Game!.Title != null && x.Game.Title.Distinct().Count() >= 14)
         .ToList();
   }
 
