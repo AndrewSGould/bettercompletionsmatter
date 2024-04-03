@@ -530,7 +530,10 @@ public class DataSync : IDataSync
         Console.WriteLine($"COULD NOT PARSE {game.Title} - {ex}");
       }
 
-      Thread.Sleep(2000);
+			if (i % 50 == 0)
+				_context.SaveChanges(true);
+
+      Thread.Sleep(500);
       Console.WriteLine($"Finished parsing {game.Title}, {i++} out of {gamesToUpdate.Count()}");
     }
 

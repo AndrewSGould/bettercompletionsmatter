@@ -120,20 +120,25 @@ public class StatsController : ControllerBase
       var playersChallenges = _context.PlayerYearlyChallenges.Include(x => x.YearlyChallenge)
                                 .Where(x => x.PlayerId == player.Id && x.Approved);
 
-      var communityStarBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.CommunityStar).Count() == 20
+			var progress = await _bcmService.GetAlphabetChallengeProgress(player.Id);
+			var abcChallenge = progress.Count() >= 25 ? 2500 : 0;
+
+			var communityStarBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.CommunityStar && x.Approved).Count() == 20
                                   ? 5000 : 0;
 
-      var tavisBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS).Count() == 20
+      var tavisBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS && x.Approved).Count() == 20
                                   ? 5000 : 0;
 
-      var retirementBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty).Count() == 10
+      var retirementBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty && x.Approved).Count() == 10
                                   ? 2500 : 0;
+
+      // TODO: Add the 750 for anyone who has all participation
 
       var janBonus = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
       var febBonus = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
       var marBonus = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
-      playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + janBonus + febBonus + marBonus + tavisBonus + communityStarBonus + retirementBonus;
+      playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + abcChallenge + janBonus + febBonus + marBonus + tavisBonus + communityStarBonus + retirementBonus;
       playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
       leaderboardList.Add(new Ranking

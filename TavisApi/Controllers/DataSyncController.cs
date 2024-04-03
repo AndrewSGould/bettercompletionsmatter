@@ -198,15 +198,18 @@ public class DataSyncController : ControllerBase
     var games = _context.Games.Include(x => x.GameGenres);
     var gamepagesToSync = new List<int>();
 
-    var gamesWithNoGenres = games.Where(x => x.GameGenres != null && x.GameGenres.Count() == 0).ToList();
+		var currentDate = DateTime.UtcNow;
 
-    foreach (var game in gamesWithNoGenres)
-    {
-      gamepagesToSync.Add(game.Id);
-    }
+		var gameIdsToSync = games
+				.Where(x => x.GameGenres == null || x.GameGenres.Count() == 0 || x.GameGenres.Any(x => x.LastSync == null)
+								 || x.ReleaseDate >= currentDate.AddMonths(-2))
+				.Select(x => x.Id)
+				.Distinct()
+				.ToList();
 
-    _dataSync.ParseGamePages(gamepagesToSync);
-    Console.WriteLine($"Games have been sync'd, finished at {DateTime.UtcNow}");
+		_dataSync.ParseGamePages(gameIdsToSync);
+
+		Console.WriteLine($"Games have been sync'd, finished at {DateTime.UtcNow}");
     stopWatch.Stop();
 
     TimeSpan ts = stopWatch.Elapsed;

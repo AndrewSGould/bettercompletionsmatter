@@ -114,11 +114,16 @@ public class BcmService : IBcmService
     var tavis = challengeSummary.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS);
     var retirement = challengeSummary.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty);
     var janPartip = _context.JanRecap.Where(x => x.PlayerId == player.Id && x.TotalPoints > 0).Count();
-    var febPartipCount = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)!.Participation ? 1 : 0;
 
-    return new
+		var febRecap = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+		var febPartipCount = febRecap != null && febRecap.Participation ? 1 : 0;
+
+    var marRecap = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+    var marPartipCount = marRecap != null && marRecap.Participation ? 1 : 0;
+
+		return new
     {
-      Participation = janPartip + febPartipCount,
+      Participation = janPartip + febPartipCount + marPartipCount,
       CommStarApproved = commStar.Where(x => x.Approved).Count(),
       CommStarUnapproved = commStar.Where(x => !x.Approved).Count(),
       TavisApproved = tavis.Where(x => x.Approved).Count(),

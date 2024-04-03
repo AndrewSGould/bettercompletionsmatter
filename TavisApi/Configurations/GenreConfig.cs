@@ -465,6 +465,11 @@ public class GenreConfiguration : IEntityTypeConfiguration<Genre>
       {
         Id = GenreList.Skydiving,
         Name = GenreList.Skydiving.Name
+      },
+      new Genre
+      {
+        Id = GenreList.MusicAndRhythm,
+        Name = GenreList.MusicAndRhythm.Name
       }
     );
   }

@@ -93,6 +93,7 @@ public sealed class GenreList : SmartEnum<GenreList> {
   public static readonly GenreList Skating = new GenreList(87, "Skating");
   public static readonly GenreList Lacrosse = new GenreList(88, "Lacrosse");
   public static readonly GenreList Skydiving = new GenreList(89, "Skydiving");
+  public static readonly GenreList MusicAndRhythm = new GenreList(90, "Music & Rhythm");
 
   private GenreList(int id, string name) : base(name, id)
   {
