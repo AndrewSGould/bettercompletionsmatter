@@ -5,6 +5,7 @@ using EntityFrameworkCore.EncryptColumn.Interfaces;
 using EntityFrameworkCore.EncryptColumn.Extension;
 using EntityFrameworkCore.EncryptColumn.Util;
 using TavisApi.Models;
+using TavisApi.Configurations;
 
 namespace TavisApi.Context
 {
@@ -42,8 +43,9 @@ namespace TavisApi.Context
     public DbSet<FebRecap> FebRecap { get; set; }
     public DbSet<MarRecap> MarRecap { get; set; }
     public DbSet<MonthlyExclusion> MonthlyExclusions { get; set; }
+		public DbSet<AprRecap> AprRecap { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       var connectionString = Configuration.GetConnectionString("DefaultConnection");
       optionsBuilder.UseNpgsql(connectionString);
@@ -72,7 +74,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new MonthlyExclusionsConfiguration());
       modelBuilder.ApplyConfiguration(new JanRecapConfiguration());
       modelBuilder.ApplyConfiguration(new FebRecapConfiguration());
-      
+      modelBuilder.ApplyConfiguration(new AprRecapConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

@@ -43,7 +43,14 @@ public class MonthlyController : ControllerBase
     return Ok(recap);
   }
 
-  [Authorize(Roles = "Participant")]
+	[HttpGet, Route("apr-leaderboard")]
+	public async Task<IActionResult> GetAprLeaderboard()
+	{
+		var recap = await _context.AprRecap.ToListAsync();
+		return Ok(recap);
+	}
+
+	[Authorize(Roles = "Participant")]
   [HttpGet, Route("challenges")]
   public async Task<IActionResult> GetChallenges(string player)
   {

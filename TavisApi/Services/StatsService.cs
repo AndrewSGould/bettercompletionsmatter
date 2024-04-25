@@ -188,6 +188,46 @@ public class StatsService : IStatsService
     return allMarCompletions.Where(x => Bounties().Contains(x.Game!)).ToList();
   }
 
+  public void CalcAprBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, int communityBonus)
+  {
+    var brokenGames = completedGames.Where(x => x.Game is not null && (x.Game.ServerClosure is not null || x.Game.Unobtainables is true));
+    brokenGames = brokenGames.Where(x => Queries.FilterGamesForYearlies(x.Game, x));
+
+		var participated = false;
+    var totalPoints = 0;
+
+    foreach (var brokenGame in brokenGames)
+    {
+      participated = true;
+
+			var bonusPts = (_bcmService.CalcBcmValue(brokenGame.Platform, brokenGame.Game!.SiteRatio, brokenGame.Game!.FullCompletionEstimate) ?? 0) * .8;
+
+			var game = _context.BcmPlayerGames.FirstOrDefault(x => x.PlayerId == player.Id && x.GameId == brokenGame.GameId);
+			if (game != null)
+				game.BcmPoints = bonusPts;
+
+      totalPoints += Convert.ToInt32(bonusPts);
+
+			_context.MonthlyExclusions.Add(new MonthlyExclusion
+			{
+				Challenge = 4,
+				GameId = brokenGame.GameId,
+				PlayerId = player.Id
+			});
+		}
+
+		var playerMarStats = _context.AprRecap.Add(new AprRecap
+		{
+			Gamertag = player.User!.Gamertag!,
+			Participation = participated,
+			CommunityBonus = participated ? communityBonus : 0,
+			TotalPoints = participated ? totalPoints + communityBonus : 0,
+			PlayerId = player.Id
+		});
+
+		_context.SaveChanges();
+	}
+
   public void CalcMarBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonusReached, IEnumerable<BcmPlayerGame> communityBounties)
   {
     var completedBounties = completedGames.Where(x => Bounties().Contains(x.Game!));
@@ -333,6 +373,17 @@ public class StatsService : IStatsService
     }
 
     return true;
+  }
+
+  public int CalcAprCommunityGoal()
+  {
+    var pdugames = _context.BcmPlayerGames.Include(x => x.Game)
+                                        .Where(x => x.CompletionDate != null && x.CompletionDate.Value.Month == 4 && x.CompletionDate.Value.Year == 2024 &&
+                                                (x.Game != null && (x.Game.ServerClosure != null || x.Game.Unobtainables)));
+
+    var count = pdugames.Count();
+
+    return count * 5 >= 1000 ? 1000 : count * 5;
   }
 
   public void CalcFebBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, List<Tuple<Game, int>> allFebCompletions, bool communityBonusReached)
