@@ -44,6 +44,7 @@ namespace TavisApi.Context
     public DbSet<MarRecap> MarRecap { get; set; }
     public DbSet<MonthlyExclusion> MonthlyExclusions { get; set; }
 		public DbSet<AprRecap> AprRecap { get; set; }
+    public DbSet<PlayerTopGenre> PlayerTopGenres { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -75,6 +76,7 @@ namespace TavisApi.Context
       modelBuilder.ApplyConfiguration(new JanRecapConfiguration());
       modelBuilder.ApplyConfiguration(new FebRecapConfiguration());
       modelBuilder.ApplyConfiguration(new AprRecapConfiguration());
+      modelBuilder.ApplyConfiguration(new PlayerTopGenreConfiguration());
 
       var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
           v => v.ToUniversalTime(),

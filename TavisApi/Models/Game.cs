@@ -26,6 +26,7 @@ public class Game
 
   public FeatureList? FeatureList { get; set; }
   public IList<GameGenre>? GameGenres { get; set; }
+  public IList<PlayerTopGenre>? PlayerTopGenres { get; set; }
   public ICollection<BcmPlayerCompletionHistory>? PlayerCompletionHistories { get; set; }
   public ICollection<BcmCompletionHistory>? BcmCompletionHistories { get; set; }
 }

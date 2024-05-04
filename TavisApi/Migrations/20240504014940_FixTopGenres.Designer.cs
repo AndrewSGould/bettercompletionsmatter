@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TavisApi.Context;
@@ -11,9 +12,11 @@ using TavisApi.Context;
 namespace TavisApi.Migrations
 {
     [DbContext(typeof(TavisContext))]
-    partial class TavisContextModelSnapshot : ModelSnapshot
+    [Migration("20240504014940_FixTopGenres")]
+    partial class FixTopGenres
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1144,6 +1147,8 @@ namespace TavisApi.Migrations
                     b.HasKey("PlayerId", "GenreId");
 
                     b.HasIndex("GameId");
+
+                    b.HasIndex("GenreId");
 
                     b.ToTable("PlayerTopGenres");
                 });
@@ -2570,6 +2575,22 @@ namespace TavisApi.Migrations
                     b.HasOne("Tavis.Models.Game", null)
                         .WithMany("PlayerTopGenres")
                         .HasForeignKey("GameId");
+
+                    b.HasOne("Tavis.Models.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tavis.Models.BcmPlayer", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("Tavis.Models.PlayerYearlyChallenge", b =>
