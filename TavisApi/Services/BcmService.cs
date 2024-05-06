@@ -121,9 +121,12 @@ public class BcmService : IBcmService
     var marRecap = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id);
     var marPartipCount = marRecap != null && marRecap.Participation ? 1 : 0;
 
+    var aprRecap = _context.AprRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+    var aprPartipCount = aprRecap != null && aprRecap.Participation ? 1 : 0;
+
 		return new
     {
-      Participation = janPartip + febPartipCount + marPartipCount,
+      Participation = janPartip + febPartipCount + marPartipCount + aprPartipCount,
       CommStarApproved = commStar.Where(x => x.Approved).Count(),
       CommStarUnapproved = commStar.Where(x => !x.Approved).Count(),
       TavisApproved = tavis.Where(x => x.Approved).Count(),

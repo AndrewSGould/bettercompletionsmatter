@@ -192,11 +192,154 @@ public class StatsService : IStatsService
   {
     var brokenGames = completedGames.Where(x => x.Game is not null && (x.Game.ServerClosure is not null || x.Game.Unobtainables is true));
     brokenGames = brokenGames.Where(x => Queries.FilterGamesForYearlies(x.Game, x));
+    var brokenGamesList = brokenGames.ToList();
+    var fakeCompletions = new List<BcmPlayerGame>();
+
+    if (player.User?.Gamertag == "eohjay")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1385 && x.BcmPlayer!.Id == player.Id));
+
+    if (player.User?.Gamertag == "Scarovese3367")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 9464 && x.BcmPlayer!.Id == player.Id));
+
+    if (player.User?.Gamertag == "dubdeetwothree")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 4729 && x.BcmPlayer!.Id == player.Id));
+
+    if (player.User?.Gamertag == "IronFistofSnuff")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 103 && x.BcmPlayer!.Id == player.Id));
+
+    if (player.User?.Gamertag == "smrnov")
+    {
+      fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 8023 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 4796 && x.BcmPlayer!.Id == player.Id));
+		}
+
+    if (player.User?.Gamertag == "SwiftSupafly")
+    {
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 2024 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 237 && x.BcmPlayer!.Id == player.Id));
+		}
+
+    if (player.User?.Gamertag == "HawkeyeBarry20")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 4592 && x.BcmPlayer!.Id == player.Id));
+
+    if (player.User?.Gamertag == "wellingtonbalbo")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 5821 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Wakapeil")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 103 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Christoph 5782")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 5048 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "WildwoodMike")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 3575 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "JimbotUK")
+		{
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1317 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6982 && x.BcmPlayer!.Id == player.Id));
+		}
+
+		if (player.User?.Gamertag == "omgeezus")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 9464 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "MrGompers")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 5807 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "meanmachine832")
+		{
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 4729 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 103 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 3845 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1848 && x.BcmPlayer!.Id == player.Id));
+		}
+
+		if (player.User?.Gamertag == "Kez001")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 96 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "BAD T0AST")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1385 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "nuttywray")
+		{
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 3024 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6982 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 5736 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 7027 && x.BcmPlayer!.Id == player.Id));
+		}
+
+		if (player.User?.Gamertag == "J Battlestar")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1815 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Mephisto4thewin")
+		{
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6982 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6826 && x.BcmPlayer!.Id == player.Id));
+		}
+
+		if (player.User?.Gamertag == "DanTheWhale")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1204 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Luke17000")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1541 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Porygon Zzz")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 3748 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Fine Feat")
+		{
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6826 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 102 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 1317 && x.BcmPlayer!.Id == player.Id));
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6982 && x.BcmPlayer!.Id == player.Id));
+		}
+
+		if (player.User?.Gamertag == "DudeWithTheFace")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 208 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Matthewh00")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 250 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "WEagleScout")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 103 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Tatersoup19")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 4876 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "ROGUE 1992")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6982 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Messilover449")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 6863 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "ResKR19")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 3835 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "Anti Champ")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 2856 && x.BcmPlayer!.Id == player.Id));
+
+		if (player.User?.Gamertag == "xTMx Voytek")
+			fakeCompletions.Add(_context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == 4447 && x.BcmPlayer!.Id == player.Id));
 
 		var participated = false;
     var totalPoints = 0;
 
-    foreach (var brokenGame in brokenGames)
+    brokenGamesList.AddRange(fakeCompletions);
+
+    foreach (var fakeCompletion in fakeCompletions)
+    {
+      _context.FakeCompletions.Add(new FakeCompletion
+      {
+        PlayerId = player.Id,
+        GameId = fakeCompletion.GameId,
+        Title = fakeCompletion.Game.Title,
+        SiteRatio = fakeCompletion.Game.SiteRatio,
+        FullCompletionEstimate = fakeCompletion.Game.FullCompletionEstimate,
+        FakeCompletionDate = fakeCompletion.LastUnlock,
+        BonusPoints = (_bcmService.CalcBcmValue(fakeCompletion.Platform, fakeCompletion.Game!.SiteRatio, fakeCompletion.Game!.FullCompletionEstimate) ?? 0) * .8
+		  });
+    }
+    foreach (var brokenGame in brokenGamesList)
     {
       participated = true;
 
@@ -377,13 +520,15 @@ public class StatsService : IStatsService
 
   public int CalcAprCommunityGoal()
   {
-    var pdugames = _context.BcmPlayerGames.Include(x => x.Game)
-                                        .Where(x => x.CompletionDate != null && x.CompletionDate.Value.Month == 4 && x.CompletionDate.Value.Year == 2024 &&
-                                                (x.Game != null && (x.Game.ServerClosure != null || x.Game.Unobtainables)));
+    //var pdugames = _context.BcmPlayerGames.Include(x => x.Game)
+    //                                    .Where(x => x.CompletionDate != null && x.CompletionDate.Value.Month == 4 && x.CompletionDate.Value.Year == 2024 &&
+    //                                            (x.Game != null && (x.Game.ServerClosure != null || x.Game.Unobtainables)));
 
-    var count = pdugames.Count();
+    //var count = pdugames.Count();
 
-    return count * 5 >= 1000 ? 1000 : count * 5;
+    //return count * 5 >= 1000 ? 1000 : count * 5;
+
+    return 1000;
   }
 
   public void CalcFebBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, List<Tuple<Game, int>> allFebCompletions, bool communityBonusReached)

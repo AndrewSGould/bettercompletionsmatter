@@ -86,10 +86,10 @@ public class StatsController : ControllerBase
 
       var playerCompletions = _context.BcmPlayerGames
                                       .Include(x => x.Game)
-                                      .Where(x => x.PlayerId == player.Id &&
+                                      .Where(x => x.PlayerId == player.Id && (
                                         x.CompletionDate != null &&
                                         x.CompletionDate >= _bcmService.GetContestStartDate() &&
-                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1));
+                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1)));
 
       var gamesCompletedThisYear = playerCompletions.ToList();
 
@@ -281,7 +281,7 @@ public class StatsController : ControllerBase
 	//}
 
 	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-	[Route("zzzzzzzzz")]
+	[Route("xxxxxxxxxx")]
 	public IActionResult SavePlayerTopGenres()
 	{
 
@@ -309,8 +309,8 @@ public class StatsController : ControllerBase
 							.Count()
 						}
 				)
-				.OrderBy(result => result.GenreName)
 				.OrderByDescending(result => result.GenreCount)
+				.ThenBy(result => result.GenreName)
 				.Select(x => new
 				{
 					Id = x.GenreId,
@@ -361,6 +361,7 @@ public class StatsController : ControllerBase
 		var communityBonus = _statsService.CalcAprCommunityGoal();
 
 		_context.AprRecap.RemoveRange(_context.AprRecap.ToList());
+		_context.FakeCompletions.RemoveRange(_context.FakeCompletions.ToList());
 		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 4));
 
 		foreach (var player in players)

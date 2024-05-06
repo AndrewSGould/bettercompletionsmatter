@@ -45,6 +45,7 @@ namespace TavisApi.Context
     public DbSet<MonthlyExclusion> MonthlyExclusions { get; set; }
 		public DbSet<AprRecap> AprRecap { get; set; }
     public DbSet<PlayerTopGenre> PlayerTopGenres { get; set; }
+    public DbSet<FakeCompletion> FakeCompletions { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -82,9 +82,9 @@ public class BcmController : ControllerBase
     var userRegDate = localuser.UserRegistrations.First(x => x.RegistrationId == 1).RegistrationDate; // TODO: BCM
 
     var playerBcmGames = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.BcmPlayer == bcmPlayer
-                                                                                && x.CompletionDate != null
+                                                                                && (x.CompletionDate != null
                                                                                 && x.CompletionDate > userRegDate!.Value.AddDays(-1)
-                                                                                && x.CompletionDate > bcmRegDate);
+                                                                                && x.CompletionDate > bcmRegDate));
 
     var pointedGames = new List<object>();
     var bonusGamesUsed = _context.MonthlyExclusions.Where(x => x.PlayerId == bcmPlayer.Id).ToList();
@@ -96,6 +96,22 @@ public class BcmController : ControllerBase
         Game = game,
         Bonus = bonusGamesUsed.FirstOrDefault(x => x.GameId == game.GameId)?.Challenge,
         Points = _bcmService.CalcBcmValue(game.Platform, game.Game!.SiteRatio, game.Game.FullCompletionEstimate),
+      };
+
+      pointedGames.Add(newGame);
+    }
+
+    var fakeCompletions = _context.FakeCompletions.Where(x => x.PlayerId == bcmPlayer.Id).ToList();
+
+    foreach (var fakeCompletion in fakeCompletions)
+    {
+      var game = _context.BcmPlayerGames.Include(x => x.Game).First(x => x.GameId == fakeCompletion.GameId && x.PlayerId == bcmPlayer.Id);
+      game.CompletionDate = game.LastUnlock;
+
+			var newGame = new
+      {
+        Game = game,
+        Bonus = 4
       };
 
       pointedGames.Add(newGame);
