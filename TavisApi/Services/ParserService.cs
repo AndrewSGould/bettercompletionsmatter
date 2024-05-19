@@ -47,6 +47,9 @@ namespace TavisApi.Services
 
         var leftOfTitle = unparsed.Split(new string[]{"alt=\""}, StringSplitOptions.None).Last();
         var result = leftOfTitle.Substring(0,leftOfTitle.IndexOf('"'));
+
+        if (result == "xbox-360-(backwards-compatible)") result = "xbox-360";
+
         return Platform.FromName(result);
       }
       catch(Exception ex) {

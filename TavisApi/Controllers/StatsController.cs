@@ -280,63 +280,63 @@ public class StatsController : ControllerBase
 	//  return Ok();
 	//}
 
-	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-	[Route("xxxxxxxxxx")]
-	public IActionResult SavePlayerTopGenres()
-	{
+	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+	//[Route("xxxxxxxxxx")]
+	//public IActionResult SavePlayerTopGenres()
+	//{
 
-		foreach (var player in _context.BcmPlayers.Include(x => x.User).ToList())
-		{
-			var pgs = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.BcmPlayer == player && x.CompletionDate != null);
+	//	foreach (var player in _context.BcmPlayers.Include(x => x.User).ToList())
+	//	{
+	//		var pgs = _context.BcmPlayerGames.Include(x => x.Game).Where(x => x.BcmPlayer == player && x.CompletionDate != null);
 
-			var genreStats = _context.Genres
-				.GroupJoin(
-						_context.GameGenres,
-						genre => genre.Id,
-						gameGenre => gameGenre.GenreId,
-						(genre, gameGenres) => new
-						{
-							GenreId = genre.Id,
-							GenreName = genre.Name,
-							GenreCount = gameGenres
-							.Join(
-									_context.BcmPlayerGames
-											.Where(bpg => bpg.PlayerId == player.Id && bpg.CompletionDate != null),
-									gg => gg.GameId,
-									bpg => bpg.GameId,
-									(gg, bpg) => gg // Use gg instead of 1
-							)
-							.Count()
-						}
-				)
-				.OrderByDescending(result => result.GenreCount)
-				.ThenBy(result => result.GenreName)
-				.Select(x => new
-				{
-					Id = x.GenreId,
-					Name = x.GenreName,
-					Value = x.GenreCount
-				})
-				.ToList()
-				.Take(5);
+	//		var genreStats = _context.Genres
+	//			.GroupJoin(
+	//					_context.GameGenres,
+	//					genre => genre.Id,
+	//					gameGenre => gameGenre.GenreId,
+	//					(genre, gameGenres) => new
+	//					{
+	//						GenreId = genre.Id,
+	//						GenreName = genre.Name,
+	//						GenreCount = gameGenres
+	//						.Join(
+	//								_context.BcmPlayerGames
+	//										.Where(bpg => bpg.PlayerId == player.Id && bpg.CompletionDate != null),
+	//								gg => gg.GameId,
+	//								bpg => bpg.GameId,
+	//								(gg, bpg) => gg // Use gg instead of 1
+	//						)
+	//						.Count()
+	//					}
+	//			)
+	//			.OrderByDescending(result => result.GenreCount)
+	//			.ThenBy(result => result.GenreName)
+	//			.Select(x => new
+	//			{
+	//				Id = x.GenreId,
+	//				Name = x.GenreName,
+	//				Value = x.GenreCount
+	//			})
+	//			.ToList()
+	//			.Take(5);
 
-			var i = 0;
+	//		var i = 0;
 
-			foreach (var genre in genreStats)
-			{
-				_context.PlayerTopGenres.Add(new PlayerTopGenre
-				{
-					PlayerId = player.Id,
-					GenreId = genre.Id,
-					Rank = ++i,
-				});
-			}
+	//		foreach (var genre in genreStats)
+	//		{
+	//			_context.PlayerTopGenres.Add(new PlayerTopGenre
+	//			{
+	//				PlayerId = player.Id,
+	//				GenreId = genre.Id,
+	//				Rank = ++i,
+	//			});
+	//		}
 
-			_context.SaveChanges();
-		}
+	//		_context.SaveChanges();
+	//	}
 
-		return Ok();
-	}
+	//	return Ok();
+	//}
 
 	[HttpGet, Authorize(Roles = "Participant")]
 	[Route("getPlayersTopGenres")]
@@ -351,18 +351,65 @@ public class StatsController : ControllerBase
 		return Ok(_context.PlayerTopGenres.Where(x => x.PlayerId == playerId).ToList());
 	}
 
+	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+	//[Route("calcMonthlyBonus")]
+	//public IActionResult CalcMonthlyBonusApr()
+	//{
+	//	var players = _bcmService.GetPlayers();
+	//	var leaderboardList = new List<Ranking>();
+
+	//	var communityBonus = _statsService.CalcAprCommunityGoal();
+
+	//	_context.AprRecap.RemoveRange(_context.AprRecap.ToList());
+	//	_context.FakeCompletions.RemoveRange(_context.FakeCompletions.ToList());
+	//	_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 4));
+
+	//	foreach (var player in players)
+	//	{
+	//		var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+	//		var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+	//		var playerCompletions = _context.BcmPlayerGames
+	//																		.Include(x => x.Game)
+	//																		.Where(x => x.PlayerId == player.Id &&
+	//																			x.CompletionDate != null &&
+	//																			x.CompletionDate >= _bcmService.GetContestStartDate() &&
+	//																			x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
+	//																			x.CompletionDate!.Value.Year == 2024 &&
+	//																			x.CompletionDate!.Value.Month == 4).ToList();
+
+	//		var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)).ToList();
+	//		_statsService.CalcAprBonus(player, gamesCompletedThisMonth, communityBonus);
+	//	}
+
+	//	foreach (var player in players)
+	//	{
+	//		var aprStats = _context.AprRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+	//		if (aprStats != null)
+	//		{
+	//			var aprRanking = _context.AprRecap.OrderByDescending(x => x.TotalPoints).ToList();
+	//			int rank = aprRanking.FindIndex(x => x.Id == aprStats.Id);
+	//			aprStats.Rank = rank + 1;
+	//		}
+	//	}
+
+	//	_context.SaveChanges();
+
+	//	return Ok();
+	//}
+
 	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
 	[Route("calcMonthlyBonus")]
-	public IActionResult CalcMonthlyBonusApr()
+	public IActionResult CalcMonthlyBonusMay()
 	{
 		var players = _bcmService.GetPlayers();
 		var leaderboardList = new List<Ranking>();
 
-		var communityBonus = _statsService.CalcAprCommunityGoal();
+		//var communityBonus = _statsService.CalcMayCommunityGoal();
 
-		_context.AprRecap.RemoveRange(_context.AprRecap.ToList());
+		_context.MayRecap.RemoveRange(_context.MayRecap.ToList());
 		_context.FakeCompletions.RemoveRange(_context.FakeCompletions.ToList());
-		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 4));
+		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 5));
 
 		foreach (var player in players)
 		{
@@ -376,20 +423,20 @@ public class StatsController : ControllerBase
 																				x.CompletionDate >= _bcmService.GetContestStartDate() &&
 																				x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
 																				x.CompletionDate!.Value.Year == 2024 &&
-																				x.CompletionDate!.Value.Month == 4).ToList();
+																				x.CompletionDate!.Value.Month == 5).ToList();
 
 			var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)).ToList();
-			_statsService.CalcAprBonus(player, gamesCompletedThisMonth, communityBonus);
+			// _statsService.CalcAprBonus(player, gamesCompletedThisMonth, 0);
 		}
 
 		foreach (var player in players)
 		{
-			var aprStats = _context.AprRecap.FirstOrDefault(x => x.PlayerId == player.Id);
-			if (aprStats != null)
+			var mayStats = _context.MayRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+			if (mayStats != null)
 			{
-				var aprRanking = _context.AprRecap.OrderByDescending(x => x.TotalPoints).ToList();
-				int rank = aprRanking.FindIndex(x => x.Id == aprStats.Id);
-				aprStats.Rank = rank + 1;
+				var aprRanking = _context.MayRecap.OrderByDescending(x => x.TotalPoints).ToList();
+				int rank = aprRanking.FindIndex(x => x.Id == mayStats.Id);
+				mayStats.Rank = rank + 1;
 			}
 		}
 

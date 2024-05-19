@@ -9,6 +9,7 @@ public interface IStatsService
   void CalcFebBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, List<Tuple<Game, int>> allFebCompletions, bool communityBonusReached);
   void CalcMarBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonusReached, IEnumerable<BcmPlayerGame> communityBounties);
 	void CalcAprBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, int communityBonus);
+	void CalcMayBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, int communityBonus);
 	int CalcAprCommunityGoal();
 	List<Game> Bounties();
   bool CalcJanCommunityGoal();

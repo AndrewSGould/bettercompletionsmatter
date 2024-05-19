@@ -1,5 +1,6 @@
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
@@ -370,6 +371,65 @@ public class StatsService : IStatsService
 
 		_context.SaveChanges();
 	}
+
+	public void CalcMayBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, int communityBonus)
+	{
+    var topGenres = _context.PlayerTopGenres.Where(x => x.PlayerId == player.Id);
+
+    var gamesWithTopGenres = completedGames.Where(x => topGenres.Any(y => x.Game.GameGenres.Any(z => y.GenreId == z.GenreId)));
+    gamesWithTopGenres = gamesWithTopGenres.ToList().OrderBy(x => x.CompletionDate);
+
+    foreach(var game in gamesWithTopGenres)
+    {
+      var currentGenreTracker = new PlayerTopGenre();
+      var length = game.Game!.FullCompletionEstimate;
+      var steps = GetGenreSteps(length);
+
+
+			var genresFromGame = topGenres.Where(x => game.Game!.GameGenres!.Any(y => y.GenreId == x.GenreId));
+
+      if (genresFromGame.Count() > 1)
+        currentGenreTracker = genresFromGame.OrderBy(x => x.Rank).First();
+      else
+        currentGenreTracker = genresFromGame.First();
+
+      // get next allowable genres
+      var nextGenreRank = GetNextGenre(currentGenreTracker, steps);
+
+      var currentPosition = currentGenreTracker.Rank;
+      var availGenres = new List<PlayerTopGenre>();
+
+      for(var i = nextGenreRank; i > 0; i--)
+      {
+				availGenres.Add(topGenres.First(x => x.Rank == i));
+      }
+    }
+
+    return;
+  }
+
+  private int GetGenreSteps(double? estimate)
+  {
+    if (estimate is null) return 0;
+
+    if (estimate <= 10) return 1;
+    if (estimate >= 10.5 && estimate <= 20) return 2;
+    if (estimate >= 20.5 && estimate <= 30) return 3;
+    if (estimate >= 30.5 && estimate <= 50) return 4;
+    if (estimate >= 50.5) return 5;
+
+    return 0;
+  }
+
+  private int GetNextGenre(PlayerTopGenre currentGenreTracker, int steps)
+  {
+    var estStep = currentGenreTracker.Rank + steps;
+
+    if (estStep > 5)
+      estStep = estStep - 5;
+
+    return estStep;
+  }
 
   public void CalcMarBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonusReached, IEnumerable<BcmPlayerGame> communityBounties)
   {
