@@ -52,7 +52,7 @@ jobs:
             sudo docker stop tavisapi 2>/dev/null || true
             sudo docker rm tavisapi 2>/dev/null || true
             sudo docker run --network host \
-              -e "ConnectionStrings__DefaultConnection=Host=${{ vars.POSTGRES_HOST  }};Port=5432;Database=tavis;User ID=postgres;Password=test;" \
+              -e "ConnectionStrings__DefaultConnection=Host=${{ vars.POSTGRES_HOST  }};Port=5432;Database=tavis;User ID=postgres;Password=${{ secrets.POSTGRES_PASSWORD }};" \
               -e "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" \
               -e "ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" \
               -e "OXBL_APP_KEY=${{ secrets.OXBL_APP_KEY }}" \
