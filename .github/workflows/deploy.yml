@@ -48,6 +48,7 @@ jobs:
 
       - name: Docker Stop & Start Container
         run: |
+          echo ${{ secrets.POSTGRES_PASSWORD }}
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << EOF
             sudo docker stop tavisapi 2>/dev/null || true
             sudo docker rm tavisapi 2>/dev/null || true
@@ -59,5 +60,5 @@ jobs:
               -e "DISCORD_CLIENTID=${{ vars.DISCORD_CLIENTID }}" \
               -e "DISCORD_OAUTH_SECRET=${{ secrets.DISCORD_OAUTH_SECRET }}" \
               -e "TA_SESSIONID=${{ secrets.TA_SESSIONID }}" \
-              --restart always --name tavisapi --no-cache -d ghcr.io/andrewsgould/tavisapi:latest
+              --restart always --name tavisapi -d ghcr.io/andrewsgould/tavisapi:latest
           EOF
