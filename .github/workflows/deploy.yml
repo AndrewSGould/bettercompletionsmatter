@@ -48,7 +48,6 @@ jobs:
 
       - name: Docker Stop & Start Container
         run: |
-          echo ${{ secrets.POSTGRES_PASSWORD }}
           ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} << EOF
             sudo docker stop tavisapi 2>/dev/null || true
             sudo docker rm tavisapi 2>/dev/null || true
