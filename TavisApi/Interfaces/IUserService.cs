@@ -1,8 +1,9 @@
-using TavisApi.V2.Users;
+using Tavis.Models;
 
 namespace TavisApi.Services;
 
-public interface IUserService {
-	public string? GetCurrentUserName();
-	public User? GetCurrentUser();
+public interface IUserService
+{
+  public string? GetCurrentUserName();
+  public User? GetCurrentUser();
 }
