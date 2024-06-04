@@ -1,173 +1,165 @@
 namespace TavisApi.Controllers;
 
-using TavisApi.Context;
-using TavisApi.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Tavis.Models;
-using System.Data;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using TavisApi.Models;
-using System.Numerics;
+using System.Collections.Generic;
+using System.Data;
 using Tavis.Extensions;
+using Tavis.Models;
 using TavisApi.ContestRules;
+using TavisApi.Context;
+using TavisApi.Models;
+using TavisApi.Services;
 
 [ApiController]
 [Route("[controller]")]
-public class StatsController : ControllerBase
-{
-  private TavisContext _context;
-  private readonly IBcmService _bcmService;
-  private readonly IStatsService _statsService;
+public class StatsController : ControllerBase {
+	private TavisContext _context;
+	private readonly IBcmService _bcmService;
+	private readonly IStatsService _statsService;
 
-  public StatsController(TavisContext context, IBcmService bcmService, IStatsService statsService)
-  {
-    _context = context;
-    _bcmService = bcmService;
-    _statsService = statsService;
-  }
+	public StatsController(TavisContext context, IBcmService bcmService, IStatsService statsService)
+	{
+		_context = context;
+		_bcmService = bcmService;
+		_statsService = statsService;
+	}
 
-  [HttpGet]
-  [Route("getBcmLeaderboardList")]
-  public IActionResult BcmLeaderboardList()
-  {
-    var players = _bcmService.GetPlayers();
+	[HttpGet]
+	[Route("getBcmLeaderboardList")]
+	public IActionResult BcmLeaderboardList()
+	{
+		var players = _bcmService.GetPlayers();
 
-    foreach (var player in players)
-    {
-      var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
-    }
+		foreach (var player in players) {
+			var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
+		}
 
-    return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
-  }
+		return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
+	}
 
-  [HttpGet, Authorize(Roles = "Guest")]
-  [Route("miscSummary")]
-  public IActionResult GetMiscSummary(string player)
-  {
-    var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
-    if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+	[HttpGet, Authorize(Roles = "Guest")]
+	[Route("miscSummary")]
+	public IActionResult GetMiscSummary(string player)
+	{
+		var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+		if (localuser is null) return BadRequest("Player not found with the provided gamertag");
 
-    var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
-    if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+		var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+		if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
 
-    var miscStats = _context.BcmMiscStats.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id);
-    if (miscStats is null) return Ok();
+		var miscStats = _context.BcmMiscStats.FirstOrDefault(x => x.PlayerId == bcmPlayer.Id);
+		if (miscStats is null) return Ok();
 
-    var historicalStats = JsonConvert.DeserializeObject<List<BcmHistoricalStats>>(miscStats.HistoricalStats!);
+		var historicalStats = JsonConvert.DeserializeObject<List<BcmHistoricalStats>>(miscStats.HistoricalStats!);
 
-    return Ok(historicalStats);
-  }
+		return Ok(historicalStats);
+	}
 
-  [HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-  [Route("recalcBcmLeaderboard")]
-  public async Task<IActionResult> RecalcBcmLeaderboard()
-  {
-    var players = _bcmService.GetPlayers();
+	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+	[Route("recalcBcmLeaderboard")]
+	public async Task<IActionResult> RecalcBcmLeaderboard()
+	{
+		var players = _bcmService.GetPlayers();
 
-    var leaderboardList = new List<Ranking>();
+		var leaderboardList = new List<Ranking>();
 
-    foreach (var player in players)
-    {
-      var playerBcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
+		foreach (var player in players) {
+			var playerBcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
 
-      if (playerBcmStats == null)
-      {
-        playerBcmStats = new BcmStat();
-        _context.BcmStats.Add(playerBcmStats);
-      }
+			if (playerBcmStats == null) {
+				playerBcmStats = new BcmStat();
+				_context.BcmStats.Add(playerBcmStats);
+			}
 
-      playerBcmStats.PlayerId = player.Id;
+			playerBcmStats.PlayerId = player.Id;
 
-      var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
-      var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+			var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+			var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
 
-      var playerCompletions = _context.BcmPlayerGames
-                                      .Include(x => x.Game)
-                                      .Where(x => x.PlayerId == player.Id && (
-                                        x.CompletionDate != null &&
-                                        x.CompletionDate >= _bcmService.GetContestStartDate() &&
-                                        x.CompletionDate >= userRegDate!.Value.AddDays(-1)));
+			var playerCompletions = _context.BcmPlayerGames
+																			.Include(x => x.Game)
+																			.Where(x => x.PlayerId == player.Id && (
+																				x.CompletionDate != null &&
+																				x.CompletionDate >= _bcmService.GetContestStartDate() &&
+																				x.CompletionDate >= userRegDate!.Value.AddDays(-1)));
 
-      var gamesCompletedThisYear = playerCompletions.ToList();
+			var gamesCompletedThisYear = playerCompletions.ToList();
 
-      var completedGamesCount = gamesCompletedThisYear.Count();
-      var ratioOfGames = gamesCompletedThisYear.Select(x => x.Game!.SiteRatio);
-      var estimateOfGames = gamesCompletedThisYear.Select(x => x.Game!.FullCompletionEstimate);
+			var completedGamesCount = gamesCompletedThisYear.Count();
+			var ratioOfGames = gamesCompletedThisYear.Select(x => x.Game!.SiteRatio);
+			var estimateOfGames = gamesCompletedThisYear.Select(x => x.Game!.FullCompletionEstimate);
 
-      playerBcmStats.Completions = completedGamesCount;
-      playerBcmStats.AverageRatio = ratioOfGames.DefaultIfEmpty(0).Average();
-      playerBcmStats.HighestRatio = ratioOfGames.DefaultIfEmpty(0).Max();
-      playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Average();
-      playerBcmStats.HighestTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Max();
+			playerBcmStats.Completions = completedGamesCount;
+			playerBcmStats.AverageRatio = ratioOfGames.DefaultIfEmpty(0).Average();
+			playerBcmStats.HighestRatio = ratioOfGames.DefaultIfEmpty(0).Max();
+			playerBcmStats.AverageTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Average();
+			playerBcmStats.HighestTimeEstimate = estimateOfGames.DefaultIfEmpty(0).Max();
 
-      double? basePoints = 0.0;
-      foreach (var completion in gamesCompletedThisYear)
-      {
-        var pointValue = _bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game.FullCompletionEstimate);
-        if (pointValue != null)
-          basePoints += pointValue;
-      }
+			double? basePoints = 0.0;
+			foreach (var completion in gamesCompletedThisYear) {
+				var pointValue = _bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game.FullCompletionEstimate);
+				if (pointValue != null)
+					basePoints += pointValue;
+			}
 
-      playerBcmStats.BasePoints = basePoints;
-      playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
+			playerBcmStats.BasePoints = basePoints;
+			playerBcmStats.AveragePoints = completedGamesCount != 0 ? basePoints / completedGamesCount : 0;
 
-      var rgscBonus = _statsService.ScoreRgscCompletions(player, gamesCompletedThisYear);
-      var oddJobProgress = await _bcmService.GetOddJobChallengeProgress(player.Id);
-      var oddJobBonus = oddJobProgress.Count() == 5 ? 1000 : 0;
-      var playersChallenges = _context.PlayerYearlyChallenges.Include(x => x.YearlyChallenge)
-                                .Where(x => x.PlayerId == player.Id && x.Approved);
+			var rgscBonus = _statsService.ScoreRgscCompletions(player, gamesCompletedThisYear);
+			var oddJobProgress = await _bcmService.GetOddJobChallengeProgress(player.Id);
+			var oddJobBonus = oddJobProgress.Count() == 5 ? 1000 : 0;
+			var playersChallenges = _context.PlayerYearlyChallenges.Include(x => x.YearlyChallenge)
+																.Where(x => x.PlayerId == player.Id && x.Approved);
 
 			var progress = await _bcmService.GetAlphabetChallengeProgress(player.Id);
 			var abcChallenge = progress.Count() >= 25 ? 2500 : 0;
 
 			var communityStarBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.CommunityStar && x.Approved).Count() == 20
-                                  ? 5000 : 0;
+																	? 5000 : 0;
 
-      var tavisBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS && x.Approved).Count() == 20
-                                  ? 5000 : 0;
+			var tavisBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.TheTAVIS && x.Approved).Count() == 20
+																	? 5000 : 0;
 
-      var retirementBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty && x.Approved).Count() == 10
-                                  ? 2500 : 0;
+			var retirementBonus = playersChallenges.Where(x => x.YearlyChallenge!.Category == Data.YearlyCategory.RetirementParty && x.Approved).Count() == 10
+																	? 2500 : 0;
 
-      // TODO: Add the 750 for anyone who has all participation
+			// TODO: Add the 750 for anyone who has all participation
 
-      var janBonus = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
-      var febBonus = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
-      var marBonus = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var janBonus = _context.JanRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var febBonus = _context.FebRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var marBonus = _context.MarRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var aprBonus = _context.AprRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
 			playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + abcChallenge + janBonus + febBonus + marBonus + aprBonus + tavisBonus + communityStarBonus + retirementBonus;
-      playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
+			playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
-      leaderboardList.Add(new Ranking
-      {
-        PlayerId = player.Id,
-        BcmPoints = playerBcmStats.TotalPoints
-      });
-    }
+			leaderboardList.Add(new Ranking {
+				PlayerId = player.Id,
+				BcmPoints = playerBcmStats.TotalPoints
+			});
+		}
 
-    _context.SaveChanges();
+		_context.SaveChanges();
 
-    // after saving point calculations, lets order the leaderboard and save again for the rankings
-    leaderboardList = leaderboardList.OrderByDescending(x => x.BcmPoints).ToList();
+		// after saving point calculations, lets order the leaderboard and save again for the rankings
+		leaderboardList = leaderboardList.OrderByDescending(x => x.BcmPoints).ToList();
 
-    foreach (var player in players)
-    {
-      var playerBcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id);
-      var previousRanking = playerBcmStats.Rank;
-      var newRanking = leaderboardList.FindIndex(x => x.PlayerId == player.Id) + 1;
+		foreach (var player in players) {
+			var playerBcmStats = _context.BcmStats.First(x => x.PlayerId == player.Id);
+			var previousRanking = playerBcmStats.Rank;
+			var newRanking = leaderboardList.FindIndex(x => x.PlayerId == player.Id) + 1;
 
-      playerBcmStats.Rank = newRanking;
-      playerBcmStats.RankMovement = previousRanking - newRanking;
-    }
+			playerBcmStats.Rank = newRanking;
+			playerBcmStats.RankMovement = previousRanking - newRanking;
+		}
 
-    _context.SaveChanges();
+		_context.SaveChanges();
 
-    return Ok();
-  }
+		return Ok();
+	}
 
 	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
 	//[Route("calcMonthlyBonusFeb")]
@@ -398,21 +390,20 @@ public class StatsController : ControllerBase
 	//	return Ok();
 	//}
 
+
 	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
 	[Route("calcMonthlyBonus")]
-	public IActionResult CalcMonthlyBonusMay()
+	public IActionResult CalcMonthlyBonusJun()
 	{
 		var players = _bcmService.GetPlayers();
 		var leaderboardList = new List<Ranking>();
 
-		//var communityBonus = _statsService.CalcMayCommunityGoal();
+		var communityBonus = _statsService.CalcJunCommunityGoal();
 
-		_context.MayRecap.RemoveRange(_context.MayRecap.ToList());
-		_context.FakeCompletions.RemoveRange(_context.FakeCompletions.ToList());
-		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 5));
+		_context.JunRecap.RemoveRange(_context.JunRecap.ToList());
+		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 6));
 
-		foreach (var player in players)
-		{
+		foreach (var player in players) {
 			var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
 			var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
 
@@ -423,20 +414,23 @@ public class StatsController : ControllerBase
 																				x.CompletionDate >= _bcmService.GetContestStartDate() &&
 																				x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
 																				x.CompletionDate!.Value.Year == 2024 &&
-																				x.CompletionDate!.Value.Month == 5).ToList();
+																				x.CompletionDate!.Value.Month == 6)
+																			.AsEnumerable()
+																			.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+																			.ToList();
 
-			var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)).ToList();
-			// _statsService.CalcAprBonus(player, gamesCompletedThisMonth, 0);
+			var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)
+																														&& !_context.MonthlyExclusions.Any(y => y.PlayerId == player.Id && y.GameId == x.GameId)).ToList();
+
+			_statsService.CalcJunBonus(player, gamesCompletedThisMonth, communityBonus);
 		}
 
-		foreach (var player in players)
-		{
-			var mayStats = _context.MayRecap.FirstOrDefault(x => x.PlayerId == player.Id);
-			if (mayStats != null)
-			{
-				var aprRanking = _context.MayRecap.OrderByDescending(x => x.TotalPoints).ToList();
-				int rank = aprRanking.FindIndex(x => x.Id == mayStats.Id);
-				mayStats.Rank = rank + 1;
+		foreach (var player in players) {
+			var junStats = _context.JunRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+			if (junStats != null) {
+				var junRanking = _context.JunRecap.OrderByDescending(x => x.TotalPoints).ToList();
+				int rank = junRanking.FindIndex(x => x.Id == junStats.Id);
+				junStats.Rank = rank + 1;
 			}
 		}
 
@@ -444,6 +438,53 @@ public class StatsController : ControllerBase
 
 		return Ok();
 	}
+
+	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+	//[Route("calcMonthlyBonus")]
+	//public IActionResult CalcMonthlyBonusMay()
+	//{
+	//	var players = _bcmService.GetPlayers();
+	//	var leaderboardList = new List<Ranking>();
+
+	//	//var communityBonus = _statsService.CalcMayCommunityGoal();
+
+	//	_context.MayRecap.RemoveRange(_context.MayRecap.ToList());
+	//	_context.FakeCompletions.RemoveRange(_context.FakeCompletions.ToList());
+	//	_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 5));
+
+	//	foreach (var player in players)
+	//	{
+	//		var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+	//		var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+	//		var playerCompletions = _context.BcmPlayerGames
+	//																		.Include(x => x.Game)
+	//																		.Where(x => x.PlayerId == player.Id &&
+	//																			x.CompletionDate != null &&
+	//																			x.CompletionDate >= _bcmService.GetContestStartDate() &&
+	//																			x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
+	//																			x.CompletionDate!.Value.Year == 2024 &&
+	//																			x.CompletionDate!.Value.Month == 5).ToList();
+
+	//		var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)).ToList();
+	//		// _statsService.CalcAprBonus(player, gamesCompletedThisMonth, 0);
+	//	}
+
+	//	foreach (var player in players)
+	//	{
+	//		var mayStats = _context.MayRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+	//		if (mayStats != null)
+	//		{
+	//			var aprRanking = _context.MayRecap.OrderByDescending(x => x.TotalPoints).ToList();
+	//			int rank = aprRanking.FindIndex(x => x.Id == mayStats.Id);
+	//			mayStats.Rank = rank + 1;
+	//		}
+	//	}
+
+	//	_context.SaveChanges();
+
+	//	return Ok();
+	//}
 
 	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
 	//[Route("calcMonthlyBonus3")]
