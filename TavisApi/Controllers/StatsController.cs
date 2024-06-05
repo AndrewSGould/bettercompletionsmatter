@@ -31,13 +31,18 @@ public class StatsController : ControllerBase {
 	[Route("getBcmLeaderboardList")]
 	public IActionResult BcmLeaderboardList()
 	{
-		var players = _bcmService.GetPlayers();
+		try {
+			var players = _bcmService.GetPlayers();
 
-		foreach (var player in players) {
-			var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
+			foreach (var player in players) {
+				var bcmStats = _context.BcmStats.FirstOrDefault(x => x.PlayerId == player.Id);
+			}
+
+			return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
 		}
-
-		return Ok(players.OrderBy(x => x.BcmStats?.Rank ?? 999));
+		catch (Exception ex) {
+			return BadRequest(ex);
+		}
 	}
 
 	[HttpGet, Authorize(Roles = "Guest")]
