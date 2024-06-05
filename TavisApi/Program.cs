@@ -43,7 +43,6 @@ builder.Configuration.AddConfiguration(configurationBuilder.Build());
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<TavisContext>(x => {
 	x.UseNpgsql(connectionString);
-	x.EnableSensitiveDataLogging();
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(opt => {
