@@ -143,7 +143,7 @@ public class StatsService : IStatsService {
 
 		var hasCompleted360Game = completedGames.Count(x => x.Platform == Platform.Xbox360) > 0;
 
-		var playerJanStats = _context.JanRecap.Add(new JanRecap {
+		var playerJanStats = _context.JanRecap.Add(new Tavis.Models.JanRecap {
 			Gamertag = player.User!.Gamertag!,
 			Bucket1Points = bucket1Points,
 			Bucket1Comps = bucket1Comps,
@@ -178,9 +178,6 @@ public class StatsService : IStatsService {
 
 	public void CalcAprBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, int communityBonus)
 	{
-		var brokenGames = completedGames.Where(x => x.Game is not null && (x.Game.ServerClosure is not null || x.Game.Unobtainables is true));
-		brokenGames = brokenGames.Where(x => Queries.FilterGamesForYearlies(x.Game, x));
-		var brokenGamesList = brokenGames.ToList();
 		var fakeCompletions = new List<BcmPlayerGame>();
 
 		if (player.User?.Gamertag == "eohjay")
@@ -305,8 +302,6 @@ public class StatsService : IStatsService {
 		var participated = false;
 		var totalPoints = 0;
 
-		brokenGamesList.AddRange(fakeCompletions);
-
 		foreach (var fakeCompletion in fakeCompletions) {
 			_context.FakeCompletions.Add(new FakeCompletion {
 				PlayerId = player.Id,
@@ -318,67 +313,181 @@ public class StatsService : IStatsService {
 				BonusPoints = (_bcmService.CalcBcmValue(fakeCompletion.Platform, fakeCompletion.Game!.SiteRatio, fakeCompletion.Game!.FullCompletionEstimate) ?? 0) * .8
 			});
 		}
-		foreach (var brokenGame in brokenGamesList) {
-			participated = true;
-
-			var bonusPts = (_bcmService.CalcBcmValue(brokenGame.Platform, brokenGame.Game!.SiteRatio, brokenGame.Game!.FullCompletionEstimate) ?? 0) * .8;
-
-			var game = _context.BcmPlayerGames.FirstOrDefault(x => x.PlayerId == player.Id && x.GameId == brokenGame.GameId);
-			if (game != null)
-				game.BcmPoints = bonusPts;
-
-			totalPoints += Convert.ToInt32(bonusPts);
-
-			_context.MonthlyExclusions.Add(new MonthlyExclusion {
-				Challenge = 4,
-				GameId = brokenGame.GameId,
-				PlayerId = player.Id
-			});
-		}
-
-		var playerMarStats = _context.AprRecap.Add(new AprRecap {
-			Gamertag = player.User!.Gamertag!,
-			Participation = participated,
-			CommunityBonus = participated ? communityBonus : 0,
-			TotalPoints = participated ? totalPoints + communityBonus : 0,
-			PlayerId = player.Id
-		});
 
 		_context.SaveChanges();
 	}
 
-	public void CalcMayBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, int communityBonus)
+	public void CalcMayBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonus)
 	{
-		var topGenres = _context.PlayerTopGenres.Where(x => x.PlayerId == player.Id);
+		var topGenres = _context.PlayerTopGenres.Where(x => x.PlayerId == player.Id).ToList();
 
-		var gamesWithTopGenres = completedGames.Where(x => topGenres.Any(y => x.Game.GameGenres.Any(z => y.GenreId == z.GenreId)));
-		gamesWithTopGenres = gamesWithTopGenres.ToList().OrderBy(x => x.CompletionDate);
+		var filteredGames = completedGames
+			.Where(game => game.Game != null && game.Game.GameGenres != null && game.Game.GameGenres
+				.Any(gameGenre => topGenres
+					.Any(topGenre => topGenre.GenreId == gameGenre.GenreId)))
+						.ToList();
 
-		foreach (var game in gamesWithTopGenres) {
+		filteredGames = filteredGames.ToList().OrderBy(x => x.CompletionDate).ToList();
+		var results = DoTheThing(filteredGames, topGenres);
+
+		if (results != null) {
+			var totalPoints = 0;
+
+			foreach (var towerfloor in results.Games) {
+				if (towerfloor.Game.Game.SiteRatio >= 1 && towerfloor.Game.Game.SiteRatio < 2)
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.10 + (.06 * (results.FloorCount / 100))));
+				else if (towerfloor.Game.Game.SiteRatio >= 2 && towerfloor.Game.Game.SiteRatio < 3)
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.20 + (.05 * (results.FloorCount / 100))));
+				else if (towerfloor.Game.Game.SiteRatio >= 3 && towerfloor.Game.Game.SiteRatio < 4)
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.30 + (.04 * (results.FloorCount / 100))));
+				else if (towerfloor.Game.Game.SiteRatio >= 4 && towerfloor.Game.Game.SiteRatio < 6)
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.40 + (.03 * (results.FloorCount / 100))));
+				else if (towerfloor.Game.Game.SiteRatio >= 6 && towerfloor.Game.Game.SiteRatio < 8)
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.50 + (.02 * (results.FloorCount / 100))));
+				else if (towerfloor.Game.Game.SiteRatio >= 8)
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.60 + (.01 * (results.FloorCount / 100))));
+
+				totalPoints += towerfloor.BcmPoints;
+
+				_context.MonthlyExclusions.Add(new MonthlyExclusion {
+					Challenge = 5,
+					GameId = towerfloor.Game!.GameId,
+					PlayerId = player.Id
+				});
+			}
+
+			_context.MayRecap.Add(new MayRecap {
+				Gamertag = player.User!.Gamertag!,
+				Games = results.Games.Select(x => x.Game!.Game!.Title!).ToList(),
+				Floors = results.FloorCount,
+				HigestRatio = results.Games.Max(x => x.Game?.Game?.SiteRatio) ?? 0,
+				Participation = totalPoints > 0,
+				TotalPoints = totalPoints,
+				PlayerId = player.Id
+			});
+		}
+		else {
+			_context.MayRecap.Add(new MayRecap {
+				TotalPoints = -1,
+				Gamertag = player.User!.Gamertag!,
+				PlayerId = player.Id,
+			});
+		}
+
+		_context.SaveChanges();
+
+		return;
+	}
+
+	public GenreResults DoTheThing(List<BcmPlayerGame> filteredGames, List<PlayerTopGenre> topGenres)
+	{
+		var results = new GenreResults();
+		BcmPlayerGame previousGame = null;
+
+		foreach (var game in filteredGames) {
+			game.Game!.SiteRatio = game.Platform == Platform.Xbox360 ? game.Game!.SiteRatio + 0.5 : game.Game!.SiteRatio;
+		}
+
+		filteredGames = filteredGames.OrderBy(x => x.CompletionDate).ThenBy(x => x.Game!.SiteRatio).ToList();
+
+		foreach (var game in filteredGames) {
+			// genre that we picked previously
+			var previousGenreTracker = new PlayerTopGenre();
+
+			// genre selected
 			var currentGenreTracker = new PlayerTopGenre();
+			var availGenres = new List<PlayerTopGenre>();
+
 			var length = game.Game!.FullCompletionEstimate;
+
+			// how many genres we can go
 			var steps = GetGenreSteps(length);
 
-
-			var genresFromGame = topGenres.Where(x => game.Game!.GameGenres!.Any(y => y.GenreId == x.GenreId));
+			var prevGameGenres = new List<PlayerTopGenre>();
+			var genresFromGame = topGenres.Where(x => game.Game.GameGenres.Any(y => y.GenreId == x.GenreId));
 
 			if (genresFromGame.Count() > 1)
 				currentGenreTracker = genresFromGame.OrderBy(x => x.Rank).First();
 			else
 				currentGenreTracker = genresFromGame.First();
 
+			if (previousGame != null) {
+				prevGameGenres = topGenres.Where(x => previousGame.Game.GameGenres.Any(y => y.GenreId == x.GenreId)).ToList();
+
+				if (prevGameGenres.Count() > 1)
+					previousGenreTracker = prevGameGenres.OrderBy(x => x.Rank).First();
+				else
+					previousGenreTracker = prevGameGenres.First();
+			}
+
 			// get next allowable genres
-			var nextGenreRank = GetNextGenre(currentGenreTracker, steps);
+			if (previousGame == null) {
+				availGenres = topGenres;
+			}
+			else {
+				if (steps == 5) {
+					availGenres = topGenres;
+				}
+				else {
+					int startRank = previousGenreTracker.Rank;
+					int rank = startRank;
 
-			var currentPosition = currentGenreTracker.Rank;
-			var availGenres = new List<PlayerTopGenre>();
+					do {
+						rank++;
+						if (rank > 5) rank = 1;
 
-			for (var i = nextGenreRank; i > 0; i--) {
-				availGenres.Add(topGenres.First(x => x.Rank == i));
+						availGenres.Add(topGenres.First(x => x.Rank == rank));
+					} while (rank != startRank);
+				}
+			}
+
+			if (availGenres.Any(x => x.GenreId == currentGenreTracker.GenreId)) {
+				var baseValue = _bcmService.CalcBcmValue(game.Platform, (game.Game.SiteRatio - .5), game.Game.FullCompletionEstimate) ?? 0;
+
+				if (previousGame != null && previousGame.Game != null && game.Game.SiteRatio > previousGame.Game.SiteRatio) {
+					results.FloorCount += 1;
+
+					results.Games.Add(new TowerGame {
+						Game = game,
+						BcmPoints = baseValue
+					});
+
+					previousGame = game;
+				}
+
+				if (previousGame == null) {
+					results.FloorCount += 1;
+
+					results.Games.Add(new TowerGame {
+						Game = game,
+						BcmPoints = baseValue
+					});
+
+					previousGame = game;
+				}
 			}
 		}
 
-		return;
+		var floorCount = results.Games.Select(x => (int)x.Game.Game.SiteRatio).Distinct().Count();
+		results.FloorCount = floorCount;
+
+		foreach (var game in filteredGames) {
+			game.Game!.SiteRatio = game.Platform == Platform.Xbox360 ? game.Game!.SiteRatio - 0.5 : game.Game!.SiteRatio;
+		}
+
+		if (results.Games.Count() < 2) return new GenreResults();
+
+		return results;
+	}
+
+	public class GenreResults {
+		public int FloorCount { get; set; }
+		public List<TowerGame> Games { get; set; } = new List<TowerGame>();
+	}
+
+	public class TowerGame {
+		public int BcmPoints { get; set; }
+		public BcmPlayerGame? Game { get; set; }
 	}
 
 	public bool CalcJunCommunityGoal()
@@ -400,30 +509,42 @@ public class StatsService : IStatsService {
 		var participated = completedGames.Any(x => x.Game!.SiteRating >= 3.75 && x.Game!.GamersWithGame >= 2000);
 		var totalPoints = 0;
 
-		foreach (var completion in completedGames) {
+		foreach (var completion in completedGames.Where(x => x.Game!.GamersWithGame >= 2000)) {
 			if (completion.Game!.SiteRating >= 3.75 && completion.Game!.SiteRating < 4) {
 				var individualGameBonusPoints = (int)Math.Floor((_bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game!.FullCompletionEstimate) ?? 0) * (.4 + (completion.Game!.SiteRating / 100)) ?? 0);
 				completion.BcmPoints = individualGameBonusPoints;
 				totalPoints += individualGameBonusPoints;
+
+				_context.MonthlyExclusions.Add(new MonthlyExclusion {
+					Challenge = 6,
+					GameId = completion.GameId,
+					PlayerId = player.Id
+				});
 			}
 
 			if (completion.Game!.SiteRating >= 4 && completion.Game!.SiteRating < 4.5) {
 				var individualGameBonusPoints = (int)Math.Floor((_bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game!.FullCompletionEstimate) ?? 0) * (.6 + (completion.Game!.SiteRating / 100)) ?? 0);
 				completion.BcmPoints = individualGameBonusPoints;
 				totalPoints += individualGameBonusPoints;
+
+				_context.MonthlyExclusions.Add(new MonthlyExclusion {
+					Challenge = 6,
+					GameId = completion.GameId,
+					PlayerId = player.Id
+				});
 			}
 
 			if (completion.Game!.SiteRating >= 4.5) {
 				var individualGameBonusPoints = (int)Math.Floor((_bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game!.FullCompletionEstimate) ?? 0) * (.8 + (completion.Game!.SiteRating / 100)) ?? 0);
 				completion.BcmPoints = individualGameBonusPoints;
 				totalPoints += individualGameBonusPoints;
-			}
 
-			_context.MonthlyExclusions.Add(new MonthlyExclusion {
-				Challenge = 6,
-				GameId = completion.GameId,
-				PlayerId = player.Id
-			});
+				_context.MonthlyExclusions.Add(new MonthlyExclusion {
+					Challenge = 6,
+					GameId = completion.GameId,
+					PlayerId = player.Id
+				});
+			}
 		}
 
 		_context.JunRecap.Add(new JunRecap {
@@ -556,7 +677,7 @@ public class StatsService : IStatsService {
 		var playerMetCommunityBonus = communityBonusReached && playerBountiesCompleted > 0;
 		var claimedBounties = completedBounties.Count() == 0 ? "" : completedBounties.Count() == 1 ? completedBounties.First().Game!.Title : string.Join(", ", completedBounties.Select(x => x.Game!.Title));
 
-		var playerMarStats = _context.MarRecap.Add(new MarRecap {
+		var playerMarStats = _context.MarRecap.Add(new Tavis.Models.MarRecap {
 			Gamertag = player.User!.Gamertag!,
 			BestBounty = bestBounty.Item1.Game?.Title ?? "",
 			BountyCount = playerBountiesCompleted,
@@ -698,7 +819,7 @@ public class StatsService : IStatsService {
 
 		var playerMetCommunityBonus = communityBonusReached && (triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0);
 
-		var playerFebStats = _context.FebRecap.Add(new FebRecap {
+		var playerFebStats = _context.FebRecap.Add(new Tavis.Models.FebRecap {
 			Gamertag = player.User!.Gamertag!,
 			BiCompletion = biComps,
 			BiPoints = biPoints,
