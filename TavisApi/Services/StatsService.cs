@@ -335,17 +335,17 @@ public class StatsService : IStatsService {
 
 			foreach (var towerfloor in results.Games) {
 				if (towerfloor.Game.Game.SiteRatio >= 1 && towerfloor.Game.Game.SiteRatio < 2)
-					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.10 + (.06 * (results.FloorCount / 100))));
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.10 + (6 * results.FloorCount) / 100.0));
 				else if (towerfloor.Game.Game.SiteRatio >= 2 && towerfloor.Game.Game.SiteRatio < 3)
-					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.20 + (.05 * (results.FloorCount / 100))));
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.20 + (5 * results.FloorCount) / 100.0));
 				else if (towerfloor.Game.Game.SiteRatio >= 3 && towerfloor.Game.Game.SiteRatio < 4)
-					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.30 + (.04 * (results.FloorCount / 100))));
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.30 + (4 * results.FloorCount) / 100.0));
 				else if (towerfloor.Game.Game.SiteRatio >= 4 && towerfloor.Game.Game.SiteRatio < 6)
-					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.40 + (.03 * (results.FloorCount / 100))));
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.40 + (3 * results.FloorCount) / 100.0));
 				else if (towerfloor.Game.Game.SiteRatio >= 6 && towerfloor.Game.Game.SiteRatio < 8)
-					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.50 + (.02 * (results.FloorCount / 100))));
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.50 + (2 * results.FloorCount) / 100.0));
 				else if (towerfloor.Game.Game.SiteRatio >= 8)
-					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.60 + (.01 * (results.FloorCount / 100))));
+					towerfloor.BcmPoints = (int)Math.Floor(towerfloor.BcmPoints * (.60 + (1 * results.FloorCount) / 100.0));
 
 				totalPoints += towerfloor.BcmPoints;
 
@@ -442,7 +442,8 @@ public class StatsService : IStatsService {
 			}
 
 			if (availGenres.Any(x => x.GenreId == currentGenreTracker.GenreId)) {
-				var baseValue = _bcmService.CalcBcmValue(game.Platform, (game.Game.SiteRatio - .5), game.Game.FullCompletionEstimate) ?? 0;
+				var ratio = game.Platform == Platform.Xbox360 ? game.Game.SiteRatio - .5 : game.Game.SiteRatio;
+				var baseValue = _bcmService.CalcBcmValue(game.Platform, ratio, game.Game.FullCompletionEstimate) ?? 0;
 
 				if (previousGame != null && previousGame.Game != null && game.Game.SiteRatio > previousGame.Game.SiteRatio) {
 					results.FloorCount += 1;
@@ -554,6 +555,78 @@ public class StatsService : IStatsService {
 			Participation = participated,
 			TotalPoints = totalPoints,
 			QualifiedGames = completedGames.Count()
+		});
+
+		_context.SaveChanges();
+	}
+
+
+	public bool CalcJulyCommunityGoal()
+	{
+		var highlyRatedGamesCount = _context.BcmPlayerGames.Include(x => x.Game)
+																			.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Month == 7 && x.CompletionDate.Value.Year == 2024)
+																			.AsEnumerable()
+																			.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+																			.SelectMany(x => x.Game!.Title!.ToLower().ToCharArray())
+																			.Count(c => c == 't');
+
+
+		return highlyRatedGamesCount >= 69;
+	}
+	public void CalcJulyBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonus)
+	{
+		var qualifiedCompletions = completedGames.Where(x => x.Game != null
+																										&& x.Game.FeatureList != null
+																										&& x.Game.Title != null
+																										&& x.Game.FeatureList.IdAtXbox
+																										&& x.Game.GamersCompleted <= 1773
+																										&& x.Game.Title.ToLower().Contains("t"));
+
+		int totalTCount = qualifiedCompletions
+												.SelectMany(x => x.Game!.Title!.ToLower().ToCharArray())
+												.Count(c => c == 't');
+
+		var communityQualified = totalTCount >= 5;
+		var participated = qualifiedCompletions.Count() > 0;
+
+		var totalPoints = 0;
+
+		foreach (var completion in qualifiedCompletions) {
+			var completionValue = _bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game!.FullCompletionEstimate) ?? 0;
+			var tCount = completion.Game?.Title?.ToLower().Count(x => x == 't') ?? 0;
+
+			if (completion.Game.GamersCompleted <= 1773 && completion.Game.GamersCompleted > 500) {
+				var individualBonusPoints = (int)Math.Floor(completionValue * (.40 + (tCount / 100.0)));
+				completion.BcmPoints = individualBonusPoints;
+				totalPoints += individualBonusPoints;
+			}
+
+			if (completion.Game.GamersCompleted <= 500 && completion.Game.GamersCompleted > 100) {
+				var individualBonusPoints = (int)Math.Floor(completionValue * (.60 + (tCount / 100.0)));
+				completion.BcmPoints = individualBonusPoints;
+				totalPoints += individualBonusPoints;
+			}
+
+			if (completion.Game.GamersCompleted <= 100) {
+				var individualBonusPoints = (int)Math.Floor(completionValue * (.80 + (tCount / 100.0)));
+				completion.BcmPoints = individualBonusPoints;
+				totalPoints += individualBonusPoints;
+			}
+
+			_context.MonthlyExclusions.Add(new MonthlyExclusion {
+				Challenge = 7,
+				GameId = completion.GameId,
+				PlayerId = player.Id
+			});
+		}
+
+		_context.JulyRecap.Add(new JulyRecap {
+			PlayerId = player.Id,
+			Gamertag = player.User!.Gamertag!,
+			TeaCount = totalTCount,
+			CommunityBonus = communityQualified && communityBonus,
+			Participation = participated,
+			TotalPoints = totalPoints,
 		});
 
 		_context.SaveChanges();

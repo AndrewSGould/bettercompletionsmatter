@@ -260,6 +260,34 @@ public class BcmController : ControllerBase {
 	}
 
 	[Authorize(Roles = "Guest")]
+	[HttpGet, Route("monthly/jul")]
+	public async Task<IActionResult> JulySummary(string player)
+	{
+		var localuser = _context.Users.FirstOrDefault(x => x.Gamertag == player);
+		if (localuser is null) return BadRequest("Player not found with the provided gamertag");
+
+		var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
+		if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
+
+		var recap = await _context.JulyRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id);
+		var communityGames = _context.BcmPlayerGames.Include(x => x.Game)
+																			.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Month == 7 && x.CompletionDate.Value.Year == 2024
+																								&& x.Game.FeatureList.IdAtXbox && x.Game.GamersCompleted <= 1773 && x.Game.Title.ToLower().Contains("t")).ToList();
+
+		communityGames = communityGames.Where(x => Queries.FilterGamesForYearlies(x.Game!, x)).ToList();
+
+		var progress = communityGames.SelectMany(x => x.Game!.Title!.ToLower().ToCharArray())
+																				.Count(c => c == 't');
+
+		return Ok(new {
+			recap?.Participation,
+			CommunityProgress = progress,
+			recap?.TeaCount,
+			recap?.TotalPoints,
+		});
+	}
+
+	[Authorize(Roles = "Guest")]
 	[HttpPost, Route("registerUser")]
 	public async Task<IActionResult> RegisterUser()
 	{
@@ -339,5 +367,39 @@ public class BcmController : ControllerBase {
 			.ToListAsync();
 
 		return Ok(genreStats);
+	}
+
+	[HttpGet, Authorize(Roles = "Admin, Bcm Admin")]
+	[Route("produceStatReport")]
+	public IActionResult StatReport()
+	{
+		var bcmPlayers = _bcmService.GetPlayers();
+		var statSpread = new List<object>();
+
+		foreach (var player in bcmPlayers) {
+			var user = _context.Users.FirstOrDefault(x => x.Id == player.UserId);
+
+			var playerGames = _context.BcmPlayerGames.Where(x => x.PlayerId == player.Id);
+
+			var gamerscoreTotal = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2024 && x.CompletionDate.Value.Month == DateTime.Now.AddMonths(-1).Month)
+																				.Sum(x => x.Gamerscore);
+			var trueachievementTotal = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2024 && x.CompletionDate.Value.Month == DateTime.Now.AddMonths(-1).Month)
+																						.Sum(x => x.TrueAchievement);
+			var completions = playerGames.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Year == 2024 && x.CompletionDate.Value.Month == DateTime.Now.AddMonths(-1).Month)
+																		.Count(x => x.CompletionDate != null);
+
+			var stats = new {
+				Player = user!.Gamertag,
+				Gamerscore = gamerscoreTotal,
+				TrueAchievement = trueachievementTotal,
+				Ratio = trueachievementTotal == 0 ? 0 : Math.Round((decimal)((decimal)trueachievementTotal! / gamerscoreTotal!), 4),
+				TAD = trueachievementTotal == 0 ? 0 : trueachievementTotal - gamerscoreTotal,
+				Completions = completions
+			};
+
+			statSpread.Add(stats);
+		}
+
+		return Ok(statSpread);
 	}
 }

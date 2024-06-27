@@ -139,10 +139,11 @@ public class StatsController : ControllerBase {
 			var aprBonus = _context.AprRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var mayBonus = _context.MayRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var junBonus = _context.JunRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var julBonus = _context.JulyRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
 			playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + abcChallenge +
 																		janBonus + febBonus + marBonus + aprBonus +
-																		mayBonus + junBonus +
+																		mayBonus + junBonus + julBonus +
 																		tavisBonus + communityStarBonus + retirementBonus;
 			playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
@@ -444,8 +445,56 @@ public class StatsController : ControllerBase {
 		return Ok();
 	}
 
+	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+	[Route("calcMonthlyBonus2")]
+	public IActionResult CalcMonthlyBonusJuly()
+	{
+		var players = _bcmService.GetPlayers();
+		var leaderboardList = new List<Ranking>();
+
+		var communityBonus = _statsService.CalcJulyCommunityGoal();
+
+		_context.JulyRecap.RemoveRange(_context.JulyRecap.ToList());
+		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 7));
+
+		foreach (var player in players) {
+			var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+			var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+			var playerCompletions = _context.BcmPlayerGames
+																			.Include(x => x.Game)
+																			.Where(x => x.PlayerId == player.Id &&
+																				x.CompletionDate != null &&
+																				x.CompletionDate >= _bcmService.GetContestStartDate() &&
+																				x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
+																				x.CompletionDate!.Value.Year == 2024 &&
+																				x.CompletionDate!.Value.Month == 7)
+																			.AsEnumerable()
+																			.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+																			.ToList();
+
+			var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)
+																														&& !_context.MonthlyExclusions.Any(y => y.PlayerId == player.Id && y.GameId == x.GameId)).ToList();
+
+			_statsService.CalcJulyBonus(player, gamesCompletedThisMonth, communityBonus);
+		}
+
+		foreach (var player in players) {
+			var stats = _context.JulyRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+			if (stats != null) {
+				var ranking = _context.JulyRecap.OrderByDescending(x => x.TotalPoints).ToList();
+				int rank = ranking.FindIndex(x => x.Id == stats.Id);
+				stats.Rank = rank + 1;
+			}
+		}
+
+		_context.SaveChanges();
+
+		return Ok();
+	}
+
 	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-	//[Route("calcMonthlyBonus")]
+	//[Route("calcMonthlyBonus2")]
 	//public IActionResult CalcMonthlyBonusMay()
 	//{
 	//	var players = _context.BcmPlayers!.Include(u => u.User).Include(m => m.MayRecap).ToList();
@@ -477,8 +526,8 @@ public class StatsController : ControllerBase {
 
 	//	if (floorCount >= 150) {
 	//		foreach (var recap in _context.MayRecap.ToList()) {
-	//			recap.CommunityBonus = true;
-	//			recap.TotalPoints = recap.TotalPoints + 1000;
+	//			recap.CommunityBonus = recap.Floors > 1 ? true : false;
+	//			recap.TotalPoints = recap.Floors > 1 ? recap.TotalPoints + 1000 : recap.TotalPoints;
 	//		}
 	//	}
 
