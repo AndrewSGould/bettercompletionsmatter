@@ -560,25 +560,28 @@ public class StatsService : IStatsService {
 		_context.SaveChanges();
 	}
 
-
-	public bool CalcJulyCommunityGoal()
+	public int CalcJulyCommunityProgress()
 	{
-		var highlyRatedGamesCount = _context.BcmPlayerGames.Include(x => x.Game)
-																			.Where(x => x.CompletionDate != null && x.CompletionDate.Value.Month == 7 && x.CompletionDate.Value.Year == 2024)
-																			.AsEnumerable()
-																			.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
-																			.SelectMany(x => x.Game!.Title!.ToLower().ToCharArray())
-																			.Count(c => c == 't');
-
-
-		return highlyRatedGamesCount >= 69;
+		return _context.BcmPlayerGames
+									.Include(x => x.Game)
+									.Include(x => x.Game.FeatureList)
+									.Where(x => x.CompletionDate != null
+															&& x.CompletionDate.Value.Month == 7
+															&& x.CompletionDate.Value.Year == 2024
+															&& x.Game.GamersCompleted <= 1773
+															&& (x.Game.FeatureList != null && x.Game.FeatureList.IdAtXbox || x.Game.Gamerscore < 1000))
+									.AsEnumerable() // Switch to client-side evaluation
+									.Where(x => x.Game.Title.ToLower().Contains('t'))
+									.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+									.Count();
 	}
+
 	public void CalcJulyBonus(BcmPlayer player, List<BcmPlayerGame> completedGames, bool communityBonus)
 	{
 		var qualifiedCompletions = completedGames.Where(x => x.Game != null
 																										&& x.Game.FeatureList != null
 																										&& x.Game.Title != null
-																										&& x.Game.FeatureList.IdAtXbox
+																										&& (x.Game.FeatureList.IdAtXbox || x.Game.Gamerscore < 1000)
 																										&& x.Game.GamersCompleted <= 1773
 																										&& x.Game.Title.ToLower().Contains("t"));
 

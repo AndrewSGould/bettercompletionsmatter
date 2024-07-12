@@ -397,62 +397,62 @@ public class StatsController : ControllerBase {
 	//}
 
 
+	//[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
+	//[Route("calcMonthlyBonus2")]
+	//public IActionResult CalcMonthlyBonusJun()
+	//{
+	//	var players = _bcmService.GetPlayers();
+	//	var leaderboardList = new List<Ranking>();
+
+	//	var communityBonus = _statsService.CalcJunCommunityGoal();
+
+	//	_context.JunRecap.RemoveRange(_context.JunRecap.ToList());
+	//	_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 6));
+
+	//	foreach (var player in players) {
+	//		var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
+	//		var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+
+	//		var playerCompletions = _context.BcmPlayerGames
+	//																		.Include(x => x.Game)
+	//																		.Where(x => x.PlayerId == player.Id &&
+	//																			x.CompletionDate != null &&
+	//																			x.CompletionDate >= _bcmService.GetContestStartDate() &&
+	//																			x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
+	//																			x.CompletionDate!.Value.Year == 2024 &&
+	//																			x.CompletionDate!.Value.Month == 6)
+	//																		.AsEnumerable()
+	//																		.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+	//																		.ToList();
+
+	//		var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)
+	//																													&& !_context.MonthlyExclusions.Any(y => y.PlayerId == player.Id && y.GameId == x.GameId)).ToList();
+
+	//		_statsService.CalcJunBonus(player, gamesCompletedThisMonth, communityBonus);
+	//	}
+
+	//	foreach (var player in players) {
+	//		var junStats = _context.JunRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+	//		if (junStats != null) {
+	//			var junRanking = _context.JunRecap.OrderByDescending(x => x.TotalPoints).ToList();
+	//			int rank = junRanking.FindIndex(x => x.Id == junStats.Id);
+	//			junStats.Rank = rank + 1;
+	//		}
+	//	}
+
+	//	_context.SaveChanges();
+
+	//	return Ok();
+	//}
+
 	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
 	[Route("calcMonthlyBonus")]
-	public IActionResult CalcMonthlyBonusJun()
-	{
-		var players = _bcmService.GetPlayers();
-		var leaderboardList = new List<Ranking>();
-
-		var communityBonus = _statsService.CalcJunCommunityGoal();
-
-		_context.JunRecap.RemoveRange(_context.JunRecap.ToList());
-		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 6));
-
-		foreach (var player in players) {
-			var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
-			var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
-
-			var playerCompletions = _context.BcmPlayerGames
-																			.Include(x => x.Game)
-																			.Where(x => x.PlayerId == player.Id &&
-																				x.CompletionDate != null &&
-																				x.CompletionDate >= _bcmService.GetContestStartDate() &&
-																				x.CompletionDate >= userRegDate!.Value.AddDays(-1) &&
-																				x.CompletionDate!.Value.Year == 2024 &&
-																				x.CompletionDate!.Value.Month == 6)
-																			.AsEnumerable()
-																			.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
-																			.ToList();
-
-			var gamesCompletedThisMonth = playerCompletions.Where(x => !BcmRule.UpdateExclusions.Any(y => y.Id == x.GameId)
-																														&& !_context.MonthlyExclusions.Any(y => y.PlayerId == player.Id && y.GameId == x.GameId)).ToList();
-
-			_statsService.CalcJunBonus(player, gamesCompletedThisMonth, communityBonus);
-		}
-
-		foreach (var player in players) {
-			var junStats = _context.JunRecap.FirstOrDefault(x => x.PlayerId == player.Id);
-			if (junStats != null) {
-				var junRanking = _context.JunRecap.OrderByDescending(x => x.TotalPoints).ToList();
-				int rank = junRanking.FindIndex(x => x.Id == junStats.Id);
-				junStats.Rank = rank + 1;
-			}
-		}
-
-		_context.SaveChanges();
-
-		return Ok();
-	}
-
-	[HttpPost, Authorize(Roles = "Admin, Bcm Admin")]
-	[Route("calcMonthlyBonus2")]
 	public IActionResult CalcMonthlyBonusJuly()
 	{
 		var players = _bcmService.GetPlayers();
 		var leaderboardList = new List<Ranking>();
 
-		var communityBonus = _statsService.CalcJulyCommunityGoal();
+		var communityBonus = _statsService.CalcJulyCommunityProgress() >= 342;
 
 		_context.JulyRecap.RemoveRange(_context.JulyRecap.ToList());
 		_context.MonthlyExclusions.RemoveRange(_context.MonthlyExclusions.Where(x => x.Challenge == 7));

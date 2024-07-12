@@ -55,6 +55,13 @@ public class MonthlyController : ControllerBase {
 		return Ok(recap);
 	}
 
+	[HttpGet, Route("jul-leaderboard")]
+	public async Task<IActionResult> GetJulLeaderboard()
+	{
+		var recap = await _context.JulyRecap.ToListAsync();
+		return Ok(recap);
+	}
+
 	[Authorize(Roles = "Participant")]
 	[HttpGet, Route("challenges")]
 	public async Task<IActionResult> GetChallenges(string player)
