@@ -21,9 +21,10 @@ public class BcmController : ControllerBase {
 	private readonly IBcmService _bcmService;
 	private readonly IUserService _userService;
 	private readonly IDiscordService _discordService;
+	private readonly IStatsService _statsService;
 	private static readonly Random rand = new Random();
 
-	public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService, IUserService userService, IDiscordService discordService)
+	public BcmController(TavisContext context, IParser parser, IDataSync dataSync, IBcmService bcmService, IUserService userService, IDiscordService discordService, IStatsService statsService)
 	{
 		_context = context;
 		_parser = parser;
@@ -31,6 +32,7 @@ public class BcmController : ControllerBase {
 		_bcmService = bcmService;
 		_userService = userService;
 		_discordService = discordService;
+		_statsService = statsService;
 	}
 
 	[HttpGet, Authorize(Roles = "Guest")]
@@ -276,8 +278,7 @@ public class BcmController : ControllerBase {
 
 		communityGames = communityGames.Where(x => Queries.FilterGamesForYearlies(x.Game!, x)).ToList();
 
-		var progress = communityGames.SelectMany(x => x.Game!.Title!.ToLower().ToCharArray())
-																				.Count(c => c == 't');
+		var progress = _statsService.CalcJulyCommunityProgress();
 
 		return Ok(new {
 			recap?.Participation,
