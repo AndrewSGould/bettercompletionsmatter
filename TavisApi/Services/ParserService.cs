@@ -1,5 +1,5 @@
 using System.Globalization;
-using Tavis.Models;
+using TavisApi.V2.TrueAchievements.Models;
 
 namespace TavisApi.Services {
 	//TODO: should this instead be a collection of static classes?

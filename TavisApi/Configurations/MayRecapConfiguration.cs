@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tavis.Models;
+using TavisApi.V2.Bcm.Models;
 
-namespace TavisApi.Configurations
-{
-	public class MayRecapConfiguration : IEntityTypeConfiguration<MayRecap>
-	{
+namespace TavisApi.Configurations {
+	public class MayRecapConfiguration : IEntityTypeConfiguration<MayRecap> {
 		public void Configure(EntityTypeBuilder<MayRecap> builder)
 		{
 			builder.HasKey(x => x.Id);

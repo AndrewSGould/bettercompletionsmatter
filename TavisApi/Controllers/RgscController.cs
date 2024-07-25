@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using Tavis.Models;
 using TavisApi.ContestRules;
 using TavisApi.Context;
 using TavisApi.Services;
+using TavisApi.V2.Bcm.Rgsc.Models;
 
 [ApiController]
 [Route("[controller]")]
@@ -25,11 +25,6 @@ public class RgscController : ControllerBase {
 		_dataSync = dataSync;
 		_rgscService = rgscService;
 		_bcmService = bcmService;
-	}
-
-	public class RandomRoll {
-		public string? selectedPlayer { get; set; }
-		public int? selectedGameId { get; set; }
 	}
 
 	[HttpPost, Authorize(Roles = "Admin")]
@@ -64,7 +59,7 @@ public class RgscController : ControllerBase {
 			rolledRandom.RerollDate = DateTime.UtcNow;
 		}
 
-		var nextChallenge = 7;
+		var nextChallenge = 8;
 
 		if (randomGameOptions is null || randomGameOptions?.Count() < 50) {
 			if (roll.selectedGameId == -1 && rolledRandom is null) {

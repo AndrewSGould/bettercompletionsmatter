@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Tavis.Models;
 using TavisApi.V2.Authentication;
+using TavisApi.V2.Bcm.Models;
+using TavisApi.V2.Discord.Models;
 
 namespace TavisApi.V2.Users;
 

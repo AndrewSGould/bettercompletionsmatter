@@ -9,6 +9,7 @@ using Tavis.Models;
 using TavisApi.Context;
 using TavisApi.Services;
 using TavisApi.V2.Authentication;
+using TavisApi.V2.Discord.Models;
 using TavisApi.V2.Users;
 
 [Route("[controller]")]

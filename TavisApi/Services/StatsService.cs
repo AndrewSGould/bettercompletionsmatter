@@ -3,7 +3,9 @@ using Tavis.Extensions;
 using Tavis.Models;
 using TavisApi.ContestRules;
 using TavisApi.Context;
-using TavisApi.Models;
+using TavisApi.V2.Bcm.Models;
+using TavisApi.V2.Models;
+using TavisApi.V2.TrueAchievements.Models;
 
 namespace TavisApi.Services;
 
@@ -143,7 +145,7 @@ public class StatsService : IStatsService {
 
 		var hasCompleted360Game = completedGames.Count(x => x.Platform == Platform.Xbox360) > 0;
 
-		var playerJanStats = _context.JanRecap.Add(new Tavis.Models.JanRecap {
+		var playerJanStats = _context.JanRecap.Add(new JanRecap {
 			Gamertag = player.User!.Gamertag!,
 			Bucket1Points = bucket1Points,
 			Bucket1Comps = bucket1Comps,
@@ -895,7 +897,7 @@ public class StatsService : IStatsService {
 
 		var playerMetCommunityBonus = communityBonusReached && (triComps > 0 || quadComps > 0 || quintComps > 0 || sexComps > 0 || sepComps > 0 || octComps > 0 || decComps > 0 || undeComps > 0 || duodeComps > 0);
 
-		var playerFebStats = _context.FebRecap.Add(new Tavis.Models.FebRecap {
+		var playerFebStats = _context.FebRecap.Add(new FebRecap {
 			Gamertag = player.User!.Gamertag!,
 			BiCompletion = biComps,
 			BiPoints = biPoints,

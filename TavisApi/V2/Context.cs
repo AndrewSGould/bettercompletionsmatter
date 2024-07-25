@@ -5,8 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tavis.Models;
 using TavisApi.Configurations;
-using TavisApi.Models;
 using TavisApi.V2.Authentication;
+using TavisApi.V2.Bcm.Models;
+using TavisApi.V2.Bcm.Rgsc.Models;
+using TavisApi.V2.Discord.Models;
+using TavisApi.V2.Models;
+using TavisApi.V2.TrueAchievements.Models;
 using TavisApi.V2.Users;
 
 namespace TavisApi.Context {

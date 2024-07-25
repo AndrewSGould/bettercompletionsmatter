@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Tavis.Extensions;
-using Tavis.Models;
 using TavisApi.ContestRules;
 using TavisApi.Context;
+using TavisApi.V2.Bcm.Models;
+using TavisApi.V2.Models;
+using TavisApi.V2.TrueAchievements.Models;
 
 namespace TavisApi.Services;
 

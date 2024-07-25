@@ -10,6 +10,7 @@ using Tavis.Extensions;
 using Tavis.Models;
 using TavisApi.Context;
 using TavisApi.Services;
+using TavisApi.V2.Bcm.Models;
 using TavisApi.V2.Users;
 
 [ApiController]

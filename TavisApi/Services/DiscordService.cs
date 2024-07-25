@@ -2,8 +2,8 @@ using Discord;
 using Discord.Rest;
 using dotenv.net;
 using Microsoft.EntityFrameworkCore;
-using Tavis.Models;
 using TavisApi.Context;
+using TavisApi.V2.Discord.Models;
 using TavisApi.V2.Users;
 
 namespace TavisApi.Services;

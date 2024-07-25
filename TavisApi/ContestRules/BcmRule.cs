@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
-using Tavis.Models;
+using TavisApi.V2.Models;
+using TavisApi.V2.TrueAchievements.Models;
 
 namespace TavisApi.ContestRules;
 

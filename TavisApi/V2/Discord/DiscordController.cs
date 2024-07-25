@@ -3,6 +3,7 @@ using Discord.Rest;
 using Microsoft.AspNetCore.Mvc;
 using TavisApi.Context;
 using TavisApi.V2.Authentication;
+using TavisApi.V2.Discord.Models;
 using TavisApi.V2.Users;
 
 namespace TavisApi.V2.Discord;
@@ -53,8 +54,29 @@ public class DiscordControllerV2 : ControllerBase {
 		catch (Exception ex) {
 			return BadRequest("Existence is pain: " + ex.Message);
 		}
+	}
 
-		// TODO: 
+	[HttpPost("resyncroles")]
+	public async Task<IActionResult> ResyncDiscordRoles()
+	{
+		try {
+			var user = _userService.GetCurrentUser();
+			var dLogin = _context.DiscordLogins.FirstOrDefault(x => x.UserId == user.Id);
+
+			if (dLogin is null || dLogin.AccessToken is null) return Unauthorized();
+
+			var discordProfile = await _discordService.Connect(dLogin.AccessToken, user);
+			var token = await _tokenService.RegenerateTokenWithRoles(user);
+
+			return Ok(new AuthenticatedResponse {
+				Token = token.access,
+				RefreshToken = token.refresh,
+				Roles = token.roles
+			});
+		}
+		catch (Exception ex) {
+			return BadRequest("Existence is pain: " + ex.Message);
+		}
 	}
 
 	[HttpGet("ping")]

@@ -7,6 +7,9 @@ using System.Net;
 using Tavis.Extensions;
 using Tavis.Models;
 using TavisApi.Context;
+using TavisApi.V2.Bcm.Models;
+using TavisApi.V2.Models;
+using TavisApi.V2.TrueAchievements.Models;
 using static TavisApi.Services.TA_GameCollection;
 
 namespace TavisApi.Services;

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TavisApi.Models;
+using TavisApi.V2.Bcm.Rgsc.Models;
 using TavisApi.V2.Users;
 
-namespace Tavis.Models;
+namespace TavisApi.V2.Bcm.Models;
 
 public class BcmPlayer {
 	[Key]

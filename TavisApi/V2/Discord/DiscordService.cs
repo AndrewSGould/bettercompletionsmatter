@@ -2,8 +2,8 @@ using Discord;
 using Discord.Rest;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Tavis.Models;
 using TavisApi.Context;
+using TavisApi.V2.Discord.Models;
 using TavisApi.V2.Users;
 using TavisApi.V2.Utils;
 

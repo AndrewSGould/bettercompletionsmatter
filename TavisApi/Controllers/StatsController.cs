@@ -12,6 +12,7 @@ using TavisApi.ContestRules;
 using TavisApi.Context;
 using TavisApi.Models;
 using TavisApi.Services;
+using TavisApi.V2.Bcm.Models;
 
 [ApiController]
 [Route("[controller]")]

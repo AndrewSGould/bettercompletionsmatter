@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Tavis.Models;
 using TavisApi.Context;
 using TavisApi.Services;
+using TavisApi.V2.Models;
 
 namespace TavisApi.Controllers;
 

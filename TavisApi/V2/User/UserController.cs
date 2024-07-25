@@ -8,7 +8,7 @@ using TavisApi.V2.Authentication;
 
 namespace TavisApi.V2.Users;
 
-[Route("[controller]")]
+[Route("/v2/user/")]
 [ApiController]
 public class UserControllerV2 : ControllerBase {
 	private readonly TavisContext _context;

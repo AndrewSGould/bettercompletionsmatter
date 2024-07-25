@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tavis.Models;
 using TavisApi.V2.Authentication;
+using TavisApi.V2.Bcm.Models;
+using TavisApi.V2.Discord.Models;
 using TavisApi.V2.Users;
 
 namespace TavisApi.Context;

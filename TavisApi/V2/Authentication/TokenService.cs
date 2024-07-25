@@ -110,8 +110,28 @@ public class TokenServiceV2 : ITokenServiceV2 {
 		return (accessToken, refreshToken, userRoles);
 	}
 
+	public string? RefreshToken(string accessToken)
+	{
+		var principal = GetPrincipalFromExpiredToken(accessToken);
+		var gamertag = principal.Identity?.Name; //this is mapped to the Name claim by default
+		var user = _context.Logins.SingleOrDefault(u => u.User.Gamertag == gamertag);
+
+		if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+			return null;
+
+		var newAccessToken = GenerateAccessToken(principal.Claims);
+		var newRefreshToken = GenerateRefreshToken();
+		user.RefreshToken = newRefreshToken;
+
+		_context.SaveChanges();
+
+		return newAccessToken;
+	}
+
 	public ClaimsPrincipal? ValidateToken(string token)
 	{
+		if (token == null) return null;
+
 		var encryptionKey = _utils.GetEnvVar("ENCRYPTION_KEY");
 
 		var tokenValidationParameters = new TokenValidationParameters {
@@ -131,6 +151,19 @@ public class TokenServiceV2 : ITokenServiceV2 {
 			if (!IsJwtWithValidSecurityAlgorithm(validatedToken)) return null;
 
 			return principal;
+		}
+		catch (SecurityTokenExpiredException) {
+			// Token is expired, attempt token refresh here
+			var refreshedToken = RefreshToken(token);
+			var refreshedPrincipal = ValidateToken(refreshedToken);
+
+			if (refreshedPrincipal != null) {
+				// Token refresh successful, return the refreshed principal
+				return refreshedPrincipal;
+			}
+
+			// Token refresh failed or other error handling
+			return null;
 		}
 		catch (Exception) {
 			// Token validation failed

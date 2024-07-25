@@ -1,5 +1,5 @@
 using Discord.Rest;
-using Tavis.Models;
+using TavisApi.V2.Discord.Models;
 using TavisApi.V2.Users;
 
 namespace TavisApi.Services;

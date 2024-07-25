@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Tavis.Models;
+namespace TavisApi.V2.Bcm.Models;
 
 public class MayRecap {
 	[Key]
