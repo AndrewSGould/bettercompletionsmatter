@@ -81,7 +81,7 @@ builder.Services.AddSession(options => {
 builder.Services.AddCors(options => {
 	options.AddPolicy("CorsPolicy", build => build
 			.WithOrigins(builder.Configuration["ServerConfigs:AudienceServer"], builder.Configuration["ServerConfigs:IssuerServer"])
-			.WithOrigins(builder.Configuration["ServerConfigs:AudienceMetaServer"], builder.Configuration["ServerConfigs:IssuerMetaServer"]
+			.WithOrigins(builder.Configuration["ServerConfigs:AudienceMetaServer"], builder.Configuration["ServerConfigs:IssuerMetaServer"])
 			.AllowAnyMethod()
 			.AllowAnyHeader()
 			.AllowCredentials());
