@@ -450,7 +450,7 @@ public class StatsController : ControllerBase {
 	[Route("calcMonthlyBonus")]
 	public IActionResult CalcMonthlyBonusJuly()
 	{
-		var players = _bcmService.GetPlayers();
+		var players = _bcmService.GetPlayers().Where(x => x.User.Gamertag.Contains("WE"));
 		var leaderboardList = new List<Ranking>();
 
 		var communityBonus = _statsService.CalcJulyCommunityProgress() >= 342;

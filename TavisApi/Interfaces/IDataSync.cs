@@ -9,6 +9,6 @@ namespace TavisApi.Services;
 public interface IDataSync {
 	object DynamicSync(List<BcmPlayer> players, SyncOptions syncOptions, SyncHistory syncLog, IHubContext<SyncSignal> hub);
 	TaParseResult ParseTa(long playerId, SyncOptions gcOptions);
-	void ParseGamePages(List<int> gamesToUpdateIds);
+	void ParseGamePages(List<int?> gamesToUpdateIds);
 	void ParseGamesWithGold(ref int page);
 }

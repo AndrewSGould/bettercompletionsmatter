@@ -485,8 +485,10 @@ public class DataSync : IDataSync {
 		_context.SaveChanges();
 	}
 
-	public void ParseGamePages(List<int> gamesToUpdateIds)
+	public void ParseGamePages(List<int?> gamesToUpdateIds)
 	{
+		if (gamesToUpdateIds == null) return;
+
 		var gamesToUpdate = _context.Games!.Where(x => gamesToUpdateIds.Contains(x.Id)).ToList();
 		Console.WriteLine($"Parsing {gamesToUpdate.Count()} games at {DateTime.UtcNow}");
 
