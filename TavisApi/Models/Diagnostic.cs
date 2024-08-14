@@ -1,5 +1,5 @@
-namespace Tavis.Models;
+namespace TavisApi.Models;
 
 public class Diagnostic {
-  public int Id {get; set;}
+	public int Id { get; set; }
 }
