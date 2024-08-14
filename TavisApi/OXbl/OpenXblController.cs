@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using TavisApi.Authentication.Interfaces;
+using TavisApi.Authentication.Models;
 using TavisApi.OXbl.Interfaces;
 using TavisApi.OXbl.Models;
-using TavisApi.User.Interfaces;
+using TavisApi.Users.Interfaces;
+using TavisApi.Users.Models;
 
 namespace TavisApi.OXbl;
 
@@ -64,8 +66,8 @@ public class OpenXblControllerV2 : ControllerBase {
 
 		List<Claim> claims = new()
 				{
-								new Claim(ClaimTypes.Name, oxblProfile.Gamertag),
-						};
+						new Claim(ClaimTypes.Name, oxblProfile.Gamertag!),
+				};
 
 		var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
 
@@ -114,8 +116,8 @@ public class OpenXblControllerV2 : ControllerBase {
 		var response = await _oxblService.Get(xboxLogin.Password, "account", targetXuid);
 
 		string responseContent = await response.Content.ReadAsStringAsync();
-		oxblProfiles = JsonConvert.DeserializeObject<XblProfiles>(responseContent);
+		oxblProfiles = JsonConvert.DeserializeObject<XblProfiles>(responseContent)!;
 
-		return Ok(oxblProfiles?.ProfileUsers[0]);
+		return Ok(oxblProfiles?.ProfileUsers![0]);
 	}
 }

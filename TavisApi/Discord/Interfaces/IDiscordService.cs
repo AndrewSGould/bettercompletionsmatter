@@ -1,4 +1,5 @@
 using Discord.Rest;
+using TavisApi.Users.Models;
 
 namespace TavisApi.Discord.Interfaces;
 

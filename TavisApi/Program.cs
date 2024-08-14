@@ -12,11 +12,10 @@ using TavisApi.Discord.Interfaces;
 using TavisApi.Models;
 using TavisApi.OXbl;
 using TavisApi.OXbl.Interfaces;
-using TavisApi.Services;
 using TavisApi.TrueAchievements;
 using TavisApi.TrueAchievements.Interfaces;
-using TavisApi.User;
-using TavisApi.User.Interfaces;
+using TavisApi.Users;
+using TavisApi.Users.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,10 +100,6 @@ builder.Services.AddMvc().AddNewtonsoftJson(options => options.SerializerSetting
 builder.Services.AddScoped<IParser, Parser>();
 builder.Services.AddScoped<IDataSync, DataSync>();
 builder.Services.AddScoped<ITA_GameCollection, TA_GameCollection>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IOpenXblService, OpenXblService>();
-builder.Services.AddScoped<IDiscordService, DiscordService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDiscordServiceV2, DiscordServiceV2>();
 builder.Services.AddScoped<ITokenServiceV2, TokenServiceV2>();
 builder.Services.AddScoped<IUserServiceV2, UserServiceV2>();

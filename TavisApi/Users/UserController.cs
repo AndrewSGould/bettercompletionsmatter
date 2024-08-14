@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TavisApi.Authentication.Interfaces;
-using TavisApi.User.Interfaces;
+using TavisApi.Users.Interfaces;
 
 
 namespace TavisApi.Users;

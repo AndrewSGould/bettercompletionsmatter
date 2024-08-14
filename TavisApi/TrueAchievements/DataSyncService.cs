@@ -131,8 +131,8 @@ public class DataSync : IDataSync {
 	private void RemoveGamesFromCollection(List<TA_CollectionEntry> incomingData, Player player, SyncOptions gcOptions)
 	{
 		// Only remove Games from collection if we are doing a full or rgsc sync
-		if (gcOptions.CompletionStatus.Value != SyncOption_CompletionStatus.All.Value) return;
-		if (gcOptions.ContestStatus.Value != SyncOption_ContestStatus.All.Value) return;
+		if (gcOptions.CompletionStatus?.Value != SyncOption_CompletionStatus.All.Value) return;
+		if (gcOptions.ContestStatus?.Value != SyncOption_ContestStatus.All.Value) return;
 		if (gcOptions.DateCutoff != null) return;
 		if (gcOptions.LastUnlockCutoff != null) return;
 
@@ -367,7 +367,7 @@ public class DataSync : IDataSync {
 		// lets figure out and update it if its the first time we see it in the players collection
 		var taIds = _context.PlayerGames
 										.Where(x => x.PlayerId == player.Id)
-										.Select(x => x.Game.TrueAchievementId)
+										.Select(x => x.Game!.TrueAchievementId)
 										.ToList();
 
 		var newCollectionEntries = incomingData
@@ -438,7 +438,7 @@ public class DataSync : IDataSync {
 	{
 		// always use the TA estimate if it's not empty
 		if (scannedGame.FullCompletionEstimate != null) {
-			tavisGame.ManuallyScored = false;
+			//tavisGame.ManuallyScored = false;
 			return scannedGame.FullCompletionEstimate;
 		}
 
@@ -447,17 +447,19 @@ public class DataSync : IDataSync {
 			return scannedGame.BaseCompletionEstimate;
 
 		// otherwise return nothing to be manually scored, unless it's already been manually scored
-		return tavisGame.ManuallyScored
-										? tavisGame.FullCompletionEstimate
-										: null;
+		//return tavisGame.ManuallyScored
+		//								? tavisGame.FullCompletionEstimate
+		//								: null;
+
+		return null;
 	}
 
 	private void UpdateCollectionInformation(List<TA_CollectionEntry> incomingData, List<int> taGameIdList, Player player)
 	{
 		var knownEntries = incomingData.Where(incData => taGameIdList.Contains(incData.GameId));
 		var entriesToUpdate = _context.PlayerGames!.Where(x => x.PlayerId == player.Id)
-																																																						.Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
-																																																						.Where(x => knownEntries.Select(y => y.GameId).Contains(x.g.TrueAchievementId));
+														.Join(_context.Games!, pg => pg.GameId, g => g.Id, (pg, g) => new { pg, g })
+														.Where(x => knownEntries.Select(y => y.GameId).Contains(x.g.TrueAchievementId));
 
 		foreach (var entryToUpdate in entriesToUpdate) {
 			var knownEntry = knownEntries.First(x => x.GameId == entryToUpdate.g.TrueAchievementId);
@@ -569,7 +571,7 @@ public class DataSync : IDataSync {
 		var splitFeatures = features?.Split(new string[] { ", " }, StringSplitOptions.None);
 
 
-		var featureListToUpdate = _context.FeatureLists!.FirstOrDefault(x => x.Game.Id == game.Id);
+		var featureListToUpdate = _context.FeatureLists!.FirstOrDefault(x => x.Game!.Id == game.Id);
 		if (featureListToUpdate != null) {
 			featureListToUpdate.BackwardsCompat = false;
 			featureListToUpdate.CloudGaming = false;

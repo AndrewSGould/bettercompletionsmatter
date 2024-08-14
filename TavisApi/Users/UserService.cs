@@ -1,5 +1,6 @@
 using TavisApi.Authentication.Interfaces;
-using TavisApi.User.Interfaces;
+using TavisApi.Users.Interfaces;
+using TavisApi.Users.Models;
 
 namespace TavisApi.Users;
 
@@ -23,7 +24,7 @@ public class UserServiceV2 : IUserServiceV2 {
 		}
 
 		// Try to rehydrate the identity using JWT token
-		var token = _tokenService.ExtractJwtTokenFromRequest(_httpContextAccessor.HttpContext.Request);
+		var token = _tokenService.ExtractJwtTokenFromRequest(_httpContextAccessor.HttpContext!.Request);
 		if (token == null) return null;
 
 		var claimsPrincipal = _tokenService.ValidateToken(token);

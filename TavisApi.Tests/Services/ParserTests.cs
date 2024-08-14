@@ -60,7 +60,7 @@ public class ParserTests {
 	public void Properly_Parses_Game_Platform(string unparsedPlatform, string expectedPlatform)
 	{
 		var parsedResult = _parse.GamePlatform(unparsedPlatform);
-		Assert.IsType(typeof(Platform), parsedResult);
+		Assert.IsType<Platform>(parsedResult);
 		Assert.Equal(parsedResult.Name, expectedPlatform);
 	}
 
@@ -116,7 +116,7 @@ public class ParserTests {
 	public void Properly_Parses_TaDate()
 	{
 		DateTime? parsedDate = _parse.TaDate("10 Oct 14");
-		Assert.IsType(typeof(DateTime), parsedDate);
+		Assert.IsType<DateTime>(parsedDate);
 	}
 
 	[Fact]
@@ -124,7 +124,7 @@ public class ParserTests {
 	{
 		//TODO: actually check if its today
 		DateTime? parsedDate = _parse.TaDate("Today");
-		Assert.IsType(typeof(DateTime), parsedDate);
+		Assert.IsType<DateTime>(parsedDate);
 	}
 
 	[Fact]
@@ -132,7 +132,7 @@ public class ParserTests {
 	{
 		//TODO: actually check if its yesterday
 		DateTime? parsedDate = _parse.TaDate("Yesterday");
-		Assert.IsType(typeof(DateTime), parsedDate);
+		Assert.IsType<DateTime>(parsedDate);
 	}
 
 	[Fact]
@@ -140,7 +140,7 @@ public class ParserTests {
 	{
 		//TODO: actually check if its tomorrow
 		DateTime? parsedDate = _parse.TaDate("Tomorrow");
-		Assert.IsType(typeof(DateTime), parsedDate);
+		Assert.IsType<DateTime>(parsedDate);
 	}
 
 	[Fact]
@@ -155,14 +155,14 @@ public class ParserTests {
 	public void Properly_Parses_TaDate_MMDDYYYYString()
 	{
 		DateTime? parsedDate = _parse.TaDate("01/01/1900");
-		Assert.IsType(typeof(DateTime), parsedDate);
+		Assert.IsType<DateTime>(parsedDate);
 	}
 
 	[Fact]
 	public void Properly_Parses_TaDate_4DigitString()
 	{
 		DateTime? parsedDate = _parse.TaDate("1900");
-		Assert.IsType(typeof(DateTime), parsedDate);
+		Assert.IsType<DateTime>(parsedDate);
 	}
 
 	[Theory]
@@ -182,7 +182,7 @@ public class ParserTests {
 	public void Properly_Parses_Game_Ownership(string unparsedOwnership, string expectedOwnership)
 	{
 		var parsedResult = _parse.GameOwnership(unparsedOwnership);
-		Assert.IsType(typeof(Ownership), parsedResult);
+		Assert.IsType<Ownership>(parsedResult);
 		Assert.Equal(parsedResult.Name, expectedOwnership);
 	}
 
@@ -204,7 +204,7 @@ public class ParserTests {
 	[InlineData("0", 0.0)]
 	[InlineData("1.0038", 1.0038)]
 	[InlineData("19.8733", 19.8733)]
-	public void Properly_Parses_DecimalString(string unparsedDecimal, double expectedDecimal)
+	public void Properly_Parses_DecimalString(string? unparsedDecimal, double expectedDecimal)
 	{
 		var parsedDecimal = _parse.DecimalString(unparsedDecimal);
 		Assert.Equal(parsedDecimal, expectedDecimal);

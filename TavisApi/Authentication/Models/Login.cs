@@ -1,6 +1,7 @@
 using EntityFrameworkCore.EncryptColumn.Attribute;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TavisApi.Users.Models;
 
 namespace TavisApi.Authentication.Models;
 

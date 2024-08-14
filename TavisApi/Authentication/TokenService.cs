@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using TavisApi.Authentication.Interfaces;
+using TavisApi.Users.Models;
 
 namespace TavisApi.Authentication;
 
@@ -153,7 +154,7 @@ public class TokenServiceV2 : ITokenServiceV2 {
 		catch (SecurityTokenExpiredException) {
 			// Token is expired, attempt token refresh here
 			var refreshedToken = RefreshToken(token);
-			var refreshedPrincipal = ValidateToken(refreshedToken);
+			var refreshedPrincipal = ValidateToken(refreshedToken!);
 
 			if (refreshedPrincipal != null) {
 				// Token refresh successful, return the refreshed principal

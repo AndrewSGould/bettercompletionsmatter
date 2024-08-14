@@ -1,6 +1,7 @@
 namespace TavisApi.Authentication;
 
 using dotenv.net;
+using global::Discord.Rest;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -12,7 +13,8 @@ using TavisApi.Discord.Interfaces;
 using TavisApi.Discord.Models;
 using TavisApi.OXbl.Interfaces;
 using TavisApi.OXbl.Models;
-using TavisApi.User.Interfaces;
+using TavisApi.Users.Interfaces;
+using TavisApi.Users.Models;
 
 [Route("/v2/auth/")]
 [ApiController]
@@ -43,7 +45,7 @@ public class AuthV2Controller : ControllerBase {
 		var oxblAppKey = envVars.TryGetValue("OXBL_APP_KEY", out var key) ? key : null;
 		if (oxblAppKey is null || oxblAppKey == "") oxblAppKey = Environment.GetEnvironmentVariable("OXBL_APP_KEY")!;
 
-		var oxblAuth = new ConnectAuth {
+		var oxblAuth = new OXblLogin {
 			Code = oxblLogin.OpenXblCode,
 			App_Key = oxblAppKey
 		};
@@ -72,8 +74,8 @@ public class AuthV2Controller : ControllerBase {
 
 		List<Claim> claims = new()
 				{
-								new Claim(ClaimTypes.Name, oxblProfile.Gamertag),
-						};
+						new Claim(ClaimTypes.Name, oxblProfile.Gamertag!),
+				};
 
 		var userRolesWithDetails = user.UserRoles.Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRoles = ur, Roles = r });
 
@@ -108,13 +110,13 @@ public class AuthV2Controller : ControllerBase {
 	{
 		try {
 			User user;
-			Discord.Rest.RestSelfUser discordProfile;
+			RestSelfUser discordProfile;
 
 			try {
 				if (dConnect is null || dConnect.AccessToken is null || dConnect.TokenType is null) return BadRequest("Invalid client request");
 
 				var currentUsername = _userService.GetCurrentUserName();
-				user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == currentUsername);
+				user = _context.Users.Include(u => u.UserRoles).FirstOrDefault(x => x.Gamertag == currentUsername)!;
 
 				if (user is null) return BadRequest("No gamertag matches current user");
 			}
@@ -123,7 +125,7 @@ public class AuthV2Controller : ControllerBase {
 			}
 
 			try {
-				discordProfile = await _discordService.Connect(dConnect, user);
+				discordProfile = await _discordService.Connect(dConnect.AccessToken, user);
 			}
 			catch (Exception ex) {
 				return BadRequest("2: " + ex.Message);

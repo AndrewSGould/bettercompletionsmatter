@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using TavisApi.Users.Models;
 
 namespace TavisApi.Authentication.Interfaces;
 

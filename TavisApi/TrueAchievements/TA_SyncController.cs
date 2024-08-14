@@ -9,6 +9,7 @@ using Tavis.Models;
 using TavisApi;
 using TavisApi.Models;
 using TavisApi.TrueAchievements.Interfaces;
+using TavisApi.TrueAchievements.Models;
 using static TavisApi.TrueAchievements.TA_GameCollection;
 
 [ApiController]
