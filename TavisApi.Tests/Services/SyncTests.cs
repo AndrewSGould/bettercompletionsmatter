@@ -1,15 +1,24 @@
-﻿using TavisApi.Models;
+﻿using Moq;
+using TavisApi.Models;
 using TavisApi.TrueAchievements;
+using TavisApi.TrueAchievements.Interfaces;
 using TavisApi.TrueAchievements.Models;
 
 namespace TavisApi.Tests;
 
 public class SyncTests {
-	DataSync _dataSync;
+	private readonly DataSync _dataSync;
+	private readonly Mock<TavisContext> _mockTavisContext;
+	private readonly Mock<IParser> _mockParser;
+	private readonly Mock<ITA_GameCollection> _mockTAGameCollection;
 
 	public SyncTests()
 	{
-		_dataSync = new DataSync(null, null, null);
+		_mockTavisContext = new Mock<TavisContext>();
+		_mockParser = new Mock<IParser>();
+		_mockTAGameCollection = new Mock<ITA_GameCollection>();
+
+		_dataSync = new DataSync(_mockTavisContext.Object, _mockParser.Object, _mockTAGameCollection.Object);
 	}
 
 	private static List<Game> testGames = new List<Game>();
