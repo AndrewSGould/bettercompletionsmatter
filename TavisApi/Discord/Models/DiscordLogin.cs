@@ -7,14 +7,14 @@ namespace TavisApi.Discord.Models;
 public class DiscordLogin {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-	public long Id { get; set; } // TODO: change my longs to ulongs
+	public ulong Id { get; set; }
 	public ulong DiscordId { get; set; }
 	public string? TokenType { get; set; }
 	[EncryptColumn]
 	public string? AccessToken { get; set; }
 	[EncryptColumn]
 	public string? RefreshToken { get; set; }
-	public long UserId { get; set; }
+	public ulong UserId { get; set; }
 	public User? User { get; set; }
 }
 

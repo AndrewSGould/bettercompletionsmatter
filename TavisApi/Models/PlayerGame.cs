@@ -14,9 +14,9 @@ public class PlayerGame {
 	public bool NotForContests { get; set; } = false;
 
 
-	public long PlayerId { get; set; }
+	public ulong PlayerId { get; set; }
 	public Player? Player { get; set; }
 
-	public int? GameId { get; set; }
+	public ulong? GameId { get; set; }
 	public Game? Game { get; set; }
 }

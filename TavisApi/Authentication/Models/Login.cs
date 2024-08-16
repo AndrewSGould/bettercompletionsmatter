@@ -8,7 +8,7 @@ namespace TavisApi.Authentication.Models;
 public class Login {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-	public long Id { get; set; }
+	public ulong Id { get; set; }
 	[EncryptColumn]
 	public string? Password { get; set; }
 	public string? RefreshToken { get; set; }

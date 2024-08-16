@@ -1,8 +1,8 @@
 namespace TavisApi.TrueAchievements.Models;
 
 public class TA_CollectionEntry {
-	public int Id { get; set; }
-	public int GameId { get; set; }
+	public ulong Id { get; set; }
+	public ulong GameId { get; set; }
 	public string? GameUrl { get; set; }
 	public string? Title { get; set; }
 	public Platform? Platform { get; set; }

@@ -9,7 +9,7 @@ namespace TavisApi.Users.Models;
 public class User {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-	public long Id { get; set; }
+	public ulong Id { get; set; }
 	public string? Xuid { get; set; }
 	public string? Gamertag { get; set; }
 	public string? Avatar { get; set; }
