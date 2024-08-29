@@ -52,7 +52,7 @@ namespace TavisApi.V2.Bcm.Rgsc {
 				rolledRandom.RerollDate = DateTime.UtcNow;
 			}
 
-			var nextChallenge = 7;
+			var nextChallenge = 9;
 
 			if (randomGameOptions is null || randomGameOptions?.Count() < 50) {
 				if (roll.selectedGameId == -1 && rolledRandom is null) {

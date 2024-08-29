@@ -59,7 +59,7 @@ public class RgscController : ControllerBase {
 			rolledRandom.RerollDate = DateTime.UtcNow;
 		}
 
-		var nextChallenge = 8;
+		var nextChallenge = 9;
 
 		if (randomGameOptions is null || randomGameOptions?.Count() < 50) {
 			if (roll.selectedGameId == -1 && rolledRandom is null) {

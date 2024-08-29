@@ -158,10 +158,13 @@ public class AugustController : ControllerBase {
 																	.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
 																	.ToList();
 
+		var warhammerBonus = communityGames.Where(x => WarhammerGameIds.Contains((int)x.GameId!)).Sum(x => x.AchievementCount) * 9;
+
 		var evilCount = nothsGames.Sum(x => x.AchievementCount) + emzGames.Sum(x => x.AchievementCount) ?? 0;
 		var goodCount = communityGames.Sum(x => x.AchievementCount) ?? 0;
+		goodCount += warhammerBonus ?? 0;
 
-		return goodCount - evilCount;
+		return goodCount - evilCount - evilCount;
 	}
 
 	private void CalcAugustBonus(BcmPlayer player, List<BcmPlayerGame> games, List<BcmPlayerGame> ironsGames)
@@ -170,17 +173,19 @@ public class AugustController : ControllerBase {
 
 		var participated = qualifiedCompletions.Count() > 0;
 		var baTribute = qualifiedCompletions.Any(x => x.Platform == V2.TrueAchievements.Models.Platform.Xbox360) ? .05 : 0;
-		var ifTribute = qualifiedCompletions.Any(x => ironsGames.Contains(x)) ? .05 : 0;
+		var ifTribute = qualifiedCompletions.Any(x => ironsGames.Select(x => x.GameId).Contains(x.GameId)) ? .05 : 0;
 
 		var requiredChars = new List<char> { 'w', 'o', 'o', 'f' };
 
 		foreach (var game in qualifiedCompletions) {
 			if (game.Game == null) continue;
 
+			var test = game.Game.Title.ToLower().ToList();
+
 			foreach (var c in requiredChars.ToList()) {
-				if (game.Game.Title.Contains(c)) {
+				if (test.Contains(c)) {
 					requiredChars.Remove(c);
-					break;
+					test.Remove(c);
 				}
 			}
 
@@ -194,6 +199,8 @@ public class AugustController : ControllerBase {
 		var dwTribute = qualifiedCompletions.Any(x => x.Game != null && x.Game.FullCompletionEstimate >= 80) ? 0.05 : 0;
 
 		var tributes = baTribute + ifTribute + swTribute + umTribute + dwTribute;
+
+		var warhammerBonus = qualifiedCompletions.Where(x => WarhammerGameIds.Contains((int)x.GameId!)).Sum(x => x.AchievementCount) * 9;
 
 		var totalPoints = 0;
 
@@ -226,7 +233,7 @@ public class AugustController : ControllerBase {
 		_context.AugustRecap.Add(new AugRecap {
 			PlayerId = player.Id,
 			Gamertag = player.User!.Gamertag!,
-			AchievementCount = qualifiedCompletions.Sum(x => x.AchievementCount),
+			AchievementCount = qualifiedCompletions.Sum(x => x.AchievementCount) + warhammerBonus,
 			BloodAngelTribute = baTribute != 0,
 			ImperialFistTribute = ifTribute != 0,
 			SpaceWolvesTribute = swTribute != 0,
@@ -238,4 +245,9 @@ public class AugustController : ControllerBase {
 
 		_context.SaveChanges();
 	}
+
+	private List<int> WarhammerGameIds = new() {
+		1430, 1282, 378, 5047, 398, 7796, 672, 1193, 1386, 9742, 5387, 1387, 4725, 374, 9853, 1337, 5457, 1258, 4434, 3165, 10055, 4640, 8322, 403, 1392, 8357,
+		8341, 8233, 752, 345, 6571, 1411, 1369, 1158, 8334, 897, 788
+	};
 }
