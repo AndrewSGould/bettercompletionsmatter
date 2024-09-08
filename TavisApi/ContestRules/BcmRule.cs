@@ -31,7 +31,7 @@ public class BcmRule {
 
 	// List of Games that recieved TU/DLC updates to exclude from monthly points
 	public static readonly List<Game> UpdateExclusions = new List<Game> {
-
+		new Game { Id = 0 },
 	};
 
 }

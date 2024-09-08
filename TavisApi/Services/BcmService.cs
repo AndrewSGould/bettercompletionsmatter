@@ -132,8 +132,11 @@ public class BcmService : IBcmService {
 		var julyRecap = _context.JulyRecap.FirstOrDefault(x => x.PlayerId == player.Id);
 		var julyPartipCount = julyRecap != null && julyRecap.Participation ? 1 : 0;
 
+		var sepRecap = _context.SeptemberRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+		var sepRecapCount = sepRecap != null && sepRecap.Participation ? 1 : 0;
+
 		return new {
-			Participation = janPartip + febPartipCount + marPartipCount + aprPartipCount + mayPartipCount + junPartipCount + julyPartipCount,
+			Participation = janPartip + febPartipCount + marPartipCount + aprPartipCount + mayPartipCount + junPartipCount + julyPartipCount + sepRecapCount,
 			CommStarApproved = commStar.Where(x => x.Approved).Count(),
 			CommStarUnapproved = commStar.Where(x => !x.Approved).Count(),
 			TavisApproved = tavis.Where(x => x.Approved).Count(),

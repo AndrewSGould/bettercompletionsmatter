@@ -54,6 +54,7 @@ namespace TavisApi.Context {
 		public DbSet<FakeCompletion> FakeCompletions { get; set; }
 		public DbSet<MayRecap> MayRecap { get; set; }
 		public DbSet<AugRecap> AugustRecap { get; set; }
+		public DbSet<SepRecap> SeptemberRecap { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
@@ -90,6 +91,7 @@ namespace TavisApi.Context {
 			modelBuilder.ApplyConfiguration(new JunRecapConfiguration());
 			modelBuilder.ApplyConfiguration(new JulyRecapConfiguration());
 			modelBuilder.ApplyConfiguration(new AugustRecapConfiguration());
+			modelBuilder.ApplyConfiguration(new SepRecapConfiguration());
 
 			var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
 					v => v.ToUniversalTime(),

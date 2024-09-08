@@ -24,6 +24,7 @@ public class BcmPlayer {
 	public JunRecap? JunRecap { get; set; }
 	public JulyRecap? JulyRecap { get; set; }
 	public AugRecap? AugustRecap { get; set; }
+	public SepRecap? SeptemberRecap { get; set; }
 	public BcmMiscStat? BcmMiscStats { get; set; }
 	public ICollection<BcmRgsc>? BcmRgscs { get; set; }
 }

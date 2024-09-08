@@ -158,13 +158,27 @@ public class AugustController : ControllerBase {
 																	.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
 																	.ToList();
 
+		var halfCommunityGames = _context.BcmPlayerGames
+																	.Include(x => x.Game)
+																	.Where(x => x.PlayerId != 8 && x.PlayerId != 33 &&
+																		x.CompletionDate != null &&
+																		x.CompletionDate >= _bcmService.GetContestStartDate() &&
+																		x.CompletionDate!.Value.Year == 2024 &&
+																		x.CompletionDate!.Value.Month == 8 &&
+																		x.Game != null && x.Game.Gamerscore > 1000)
+																	.AsEnumerable()
+																	.Where(x => Queries.FilterGamesForYearlies(x.Game!, x))
+																	.ToList()
+																	.Sum(x => x.AchievementCount ?? 0) * .5;
+
 		var warhammerBonus = communityGames.Where(x => WarhammerGameIds.Contains((int)x.GameId!)).Sum(x => x.AchievementCount) * 9;
 
 		var evilCount = nothsGames.Sum(x => x.AchievementCount) + emzGames.Sum(x => x.AchievementCount) ?? 0;
 		var goodCount = communityGames.Sum(x => x.AchievementCount) ?? 0;
 		goodCount += warhammerBonus ?? 0;
+		goodCount += (int)Math.Floor(halfCommunityGames);
 
-		return goodCount - evilCount - evilCount;
+		return goodCount - evilCount;
 	}
 
 	private void CalcAugustBonus(BcmPlayer player, List<BcmPlayerGame> games, List<BcmPlayerGame> ironsGames)
@@ -180,7 +194,17 @@ public class AugustController : ControllerBase {
 		foreach (var game in qualifiedCompletions) {
 			if (game.Game == null) continue;
 
-			var test = game.Game.Title.ToLower().ToList();
+			var unwantedStrings = new[] { "(Windows)", "(Xbox 360)", "(Nintendo Switch)", "(Android)" };
+
+			var title = game.Game.Title;
+
+			// Remove unwanted strings
+			foreach (var unwanted in unwantedStrings) {
+				title = title.Replace(unwanted, string.Empty);
+			}
+
+			// Convert to lowercase and then to a list
+			var test = title.ToLower().ToList();
 
 			foreach (var c in requiredChars.ToList()) {
 				if (test.Contains(c)) {
