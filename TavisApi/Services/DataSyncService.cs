@@ -162,8 +162,8 @@ public class DataSync : IDataSync {
 
 		// Have the DB forget about the removed games
 		foreach (var gameId in tavisGameIds) {
-			var removedGame = _context.BcmPlayerGames.Where(x => x.GameId == gameId && x.PlayerId == player.Id).First();
-			_context.BcmPlayerGames.Remove(removedGame);
+			var removedGame = _context.BcmPlayerGames.Where(x => x.GameId == gameId && x.PlayerId == player.Id).FirstOrDefault();
+			if (removedGame != null) _context.BcmPlayerGames.Remove(removedGame);
 		}
 
 		_context.SaveChanges();
