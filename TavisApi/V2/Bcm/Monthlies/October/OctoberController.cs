@@ -28,7 +28,7 @@ public class OctoberController : ControllerBase {
 	}
 
 	[HttpGet, Route("leaderboard")]
-	public async Task<IActionResult> GetSepLeaderboard()
+	public async Task<IActionResult> GetOctLeaderboard()
 	{
 		var recap = await _context.OctoberRecap.ToListAsync();
 		return Ok(recap);
@@ -46,9 +46,18 @@ public class OctoberController : ControllerBase {
 
 		var recap = await _context.OctoberRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id);
 
+		var crimsonCurse = recap.CrimsonCurseRitual ? 1 : 0;
+		var dreadCurse = recap.DreadRitual ? 1 : 0;
+		var mark1Curse = recap.MarkOfTheBeast1Ritual ? 1 : 0;
+		var mark2Curse = recap.MarkOfTheBeast2Ritual ? 1 : 0;
+		var mark3Curse = recap.MarkOfTheBeast3Ritual ? 1 : 0;
 
 		return Ok(new {
-			recap
+			recap.Participation,
+			CurseCount = crimsonCurse + dreadCurse + mark1Curse + mark2Curse + mark3Curse,
+			recap.BoneCount,
+			CommunityBoneCount = _context.OctoberRecap.Sum(x => x.BoneCount),
+			recap.TotalPoints
 		});
 	}
 
@@ -119,6 +128,14 @@ public class OctoberController : ControllerBase {
 		bool hasMark3Curse = false;
 
 		foreach (var completion in games) {
+			hasCrimsonCurse = hasCrimsonCurse ? true : EvalCrimsonCurse(completion.Game!.Title);
+			hasDreadCurse = hasDreadCurse ? true : EvalDreadCurse(completion.StartedDate);
+			hasMark1Curse = hasMark1Curse ? true : EvalMark1Curse(completion.Game!.AchievementCount);
+			hasMark2Curse = hasMark2Curse ? true : EvalMark2Curse(completion.Game!.ReleaseDate);
+			hasMark3Curse = hasMark3Curse ? true : EvalMark3Curse(completion.Game!.FullCompletionEstimate);
+		}
+
+		foreach (var completion in games) {
 			var completionValue = _bcmService.CalcBcmValue(completion.Platform, completion.Game!.SiteRatio, completion.Game!.FullCompletionEstimate) ?? 0;
 
 			var bonusValue = .0;
@@ -129,12 +146,6 @@ public class OctoberController : ControllerBase {
 				bonusValue = .40;
 			else if (completion.Game!.InstallSize >= 10000)
 				bonusValue = .60;
-
-			hasCrimsonCurse = EvalCrimsonCurse(completion.Game!.Title);
-			hasDreadCurse = EvalDreadCurse(completion.StartedDate);
-			hasMark1Curse = EvalMark1Curse(completion.Game!.AchievementCount);
-			hasMark2Curse = EvalMark2Curse(completion.Game!.ReleaseDate);
-			hasMark3Curse = EvalMark3Curse(completion.Game!.FullCompletionEstimate);
 
 			bonusValue += hasCrimsonCurse ? .05 : .0;
 			bonusValue += hasDreadCurse ? .05 : .0;
@@ -168,6 +179,7 @@ public class OctoberController : ControllerBase {
 
 		_context.SaveChanges();
 	}
+
 	private bool EvalCrimsonCurse(string? gameTitle)
 	{
 		if (gameTitle == null) return false;
