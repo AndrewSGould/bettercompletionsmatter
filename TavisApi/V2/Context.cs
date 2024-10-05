@@ -55,6 +55,7 @@ namespace TavisApi.Context {
 		public DbSet<MayRecap> MayRecap { get; set; }
 		public DbSet<AugRecap> AugustRecap { get; set; }
 		public DbSet<SepRecap> SeptemberRecap { get; set; }
+		public DbSet<OctRecap> OctoberRecap { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{

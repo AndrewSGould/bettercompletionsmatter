@@ -141,10 +141,12 @@ public class StatsController : ControllerBase {
 			var mayBonus = _context.MayRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var junBonus = _context.JunRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var julBonus = _context.JulyRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var sepBonus = _context.SeptemberRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var octBonus = _context.OctoberRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 
 			playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + abcChallenge +
 																		janBonus + febBonus + marBonus + aprBonus +
-																		mayBonus + junBonus + julBonus +
+																		mayBonus + junBonus + julBonus + sepBonus + octBonus +
 																		tavisBonus + communityStarBonus + retirementBonus;
 			playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
