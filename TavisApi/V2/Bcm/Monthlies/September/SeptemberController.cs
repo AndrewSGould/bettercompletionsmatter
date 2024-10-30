@@ -94,7 +94,10 @@ public class SeptemberController : ControllerBase {
 		foreach (var player in players) {
 			var stats = _context.SeptemberRecap.FirstOrDefault(x => x.PlayerId == player.Id);
 			if (stats != null) {
-				if (communityAchieved) stats.TotalPoints += 1000;
+				if (communityAchieved && stats.Participation) {
+					stats.TotalPoints += 1000;
+					stats.CommunityBonus = 1000;
+				}
 
 				var ranking = _context.SeptemberRecap.OrderByDescending(x => x.TotalPoints).ToList();
 				int rank = ranking.FindIndex(x => x.Id == stats.Id);
@@ -179,10 +182,12 @@ public class SeptemberController : ControllerBase {
 	private List<BcmPlayerGame> BuildStreak(List<BcmPlayerGame> games)
 	{
 		var pos = StartingGame(games)?.StreakPosition ?? "dev";
+		var startingGame = StartingGame(games)?.Game;
 		var gameList = new List<BcmPlayerGame>();
 		BcmPlayerGame? gameToStreakWith = null;
 
 		for (int i = 0; i < games.Count - 1; i++) {
+			if (startingGame != null && startingGame.CompletionDate!.Value.Day > games[i].CompletionDate!.Value.Day) continue;
 			gameToStreakWith = gameToStreakWith ?? games[i];
 
 			if (pos == "dev") {
