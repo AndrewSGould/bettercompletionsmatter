@@ -24,7 +24,7 @@ public class NovRecap {
 	public int Podium2023_1st { get; set; } = 0;
 	public int Podium2023_2nd { get; set; } = 0;
 	public int Podium2023_3rd { get; set; } = 0;
-	public int CommunityBonus { get; set; } = 0;
+	public bool CommunityBonusQualified { get; set; } = false;
 	public bool Participation { get; set; } = false;
 	public double TotalPoints { get; set; } = 0.0;
 

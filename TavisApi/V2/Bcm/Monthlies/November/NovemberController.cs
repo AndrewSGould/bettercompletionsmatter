@@ -43,10 +43,9 @@ public class NovemberController : ControllerBase {
 		var bcmPlayer = _context.BcmPlayers.FirstOrDefault(x => x.UserId == localuser.Id);
 		if (bcmPlayer is null) return BadRequest("BCM Player not found for the provided user");
 
-		var recap = await _context.SeptemberRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id);
+		var recap = await _context.NovemberRecap.FirstOrDefaultAsync(x => x.PlayerId == bcmPlayer.Id);
 
 		return Ok(new {
-			recap.StreakCount,
 			recap.Participation,
 			recap.TotalPoints
 		});
@@ -128,9 +127,8 @@ public class NovemberController : ControllerBase {
 		foreach (var player in players) {
 			var stats = _context.NovemberRecap.FirstOrDefault(x => x.PlayerId == player.Id);
 			if (stats != null) {
-				if (communityAchieved && stats.Participation) {
+				if (communityAchieved && stats.CommunityBonusQualified) {
 					stats.TotalPoints += 1000;
-					stats.CommunityBonus = 1000;
 				}
 
 				var ranking = _context.NovemberRecap.OrderByDescending(x => x.TotalPoints).ToList();
@@ -313,7 +311,8 @@ public class NovemberController : ControllerBase {
 			}
 
 		recap.Gamertag = player.User!.Gamertag!;
-		recap.Participation = podium1stMet && podium2ndMet && podium3rdMet;
+		recap.Participation = totalPoints > 0;
+		recap.CommunityBonusQualified = podium1stMet && podium2ndMet && podium3rdMet;
 
 		var podiumBonus = 0.0;
 
