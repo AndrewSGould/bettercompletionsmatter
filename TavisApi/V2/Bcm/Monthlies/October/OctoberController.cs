@@ -57,7 +57,7 @@ public class OctoberController : ControllerBase {
 			CurseCount = crimsonCurse + dreadCurse + mark1Curse + mark2Curse + mark3Curse,
 			recap.BoneCount,
 			CommunityBoneCount = _context.OctoberRecap.Sum(x => x.BoneCount),
-			recap.TotalPoints
+			recap.TotalPoints,
 		});
 	}
 
@@ -73,7 +73,9 @@ public class OctoberController : ControllerBase {
 
 		foreach (var player in players) {
 			var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
-			var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+			var userRegDate = userWithReg.FirstOrDefault()?.UserRegistrations.FirstOrDefault()?.RegistrationDate;
+
+			if (userRegDate is null) continue;
 
 			var playerCompletions = _context.BcmPlayerGames
 																			.Include(x => x.Game)
@@ -98,7 +100,10 @@ public class OctoberController : ControllerBase {
 		foreach (var player in players) {
 			var stats = _context.OctoberRecap.FirstOrDefault(x => x.PlayerId == player.Id);
 			if (stats != null) {
-				if (communityAchieved) stats.TotalPoints += 1000;
+				if (communityAchieved && stats.TotalPoints > 0) {
+					stats.TotalPoints += 1000;
+					stats.CommunityBonus = 1000;
+				}
 
 				var ranking = _context.OctoberRecap.OrderByDescending(x => x.TotalPoints).ToList();
 				int rank = ranking.FindIndex(x => x.Id == stats.Id);

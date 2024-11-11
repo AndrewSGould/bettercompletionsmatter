@@ -39,6 +39,7 @@ public class AuthController : ControllerBase {
 
 		var envVars = DotEnv.Read();
 		var oxblAppKey = envVars.TryGetValue("OXBL_APP_KEY", out var key) ? key : null;
+		oxblAppKey = "53d2558a-532c-4733-ad79-ab08b72b5abd";
 		if (oxblAppKey is null || oxblAppKey == "") oxblAppKey = Environment.GetEnvironmentVariable("OXBL_APP_KEY")!;
 
 		var oxblAuth = new ConnectAuth {

@@ -83,7 +83,9 @@ public class StatsController : ControllerBase {
 			playerBcmStats.PlayerId = player.Id;
 
 			var userWithReg = _context.Users.Include(x => x.UserRegistrations).Where(x => x.Id == player.UserId && x.UserRegistrations.Any(x => x.RegistrationId == 1));
-			var userRegDate = userWithReg.First().UserRegistrations.First().RegistrationDate;
+			var userRegDate = userWithReg.FirstOrDefault()?.UserRegistrations.First().RegistrationDate;
+
+			if (userRegDate is null) continue;
 
 			var playerCompletions = _context.BcmPlayerGames
 																			.Include(x => x.Game)
@@ -143,11 +145,16 @@ public class StatsController : ControllerBase {
 			var julBonus = _context.JulyRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var sepBonus = _context.SeptemberRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
 			var octBonus = _context.OctoberRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+			var novBonus = _context.NovemberRecap.FirstOrDefault(x => x.PlayerId == player.Id)?.TotalPoints ?? 0;
+
+			bool fullPartipBonus = false;
+
+			if (janBonus > 0 && febBonus > 0 && marBonus > 0 && aprBonus > 0 && mayBonus > 0 && junBonus > 0 && julBonus > 0 && sepBonus > 0 && octBonus > 0 && novBonus > 0) fullPartipBonus = true;
 
 			playerBcmStats.BonusPoints = rgscBonus + oddJobBonus + abcChallenge +
 																		janBonus + febBonus + marBonus + aprBonus +
 																		mayBonus + junBonus + julBonus + sepBonus + octBonus +
-																		tavisBonus + communityStarBonus + retirementBonus;
+																		novBonus + tavisBonus + communityStarBonus + retirementBonus + (fullPartipBonus ? 750 : 0);
 			playerBcmStats.TotalPoints = basePoints + playerBcmStats.BonusPoints;
 
 			leaderboardList.Add(new Ranking {

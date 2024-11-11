@@ -141,6 +141,9 @@ public class BcmService : IBcmService {
 		var octRecap = _context.OctoberRecap.FirstOrDefault(x => x.PlayerId == player.Id);
 		var octRecapCount = octRecap != null && octRecap.Participation ? 1 : 0;
 
+		var novRecap = _context.NovemberRecap.FirstOrDefault(x => x.PlayerId == player.Id);
+		var novRecapCount = novRecap != null && novRecap.Participation ? 1 : 0;
+
 		return new {
 			Participation = janPartip + febPartipCount + marPartipCount + aprPartipCount + mayPartipCount + junPartipCount + julyPartipCount + augPartipCount + sepRecapCount + octRecapCount,
 			CommStarApproved = commStar.Where(x => x.Approved).Count(),
