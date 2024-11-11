@@ -145,7 +145,7 @@ public class BcmService : IBcmService {
 		var novRecapCount = novRecap != null && novRecap.Participation ? 1 : 0;
 
 		return new {
-			Participation = janPartip + febPartipCount + marPartipCount + aprPartipCount + mayPartipCount + junPartipCount + julyPartipCount + augPartipCount + sepRecapCount + octRecapCount,
+			Participation = janPartip + febPartipCount + marPartipCount + aprPartipCount + mayPartipCount + junPartipCount + julyPartipCount + augPartipCount + sepRecapCount + octRecapCount + novRecapCount,
 			CommStarApproved = commStar.Where(x => x.Approved).Count(),
 			CommStarUnapproved = commStar.Where(x => !x.Approved).Count(),
 			TavisApproved = tavis.Where(x => x.Approved).Count(),

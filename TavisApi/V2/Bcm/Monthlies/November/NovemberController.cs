@@ -47,7 +47,19 @@ public class NovemberController : ControllerBase {
 
 		return Ok(new {
 			recap.Participation,
-			recap.TotalPoints
+			recap.TotalPoints,
+			CommunityPodiums = _context.NovemberRecap
+				.Sum(x => (x.Podium2019_1st) + (x.Podium2019_2nd) + (x.Podium2019_3rd) +
+					(x.Podium2020_1st) + (x.Podium2020_2nd) + (x.Podium2020_3rd) +
+					(x.Podium2021_1st) + (x.Podium2021_2nd) + (x.Podium2021_3rd) +
+					(x.Podium2022_1st) + (x.Podium2022_2nd) + (x.Podium2022_3rd) +
+					(x.Podium2023_1st) + (x.Podium2023_2nd) + (x.Podium2023_3rd)
+				),
+			Podiums2019 = _context.NovemberRecap.Where(x => x.PlayerId == bcmPlayer.Id).Sum(x => (x.Podium2019_1st) + (x.Podium2019_2nd) + (x.Podium2019_3rd)),
+			Podiums2020 = _context.NovemberRecap.Where(x => x.PlayerId == bcmPlayer.Id).Sum(x => (x.Podium2020_1st) + (x.Podium2020_2nd) + (x.Podium2020_3rd)),
+			Podiums2021 = _context.NovemberRecap.Where(x => x.PlayerId == bcmPlayer.Id).Sum(x => (x.Podium2021_1st) + (x.Podium2021_2nd) + (x.Podium2021_3rd)),
+			Podiums2022 = _context.NovemberRecap.Where(x => x.PlayerId == bcmPlayer.Id).Sum(x => (x.Podium2022_1st) + (x.Podium2022_2nd) + (x.Podium2022_3rd)),
+			Podiums2023 = _context.NovemberRecap.Where(x => x.PlayerId == bcmPlayer.Id).Sum(x => (x.Podium2023_1st) + (x.Podium2023_2nd) + (x.Podium2023_3rd)),
 		});
 	}
 
